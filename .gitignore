@@ -6,5 +6,6 @@
 !.clang-format
 !.gitignore
 !CMakeLists.txt
+!preprocess.sh
 
 !README.md
