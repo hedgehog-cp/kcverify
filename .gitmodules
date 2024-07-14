@@ -1,3 +1,6 @@
 [submodule "include/csv/csv-parser"]
 	path = include/csv/csv-parser
 	url = https://github.com/vincentlaucsb/csv-parser.git
+[submodule "include/fixed_string"]
+	path = include/fixed_string
+	url = https://github.com/unterumarmung/fixed_string.git

@@ -9,6 +9,7 @@ add_compile_options(-std=c++23 -Wall -Wextra --pedantic-errors)
 add_compile_options(-march=native)
 
 include_directories(include)
+include_directories(include/fixed_string/include)
 add_subdirectory(include/csv/csv-parser)
 
 add_compile_options(-fsanitize=undefined)
