@@ -1,7 +1,8 @@
 /*
 
-!/include/
-!/source
+!asset/
+!include/
+!source/
 
 !.clang-format
 !.gitignore
