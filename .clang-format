@@ -1,0 +1,27 @@
+---
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+Language: Cpp
+
+BasedOnStyle: Google
+
+IndentWidth: 4
+ColumnLimit: 120
+
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveAssignments: true
+AlignOperands: AlignAfterOperator
+AlignTrailingComments: true
+AllowShortBlocksOnASingleLine: Empty
+# AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
+BreakBeforeBinaryOperators: All
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+Cpp11BracedListStyle: true
+IndentCaseLabels: true
+PackConstructorInitializers: Never
+
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+    AfterRequiresInClause: true
