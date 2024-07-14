@@ -9,6 +9,7 @@ add_compile_options(-std=c++23 -Wall -Wextra --pedantic-errors)
 add_compile_options(-march=native)
 
 include_directories(include)
+add_subdirectory(include/csv/csv-parser)
 
 add_compile_options(-fsanitize=undefined)
 add_link_options(-fsanitize=undefined)
@@ -26,3 +27,4 @@ add_link_options(-fsanitize=address)
 # add_link_options(-fsanitize=memory)
 
 add_executable(kcverify ./source/main.cpp)
+target_link_libraries(kcverify csv)
