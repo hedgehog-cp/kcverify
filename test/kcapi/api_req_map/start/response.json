@@ -1,0 +1,115 @@
+{
+  "api_data": {
+    "api_airsearch": {
+      "api_plane_type": 0,
+      "api_result": 0
+    },
+    "api_bosscell_no": 13,
+    "api_bosscomp": 1,
+    "api_cell_data": [
+      {
+        "api_color_no": 0,
+        "api_id": 3012,
+        "api_no": 0,
+        "api_passed": 0
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3013,
+        "api_no": 1,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3014,
+        "api_no": 2,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3015,
+        "api_no": 3,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 2,
+        "api_id": 3016,
+        "api_no": 4,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3017,
+        "api_no": 5,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3018,
+        "api_no": 6,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 2,
+        "api_id": 3019,
+        "api_no": 7,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 3,
+        "api_id": 3020,
+        "api_no": 8,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3021,
+        "api_no": 9,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 5,
+        "api_id": 3022,
+        "api_no": 10,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3023,
+        "api_no": 11,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 4,
+        "api_id": 3024,
+        "api_no": 12,
+        "api_passed": 1
+      },
+      {
+        "api_color_no": 5,
+        "api_id": 3025,
+        "api_no": 13,
+        "api_passed": 1
+      }
+    ],
+    "api_color_no": 4,
+    "api_e_deck_info": [
+      {
+        "api_kind": 1,
+        "api_ship_ids": [1506, 1503, 1502]
+      }
+    ],
+    "api_event_id": 4,
+    "api_event_kind": 1,
+    "api_from_no": 0,
+    "api_limit_state": 0,
+    "api_maparea_id": 1,
+    "api_mapinfo_no": 3,
+    "api_next": 1,
+    "api_no": 3,
+    "api_rashin_flg": 1,
+    "api_rashin_id": 3
+  },
+  "api_result": 1,
+  "api_result_msg": "成功"
+}

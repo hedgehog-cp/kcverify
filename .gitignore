@@ -1,10 +1,14 @@
 /*
 
-!/include/
+!/.vscode
+!/document/asset
+!/include
 !/source
+!/test
 
 !.clang-format
+!.clangd
 !.gitignore
 !CMakeLists.txt
-
+!Doxyfile
 !README.md
