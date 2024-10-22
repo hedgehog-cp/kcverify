@@ -20,6 +20,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
 Cpp11BracedListStyle: true
 IndentCaseLabels: true
+IndentPPDirectives: BeforeHash
 PackConstructorInitializers: Never
 
 SpaceBeforeParens: Custom

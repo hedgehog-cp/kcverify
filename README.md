@@ -1,37 +1,45 @@
 # kcverify
 
-# Development
+KanColle Verification Tool
 
-1. サブモジュールを含めてクローンします.
+Feature:
 
-    ```
-    git clone --recurse ${url}
-    ```
+- Rigorous numerical calculations
+- fast
 
-2. ビルドをします.
+## Development Environment
 
-    まず, ディレクトリに移動します.
+- WSL2
+- Ubuntu 24.04
+- VSCode
 
-    ```
-    cd /PATH/TO/kcverify
-    ```
+## Dependency
 
-    次にマスタデータを更新します.  
-    マスタデータは74式ENの`ツール`->{`艦船図鑑`, `装備図鑑`}->`ファイル`->`CSV出力(データ用)`から取得します.  
-    `ファイル`->`設定`->`ログ`から文字コードを`UTF-8`または`UTF-8(BOM)`にして出力してください.  
-    出力した艦船および装備のマスタをヘッダファイルに埋め込みます.
+### Build Tool
 
-    ```
-    chmod +x ./preprocess.sh
-    ./preprocess.sh
-    ```
+- Compiler
+  - GCC14.2
+  - `sudo apt install gcc`
+  - C++17 and part of C++20, C++23
+- [CMake](https://cmake.org/)
+  - `sudo apt install cmake`
 
-    そして, ビルドを開始します.  
-    C++23で書いています.  
-    GCC14以上またはclang18以上, あるいはこれらに相当するコンパイラを利用してください.
+### Library
 
-    ```
-    mkdir build && cd build
-    cmake ..
-    cmake --build . --parallel
-    ```
+- [Boost](https://www.boost.org/)
+  - for Interval arithmetic, Validated Numerics
+  - `sudo apt install -libboost-all-dev`
+- [glaze](https://github.com/stephenberry/glaze)
+  - for JSON
+
+### Documentation
+
+- doxygen
+  - `sudo apt install doxygen`
+- graphviz
+  - `sudo apt install graphviz`
+
+### Other
+
+- clang-format
+- clangd
