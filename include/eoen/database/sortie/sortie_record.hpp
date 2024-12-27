@@ -20,7 +20,7 @@ namespace sortie {
 /// @brief `ツール` -> `出撃記録` -> `出撃詳細` より出力される配列の要素型.
 /// /0
 /// @see namespace ElectronicObserver.Database.Sortie; public class SortieRecord { ... }
-struct sortie_record_t final {
+struct sortie_record final {
     /// @note 74式ENがint型で定義しており, C#のint型は32bit保証だが, C++のint型は16bit以上保証であるため.
     std::int32_t id;
     int version;

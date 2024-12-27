@@ -1,6 +1,8 @@
 #ifndef KCVERIFY_EOEN_DATABASE_SORTIE_SORTIE_EQUIPMENT_HPP_INCLUDED
 #define KCVERIFY_EOEN_DATABASE_SORTIE_SORTIE_EQUIPMENT_HPP_INCLUDED
 
+#include "kcapi/types/enum/equipment_id.hpp"
+
 namespace kcv {
 namespace eoen {
 namespace database {
@@ -16,7 +18,7 @@ namespace sortie {
 /// @brief namespace ElectronicObserver.Database.Sortie; public class SortieEquipment { ... }
 struct sortie_equipment final {
     /// @brief 装備ID
-    int id;
+    kcapi::equipment_id id;
 
     /// @brief 改修値
     int level;

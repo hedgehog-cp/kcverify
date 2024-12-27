@@ -7,6 +7,7 @@
 
 // kcv
 #include "eoen/database/sortie/sortie_equipment_slot.hpp"
+#include "kcapi/types/enum/ship_id.hpp"
 #include "kcapi/types/enum/sp_effect_item.hpp"
 
 namespace kcv {
@@ -19,7 +20,7 @@ namespace sortie {
 /// /0/FleetAfterSortieData/Fleets/0/Ships/0
 /// @see namespace ElectronicObserver.Database.Sortie; public class SortieShip { ... }
 struct sortie_ship final {
-    int id;
+    kcapi::ship_id id;
 
     /// @brief nullopt for older data.
     std::optional<int> drop_id;

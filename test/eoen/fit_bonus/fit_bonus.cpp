@@ -6,6 +6,7 @@
 #include <fstream>
 #include <ranges>
 #include <string>
+#include <utility>
 #include <vector>
 
 // glz
@@ -167,7 +168,7 @@ void test_fit_bonus() {
                           })
                         | std::ranges::to<std::vector>();
 
-                    if (bonus.num and target_slotitems.size() < *bonus.num) {
+                    if (bonus.num and std::cmp_less(target_slotitems.size(), *bonus.num)) {
                         continue;
                     }
 

@@ -4,7 +4,7 @@ project(kcverify CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_compile_options(-std=c++23)
+add_compile_options(-std=c++2b)
 add_compile_options(-Wall -Wextra --pedantic-errors -Wfloat-equal)
 add_compile_options(-O2 -march=native)
 
@@ -59,3 +59,6 @@ add_test(NAME eoen_sortie_detail COMMAND test_eoen_sortie_detail)
 
 add_executable(test_eoen_fit_bonus ./test/eoen/fit_bonus/fit_bonus.cpp)
 add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus)
+
+add_executable(test_sortie_data ./test/sortie_data/sortie_data.cpp)
+add_test(NAME sortie_data COMMAND test_sortie_data)

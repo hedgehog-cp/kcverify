@@ -2,6 +2,7 @@
 #define KCVERIFY_KCAPI_TYPES_ENUM_ICON_HPP_INCLUDED
 
 namespace kcv {
+namespace kcapi {
 
 // TODO: 艦これに即した名前にする
 /// @brief 装備.アイコンID. 装備種4. api_type[3].
@@ -61,6 +62,7 @@ enum class icon {
     ship_smoke_generator = 54     // 54=艦載発煙装置
 };
 
+}  // namespace kcapi
 }  // namespace kcv
 
 #endif  // KCVERIFY_KCAPI_TYPES_ENUM_ICON_HPP_INCLUDED

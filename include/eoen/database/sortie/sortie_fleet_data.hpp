@@ -26,6 +26,7 @@ struct sortie_fleet_data final {
 
     int boss_support_fleet_id;
 
+    /// @see https://github.com/ElectronicObserverEN/ElectronicObserver/blob/main/ElectronicObserverTypes/FleetType.cs
     int combined_flag;
 
     std::vector<std::optional<sortie_fleet>> fleets;

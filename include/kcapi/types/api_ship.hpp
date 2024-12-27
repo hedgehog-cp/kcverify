@@ -6,6 +6,7 @@
 #include <vector>
 
 // kcv
+#include "kcapi/types/api_kyouka.hpp"
 #include "kcapi/types/api_sp_effectitems.hpp"
 
 namespace kcv {
@@ -21,7 +22,7 @@ struct api_ship final {
     int api_id;
     std::vector<int> api_kaihi;
     std::vector<int> api_karyoku;
-    std::vector<int> api_kyouka;
+    kcapi::api_kyouka api_kyouka;
     int api_leng;
     int api_locked;
     int api_locked_equip;

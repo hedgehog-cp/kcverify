@@ -21,23 +21,14 @@
 #include "kcapi/types/svdata.hpp"
 
 // meta files
-#include "eoen/database/kancolle_api/meta/api_files.hpp"
-#include "eoen/database/sortie/meta/calculated_sortie_cost.hpp"
-#include "eoen/database/sortie/meta/sorite_air_base_squadron.hpp"
-#include "eoen/database/sortie/meta/sortie_air_base.hpp"
-#include "eoen/database/sortie/meta/sortie_equipment.hpp"
-#include "eoen/database/sortie/meta/sortie_equipment_slot.hpp"
-#include "eoen/database/sortie/meta/sortie_fleet.hpp"
-#include "eoen/database/sortie/meta/sortie_fleet_data.hpp"
-#include "eoen/database/sortie/meta/sortie_map_data.hpp"
-#include "eoen/database/sortie/meta/sortie_record.hpp"
-#include "eoen/database/sortie/meta/sortie_ship.hpp"
+#include "eoen/database/kancolle_api/meta.hpp"
+#include "eoen/database/sortie/meta.hpp"
 
 // kcv::test
 #include "root.hpp"
 
 int main() {
-    using sortie_record_t = kcv::eoen::database::sortie::sortie_record_t;
+    using sortie_record_t = kcv::eoen::database::sortie::sortie_record;
     using sortie_detail_t = std::vector<sortie_record_t>;
 
     const auto dir   = std::filesystem::path{"test/eoen/sortie_detail/"};

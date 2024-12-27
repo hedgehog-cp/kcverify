@@ -8,8 +8,8 @@
 #include "eoen/database/sortie/sortie_record.hpp"
 
 template <>
-struct glz::meta<kcv::eoen::database::sortie::sortie_record_t> {
-    using T = kcv::eoen::database::sortie::sortie_record_t;
+struct glz::meta<kcv::eoen::database::sortie::sortie_record> {
+    using T = kcv::eoen::database::sortie::sortie_record;
 
     static constexpr auto value = object(
         // clang-format off
