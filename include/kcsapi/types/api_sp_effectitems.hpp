@@ -11,7 +11,7 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief 特注アイテム.
-struct api_sp_effect_items_value_type final {
+struct api_sp_effect_items_value_t final {
     /// @brief 特注アイテム.
     sp_effect_item api_kind;
 
@@ -28,7 +28,7 @@ struct api_sp_effect_items_value_type final {
     int api_kaihi;
 };
 
-using api_sp_effect_items = std::vector<api_sp_effect_items_value_type>;
+using api_sp_effect_items = std::vector<api_sp_effect_items_value_t>;
 
 }  // namespace kcsapi
 }  // namespace kcv

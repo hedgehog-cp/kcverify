@@ -16,7 +16,7 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief 基地航空隊攻撃.
-struct api_air_base_attack_value_type final {
+struct api_air_base_attack_value_t final {
     int api_base_id;
     std::vector<std::optional<std::vector<int>>> api_plane_from;
     std::vector<kcsapi::api_squadoron_plane> api_squadron_plane;
@@ -28,7 +28,7 @@ struct api_air_base_attack_value_type final {
 };
 
 /// @brief 基地航空隊攻撃. [攻撃回数].
-using api_air_base_attack = std::vector<api_air_base_attack_value_type>;
+using api_air_base_attack = std::vector<api_air_base_attack_value_t>;
 
 }  // namespace kcsapi
 }  // namespace kcv

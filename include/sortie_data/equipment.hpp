@@ -21,7 +21,7 @@ class equipment final {
     using eoen_type = eoen::database::sortie::sortie_equipment;
 
     static auto from_eoen(const eoen_type& src, const kcsapi::api_mst_slotitem& mst) -> equipment {
-        const auto itr = std::ranges::lower_bound(mst, src.id, {}, &kcsapi::api_mst_slotitem_value_type::api_id);
+        const auto itr = std::ranges::lower_bound(mst, src.id, {}, &kcsapi::api_mst_slotitem_value_t::api_id);
         if (itr != std::ranges::end(mst) and itr->api_id == src.id) [[likely]] {
             return equipment{*itr, src.level, src.aircraft_level};
         } else {
@@ -30,13 +30,13 @@ class equipment final {
         }
     }
 
-    constexpr equipment(const kcsapi::api_mst_slotitem_value_type& mst, int level, int aircraft_level) noexcept
+    constexpr equipment(const kcsapi::api_mst_slotitem_value_t& mst, int level, int aircraft_level) noexcept
         : mst_{mst}
         , level_{level}
         , aircraft_level_{aircraft_level} {
     }
 
-    constexpr auto mst() const noexcept -> const kcsapi::api_mst_slotitem_value_type& {
+    constexpr auto mst() const noexcept -> const kcsapi::api_mst_slotitem_value_t& {
         return this->mst_;
     }
 
@@ -50,7 +50,7 @@ class equipment final {
 
    private:
     /// @brief 装備マスタ.
-    const kcsapi::api_mst_slotitem_value_type& mst_;
+    const kcsapi::api_mst_slotitem_value_t& mst_;
 
     /// @brief 改修値.
     int level_;

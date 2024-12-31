@@ -15,7 +15,7 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief `api_start2/getData` の `api_mst_slotitem` の要素型.
-struct api_mst_slotitem_value_type final {
+struct api_mst_slotitem_value_t final {
     int api_atap;
     int api_bakk;
     int api_baku;
@@ -46,7 +46,7 @@ struct api_mst_slotitem_value_type final {
     std::optional<int> api_distance;
 };
 
-using api_mst_slotitem = std::vector<api_mst_slotitem_value_type>;
+using api_mst_slotitem = std::vector<api_mst_slotitem_value_t>;
 
 }  // namespace kcsapi
 }  // namespace kcv

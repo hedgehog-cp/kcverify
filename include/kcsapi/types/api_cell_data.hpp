@@ -12,7 +12,7 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief セルデータ.
-struct api_cell_data_value_type final {
+struct api_cell_data_value_t final {
     /// @brief セルタイプ. セルの状態.
     cell_type api_color_no;
 
@@ -30,7 +30,7 @@ struct api_cell_data_value_type final {
 };
 
 /// @brief 当該海域の全セルデータ.
-using api_cell_data = std::vector<api_cell_data_value_type>;
+using api_cell_data = std::vector<api_cell_data_value_t>;
 
 }  // namespace kcsapi
 }  // namespace kcv

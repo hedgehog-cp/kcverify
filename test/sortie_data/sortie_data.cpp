@@ -18,8 +18,8 @@ int main() {
     const auto api_mst_ship = []() static -> kcv::kcsapi::api_mst_ship {
         auto temp = kcv::kcsapi::api_mst_ship{};
         kcv::read_json(temp, kcv::test::root / "test/sortie_data/api_mst_ship.json");
-        if (not std::ranges::is_sorted(temp, {}, &kcv::kcsapi::api_mst_ship_value_type::api_id)) {
-            std::ranges::sort(temp, {}, &kcv::kcsapi::api_mst_ship_value_type::api_id);
+        if (not std::ranges::is_sorted(temp, {}, &kcv::kcsapi::api_mst_ship_value_t::api_id)) {
+            std::ranges::sort(temp, {}, &kcv::kcsapi::api_mst_ship_value_t::api_id);
         }
         return temp;
     }();
@@ -27,8 +27,8 @@ int main() {
     const auto api_mst_slotitem = []() static -> kcv::kcsapi::api_mst_slotitem {
         auto temp = kcv::kcsapi::api_mst_slotitem{};
         kcv::read_json(temp, kcv::test::root / "test/sortie_data/api_mst_slotitem.json");
-        if (not std::ranges::is_sorted(temp, {}, &kcv::kcsapi::api_mst_slotitem_value_type::api_id)) {
-            std::ranges::sort(temp, {}, &kcv::kcsapi::api_mst_slotitem_value_type::api_id);
+        if (not std::ranges::is_sorted(temp, {}, &kcv::kcsapi::api_mst_slotitem_value_t::api_id)) {
+            std::ranges::sort(temp, {}, &kcv::kcsapi::api_mst_slotitem_value_t::api_id);
         }
         return temp;
     }();

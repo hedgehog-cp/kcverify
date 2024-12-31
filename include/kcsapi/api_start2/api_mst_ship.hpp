@@ -18,7 +18,7 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief `api_start2/getData` の `api_mst_ship` の要素型.
-struct api_mst_ship_value_type final {
+struct api_mst_ship_value_t final {
     std::optional<int> api_afterbull;
     std::optional<int> api_afterfuel;
     std::optional<int> api_afterlv;
@@ -52,7 +52,7 @@ struct api_mst_ship_value_type final {
 };
 
 /// @note コンテナを `std::vector` から `std::flat_map` への破壊的変更を検討.
-using api_mst_ship = std::vector<api_mst_ship_value_type>;
+using api_mst_ship = std::vector<api_mst_ship_value_t>;
 
 }  // namespace kcsapi
 }  // namespace kcv

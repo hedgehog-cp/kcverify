@@ -12,7 +12,7 @@ namespace kcsapi {
 /// api_get_member/deck
 /// api_get_member/ship2
 /// api_req_hensei/preset_select
-struct api_deck_port_value_type final {
+struct api_deck_port_value_t final {
     /// @brief
     std::string api_flagship;
 
@@ -35,7 +35,7 @@ struct api_deck_port_value_type final {
     std::vector<int> api_ship;
 };
 
-using api_deck_port = std::vector<api_deck_port_value_type>;
+using api_deck_port = std::vector<api_deck_port_value_t>;
 
 }  // namespace kcsapi
 }  // namespace kcv

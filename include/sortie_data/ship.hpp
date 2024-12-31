@@ -28,7 +28,7 @@ class ship final {
     static auto from_eoen(
         const eoen_type& src, const kcsapi::api_mst_ship& mst_ship, const kcsapi::api_mst_slotitem& mst_slotitem
     ) -> ship {
-        const auto itr = std::ranges::lower_bound(mst_ship, src.id, {}, &kcsapi::api_mst_ship_value_type::api_id);
+        const auto itr = std::ranges::lower_bound(mst_ship, src.id, {}, &kcsapi::api_mst_ship_value_t::api_id);
         if (itr == std::ranges::end(mst_ship) or itr->api_id != src.id) [[unlikely]] {
             std::println(stderr, "{} not found in api_mst_ship.", std::to_underlying(src.id));
             std::exit(EXIT_FAILURE);
@@ -58,7 +58,7 @@ class ship final {
     }
 
     constexpr ship(
-        const kcsapi::api_mst_ship_value_type& mst, kcv::kcsapi::ship_id original_id, std::vector<slot> slots,
+        const kcsapi::api_mst_ship_value_t& mst, kcv::kcsapi::ship_id original_id, std::vector<slot> slots,
         std::optional<slot> ex
     ) noexcept
         : mst_{mst}
@@ -68,7 +68,7 @@ class ship final {
         , exslot_{std::move(ex)} {
     }
 
-    constexpr auto mst() const noexcept -> const kcsapi::api_mst_ship_value_type& {
+    constexpr auto mst() const noexcept -> const kcsapi::api_mst_ship_value_t& {
         return this->mst_;
     }
 
@@ -80,7 +80,7 @@ class ship final {
         return this->nationality_;
     }
 
-    /// @note `eq` はkcsapi::api_mst_ship_value_type::api_maxeqから.
+    /// @note `eq` はkcsapi::api_mst_ship_value_t::api_maxeqから.
     constexpr auto eqslots() const noexcept -> const std::vector<slot>& {
         return this->eqslots_;
     }
@@ -97,7 +97,7 @@ class ship final {
 
    private:
     /// @brief 艦船マスタ.
-    const kcsapi::api_mst_ship_value_type& mst_;
+    const kcsapi::api_mst_ship_value_t& mst_;
 
     /// @brief 未改造艦船ID
     kcv::kcsapi::ship_id original_id_;
