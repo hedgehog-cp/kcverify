@@ -31,6 +31,9 @@ Feature:
   - `sudo apt install -libboost-all-dev`
 - [glaze](https://github.com/stephenberry/glaze)
   - for JSON
+- [range-v3](https://github.com/ericniebler/range-v3)
+  - for alternative to C++26 std::ranges::views::concat
+  - `sudo apt install librange-v3-dev librange-v3-doc`
 
 ### Documentation
 

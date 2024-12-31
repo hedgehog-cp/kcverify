@@ -1,8 +1,8 @@
 #ifndef KCVERIFY_KCAPI_TYPES_API_MINMAX_HPP_INCLUDED
 #define KCVERIFY_KCAPI_TYPES_API_MINMAX_HPP_INCLUDED
 
+#include <array>
 #include <cstddef>
-#include <tuple>
 
 namespace kcv {
 namespace kcapi {
@@ -19,7 +19,9 @@ struct idx_minmax final {
 
 using idx_minmax = detail::idx_minmax::_;
 
-using api_minmax = std::tuple<int, int>;
+/// @brief [0]: min. [1]: max.
+/// @note std::tupleにするとclangでコンパイルできない.
+using api_minmax = std::array<int, 2>;
 
 }  // namespace kcapi
 }  // namespace kcv

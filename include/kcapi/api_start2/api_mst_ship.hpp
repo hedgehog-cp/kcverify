@@ -5,7 +5,6 @@
 #include <array>
 #include <optional>
 #include <string>
-#include <tuple>
 #include <vector>
 
 // kcv
@@ -37,7 +36,7 @@ struct api_mst_ship_value_type final {
     std::optional<api_minmax> api_luck;
     std::optional<std::array<int, 5>> api_maxeq;
     std::string api_name;
-    std::optional<std::tuple<int, int, int, int>> api_powup;
+    std::optional<std::array<int, 4>> api_powup;
     std::optional<api_minmax> api_raig;
     int api_slot_num;
     int api_soku;

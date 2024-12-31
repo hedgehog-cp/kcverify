@@ -54,8 +54,8 @@ add_test(NAME kcapi_api_start2_api_mst_ship COMMAND test_kcapi_api_start2_api_ms
 add_executable(test_kcapi_api_start2_api_mst_slotitem ./test/kcapi/api_start2/api_mst_slotitem.cpp)
 add_test(NAME kcapi_api_start2_api_mst_slotitem COMMAND test_kcapi_api_start2_api_mst_slotitem)
 
-add_executable(test_eoen_sortie_detail ./test/eoen/sortie_detail/sortie_detail.cpp)
-add_test(NAME eoen_sortie_detail COMMAND test_eoen_sortie_detail)
+add_executable(test_eoen_sortie_record ./test/eoen/sortie_record/sortie_record.cpp)
+add_test(NAME eoen_sortie_record COMMAND test_eoen_sortie_record)
 
 add_executable(test_eoen_fit_bonus ./test/eoen/fit_bonus/fit_bonus.cpp)
 add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus)

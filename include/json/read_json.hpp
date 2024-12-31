@@ -14,6 +14,11 @@
 // glz
 #include <glaze/json.hpp>
 
+// meta files
+#include "eoen/database/kancolle_api/meta.hpp"
+#include "eoen/database/sortie/meta.hpp"
+#include "eoen/serialization/fit_bonus/meta.hpp"
+
 namespace kcv {
 
 void read_json(auto& dst, const std::string& buffer) noexcept try {
@@ -30,8 +35,8 @@ void read_json(auto& dst, const std::string& buffer) noexcept try {
     std::exit(EXIT_FAILURE);
 }
 
-template <typename T = std::string>
-void read_json(auto& dst, const std::filesystem::path& fname, T&& buffer = std::string{}) noexcept try {
+void read_json(auto& dst, const std::filesystem::path& fname) noexcept try {
+    auto buffer = std::string{};
     buffer.resize_and_overwrite(std::filesystem::file_size(fname), [&](char* data, std::size_t size) -> std::size_t {
         std::ifstream{fname}.read(data, size);
         return size;

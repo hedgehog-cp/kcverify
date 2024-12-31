@@ -12,7 +12,7 @@ namespace kcapi {
 
 namespace detail {
 
-/// @brief `api_mst_slotitem` の `api_kyouka` の要素アクセス用の疑似scoped enum.
+/// @brief `api_mst_slotitem` の `api_type` の要素アクセス用の疑似scoped enum.
 struct idx_type final {
     /// @note 意訳.
     enum _ : std::size_t {

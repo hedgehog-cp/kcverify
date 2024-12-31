@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_SORTIE_SORTIE_DATA_HPP_INCLUDED
-#define KCVERIFY_SORTIE_SORTIE_DATA_HPP_INCLUDED
+#ifndef KCVERIFY_SORTIE_DATA_SORTIE_DATA_HPP_INCLUDED
+#define KCVERIFY_SORTIE_DATA_SORTIE_DATA_HPP_INCLUDED
 
 // std
 #include <cstdlib>
@@ -19,10 +19,6 @@
 #include "kcapi/types/svdata.hpp"
 #include "sortie_data/fleet_data.hpp"
 #include "sortie_data/map_data.hpp"
-
-// meta files
-#include "eoen/database/kancolle_api/meta.hpp"
-#include "eoen/database/sortie/meta.hpp"
 
 namespace kcv {
 
@@ -175,4 +171,4 @@ class sortie_data final {
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_SORTIE_SORTIE_DATA_HPP_INCLUDED
+#endif  // KCVERIFY_SORTIE_DATA_SORTIE_DATA_HPP_INCLUDED

@@ -1,18 +1,20 @@
-#ifndef KCVERIFY_SORTIE_SHIP_HPP_INCLUDED
-#define KCVERIFY_SORTIE_SHIP_HPP_INCLUDED
+#ifndef KCVERIFY_SORTIE_DATA_SHIP_HPP_INCLUDED
+#define KCVERIFY_SORTIE_DATA_SHIP_HPP_INCLUDED
 
 // std
 #include <optional>
 #include <ranges>
 #include <vector>
 
-// ranges
+// ranges: C++26から不要
 #include <range/v3/view/concat.hpp>
 
 // kcv
 #include "eoen/database/sortie/sortie_ship.hpp"
 #include "kcapi/api_start2/api_mst_ship.hpp"
 #include "kcapi/api_start2/api_mst_slotitem.hpp"
+#include "kcapi/types/enum/nationality.hpp"
+#include "kcapi/types/enum/ship_id.hpp"
 #include "optional/optional.hpp"
 #include "sortie_data/slot.hpp"
 
@@ -27,57 +29,91 @@ class ship final {
         const eoen_type& src, const kcapi::api_mst_ship& mst_ship, const kcapi::api_mst_slotitem& mst_slotitem
     ) -> ship {
         const auto itr = std::ranges::lower_bound(mst_ship, src.id, {}, &kcapi::api_mst_ship_value_type::api_id);
-        if (itr != std::ranges::end(mst_ship) and itr->api_id == src.id) [[likely]] {
+        if (itr == std::ranges::end(mst_ship) or itr->api_id != src.id) [[unlikely]] {
+            std::println(stderr, "{} not found in api_mst_ship.", std::to_underlying(src.id));
+            std::exit(EXIT_FAILURE);
+        }
+
+        constexpr auto null_id = kcv::kcapi::ship_id{-1};
+        const auto original_id = std::ranges::fold_left(
+            mst_ship  //
+                | std::ranges::views::filter([&itr](const auto& e) -> bool {
+                      return e.api_yomi == itr->api_yomi and e.api_sort_id % 10 == 1;
+                  })
+                | std::ranges::views::take(1),
+            null_id, [](auto, const auto& e) -> kcv::kcapi::ship_id { return e.api_id; }
+        );
+        if (original_id != null_id) [[likely]] {
             return ship{
-                *itr,
+                *itr, original_id,
                 src.equipment_slots  //
                     | std::ranges::views::transform([&](const auto& e) { return slot::from_eoen(e, mst_slotitem); })
                     | std::ranges::to<std::vector>(),
                 src.expansion_slot.transform([&](const auto& e) { return slot::from_eoen(e, mst_slotitem); })
             };
         } else {
-            std::println(stderr, "{} not found in api_mst_slotitem.", std::to_underlying(src.id));
+            std::println(stderr, "{}'s original_id not found in api_mst_ship.", std::to_underlying(src.id));
             std::exit(EXIT_FAILURE);
         }
     }
 
-    constexpr ship(const kcapi::api_mst_ship_value_type& mst, std::vector<slot> slots, std::optional<slot> ex) noexcept
+    constexpr ship(
+        const kcapi::api_mst_ship_value_type& mst, kcv::kcapi::ship_id original_id, std::vector<slot> slots,
+        std::optional<slot> ex
+    ) noexcept
         : mst_{mst}
-        , slots_{std::move(slots)}
-        , expansion_slot_{std::move(ex)} {
+        , original_id_{original_id}
+        , nationality_{kcv::kcapi::to_nationality(mst.api_sort_id)}
+        , eqslots_{std::move(slots)}
+        , exslot_{std::move(ex)} {
     }
 
     constexpr auto mst() const noexcept -> const kcapi::api_mst_ship_value_type& {
         return this->mst_;
     }
 
-    /// @note `eq` はkcapi::api_mst_ship_value_type::api_maxeqから.
-    constexpr auto eqslots() const noexcept -> const std::vector<slot>& {
-        return this->slots_;
+    constexpr auto original_id() const noexcept -> kcv::kcapi::ship_id {
+        return this->original_id_;
     }
 
-    constexpr auto expansion_slot() const noexcept -> const std::optional<slot>& {
-        return this->expansion_slot_;
+    constexpr auto nationality() const noexcept -> kcv::kcapi::nationality {
+        return this->nationality_;
+    }
+
+    /// @note `eq` はkcapi::api_mst_ship_value_type::api_maxeqから.
+    constexpr auto eqslots() const noexcept -> const std::vector<slot>& {
+        return this->eqslots_;
+    }
+
+    constexpr auto exslot() const noexcept -> const std::optional<slot>& {
+        return this->exslot_;
     }
 
     /// @brief 装備スロットと補強増設スロット.
     /// @note C++26のstd::ranges::views::concatの代替として, range-v3を使って実装.
     constexpr std::ranges::range auto slots() const noexcept {
-        return ::ranges::views::concat(this->slots_, this->expansion_slot_);
+        return ::ranges::views::concat(this->eqslots_, this->exslot_);
     }
 
    private:
     /// @brief 艦船マスタ.
     const kcapi::api_mst_ship_value_type& mst_;
+
+    /// @brief 未改造艦船ID
+    kcv::kcapi::ship_id original_id_;
+
+    /// @brief 国籍
+    kcv::kcapi::nationality nationality_;
+
     // status_;
 
-    /// @brief 装備スロット. 補強増設スロットはを含まない.
-    std::vector<slot> slots_;
+    /// @brief 装備スロット. 補強増設スロットを含まない.
+    std::vector<slot> eqslots_;
 
     /// @brief 補強増設スロット.
-    kcv::optional<slot> expansion_slot_;
+    kcv::optional<slot> exslot_;
 };
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_SORTIE_SHIP_HPP_INCLUDED
+#endif  // KCVERIFY_SORTIE_DATA_SHIP_HPP_INCLUDED

@@ -1,8 +1,8 @@
 #ifndef KCVERIFY_KCAPI_TYPES_API_RESOURCE_HPP_INCLUDED
 #define KCVERIFY_KCAPI_TYPES_API_RESOURCE_HPP_INCLUDED
 
+#include <array>
 #include <cstddef>
-#include <tuple>
 
 namespace kcv {
 namespace kcapi {
@@ -32,7 +32,8 @@ struct idx_resource final {
 using idx_resource = detail::idx_resource::_;
 
 /// @brief [0]=燃料. [1]=弾薬. [2]=鋼材. [3]=ボーキサイト.
-using api_resource = std::tuple<int, int, int, int>;
+/// @note std::tupleにするとclangでコンパイルできない.
+using api_resource = std::array<int, 4>;
 
 }  // namespace kcapi
 }  // namespace kcv
