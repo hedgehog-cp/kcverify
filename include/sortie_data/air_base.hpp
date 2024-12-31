@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "eoen/database/sortie/sortie_air_base.hpp"
-#include "kcapi/types/enum/air_base_action.hpp"
+#include "kcsapi/types/enum/air_base_action.hpp"
 #include "sortie_data/air_base_squadron.hpp"
 
 namespace kcv {
@@ -16,7 +16,7 @@ class air_base final {
    public:
     using eoen_type = eoen::database::sortie::sortie_air_base;
 
-    static auto from_eoen(const eoen_type& src, const kcapi::api_mst_slotitem& mst) -> air_base {
+    static auto from_eoen(const eoen_type& src, const kcsapi::api_mst_slotitem& mst) -> air_base {
         return air_base{
             std::move(src.name),
             src.map_area_id,
@@ -36,7 +36,7 @@ class air_base final {
         std::string name,                         //
         int map_area_id,                          //
         int air_corps_id,                         //
-        kcapi::air_base_action action_kind,       //
+        kcsapi::air_base_action action_kind,      //
         int base_distance,                        //
         int bonus_distance,                       //
         std::vector<air_base_squadron> squadrons  //
@@ -62,7 +62,7 @@ class air_base final {
         return this->air_corps_id_;
     }
 
-    constexpr auto action_kind() const noexcept -> kcapi::air_base_action {
+    constexpr auto action_kind() const noexcept -> kcsapi::air_base_action {
         return this->action_kind_;
     }
 
@@ -82,7 +82,7 @@ class air_base final {
     std::string name_;
     int map_area_id_;
     int air_corps_id_;
-    kcapi::air_base_action action_kind_;
+    kcsapi::air_base_action action_kind_;
     int base_distance_;
     int bonus_distance_;
     std::vector<air_base_squadron> squadrons_;

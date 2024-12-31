@@ -15,7 +15,7 @@ class slot final {
    public:
     using eoen_type = eoen::database::sortie::sortie_equipment_slot;
 
-    static auto from_eoen(const eoen_type& src, const kcapi::api_mst_slotitem& mst) -> slot {
+    static auto from_eoen(const eoen_type& src, const kcsapi::api_mst_slotitem& mst) -> slot {
         return slot{
             src.aircraft_current,                                                                 //
             src.aircraft_max,                                                                     //

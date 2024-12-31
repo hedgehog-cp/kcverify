@@ -4,12 +4,12 @@
 // kcv
 #include "eoen/database/sortie/sortie_record.hpp"
 #include "json/read_json.hpp"
-#include "kcapi/api_req_battle_midnight/battle/response.hpp"
-#include "kcapi/api_req_map/start/request.hpp"
-#include "kcapi/api_req_map/start/response.hpp"
-#include "kcapi/api_req_sortie/battle/response.hpp"
-#include "kcapi/api_req_sortie/battleresult/response.hpp"
-#include "kcapi/types/svdata.hpp"
+#include "kcsapi/api_req_battle_midnight/battle/response.hpp"
+#include "kcsapi/api_req_map/start/request.hpp"
+#include "kcsapi/api_req_map/start/response.hpp"
+#include "kcsapi/api_req_sortie/battle/response.hpp"
+#include "kcsapi/api_req_sortie/battleresult/response.hpp"
+#include "kcsapi/types/svdata.hpp"
 
 // kcv::test
 #include "root.hpp"
@@ -27,23 +27,23 @@ int main() {
 
             using api_file_type = kcv::eoen::database::kancolle_api::api_file_type;
             if (type == api_file_type::request and name == "api_req_map/start") {
-                auto data = kcv::kcapi::api_req_map::start::request{};
+                auto data = kcv::kcsapi::api_req_map::start::request{};
                 kcv::read_json(data, content);
             }
             if (type == api_file_type::response and name == "api_req_map/start") {
-                auto data = kcv::kcapi::svdata<kcv::kcapi::api_req_map::start::response>{};
+                auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>{};
                 kcv::read_json(data, content);
             }
             if (type == api_file_type::response and name == "api_req_sortie/battle") {
-                auto data = kcv::kcapi::svdata<kcv::kcapi::api_req_sortie::battle::response>{};
+                auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>{};
                 kcv::read_json(data, content);
             }
             if (type == api_file_type::response and name == "api_req_battle_midnight/battle") {
-                auto data = kcv::kcapi::svdata<kcv::kcapi::api_req_battle_midnight::battle::response>{};
+                auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>{};
                 kcv::read_json(data, content);
             }
             if (type == api_file_type::response and name == "api_req_sortie/battleresult") {
-                auto data = kcv::kcapi::svdata<kcv::kcapi::api_req_sortie::battleresult::response>{};
+                auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>{};
                 kcv::read_json(data, content);
             }
         }

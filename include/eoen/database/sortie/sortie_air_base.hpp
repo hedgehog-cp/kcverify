@@ -7,7 +7,7 @@
 
 // kcv
 #include "eoen/database/sortie/sorite_air_base_squadron.hpp"
-#include "kcapi/types/enum/air_base_action.hpp"
+#include "kcsapi/types/enum/air_base_action.hpp"
 
 namespace kcv {
 namespace eoen {
@@ -22,7 +22,7 @@ struct sortie_air_base final {
     std::string name;
     int map_area_id;
     int air_corps_id;
-    kcapi::air_base_action action_kind;
+    kcsapi::air_base_action action_kind;
     int base_distance;
     int bonus_distance;
     std::vector<database::sortie::sorite_air_base_squadron> squadrons;

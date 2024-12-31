@@ -6,7 +6,7 @@
 
 // kcv
 #include "eoen/database/sortie/sorite_air_base_squadron.hpp"
-#include "kcapi/api_start2/api_mst_slotitem.hpp"
+#include "kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "sortie_data/slot.hpp"
 
 namespace kcv {
@@ -16,7 +16,7 @@ class air_base_squadron final {
    public:
     using eoen_type = eoen::database::sortie::sorite_air_base_squadron;
 
-    static auto from_eoen(const eoen_type& src, const kcapi::api_mst_slotitem& mst) -> air_base_squadron {
+    static auto from_eoen(const eoen_type& src, const kcsapi::api_mst_slotitem& mst) -> air_base_squadron {
         return air_base_squadron{
             src.aircraft_current,
             src.state,

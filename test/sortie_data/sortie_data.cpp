@@ -7,28 +7,28 @@
 // kcv
 #include "eoen/database/sortie/sortie_record.hpp"
 #include "json/read_json.hpp"
-#include "kcapi/api_start2/api_mst_ship.hpp"
-#include "kcapi/api_start2/api_mst_slotitem.hpp"
+#include "kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "sortie_data/sortie_data.hpp"
 
 // kcv::test
 #include "root.hpp"
 
 int main() {
-    const auto api_mst_ship = []() static -> kcv::kcapi::api_mst_ship {
-        auto temp = kcv::kcapi::api_mst_ship{};
+    const auto api_mst_ship = []() static -> kcv::kcsapi::api_mst_ship {
+        auto temp = kcv::kcsapi::api_mst_ship{};
         kcv::read_json(temp, kcv::test::root / "test/sortie_data/api_mst_ship.json");
-        if (not std::ranges::is_sorted(temp, {}, &kcv::kcapi::api_mst_ship_value_type::api_id)) {
-            std::ranges::sort(temp, {}, &kcv::kcapi::api_mst_ship_value_type::api_id);
+        if (not std::ranges::is_sorted(temp, {}, &kcv::kcsapi::api_mst_ship_value_type::api_id)) {
+            std::ranges::sort(temp, {}, &kcv::kcsapi::api_mst_ship_value_type::api_id);
         }
         return temp;
     }();
 
-    const auto api_mst_slotitem = []() static -> kcv::kcapi::api_mst_slotitem {
-        auto temp = kcv::kcapi::api_mst_slotitem{};
+    const auto api_mst_slotitem = []() static -> kcv::kcsapi::api_mst_slotitem {
+        auto temp = kcv::kcsapi::api_mst_slotitem{};
         kcv::read_json(temp, kcv::test::root / "test/sortie_data/api_mst_slotitem.json");
-        if (not std::ranges::is_sorted(temp, {}, &kcv::kcapi::api_mst_slotitem_value_type::api_id)) {
-            std::ranges::sort(temp, {}, &kcv::kcapi::api_mst_slotitem_value_type::api_id);
+        if (not std::ranges::is_sorted(temp, {}, &kcv::kcsapi::api_mst_slotitem_value_type::api_id)) {
+            std::ranges::sort(temp, {}, &kcv::kcsapi::api_mst_slotitem_value_type::api_id);
         }
         return temp;
     }();

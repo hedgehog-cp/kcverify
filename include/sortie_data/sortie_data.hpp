@@ -11,12 +11,12 @@
 #include "eoen/database/kancolle_api/api_file_type.hpp"
 #include "eoen/database/sortie/sortie_record.hpp"
 #include "json/read_json.hpp"
-#include "kcapi/api_req_battle_midnight/battle/response.hpp"
-#include "kcapi/api_req_map/start/request.hpp"
-#include "kcapi/api_req_map/start/response.hpp"
-#include "kcapi/api_req_sortie/battle/response.hpp"
-#include "kcapi/api_req_sortie/battleresult/response.hpp"
-#include "kcapi/types/svdata.hpp"
+#include "kcsapi/api_req_battle_midnight/battle/response.hpp"
+#include "kcsapi/api_req_map/start/request.hpp"
+#include "kcsapi/api_req_map/start/response.hpp"
+#include "kcsapi/api_req_sortie/battle/response.hpp"
+#include "kcsapi/api_req_sortie/battleresult/response.hpp"
+#include "kcsapi/types/svdata.hpp"
 #include "sortie_data/fleet_data.hpp"
 #include "sortie_data/map_data.hpp"
 
@@ -27,7 +27,7 @@ class sortie_data final {
     using eoen_type = eoen::database::sortie::sortie_record;
 
     static auto from_eoen(
-        const eoen_type& src, const kcapi::api_mst_ship& mst_ship, const kcapi::api_mst_slotitem& mst_slotitem
+        const eoen_type& src, const kcsapi::api_mst_ship& mst_ship, const kcsapi::api_mst_slotitem& mst_slotitem
     ) -> sortie_data {
         auto result = sortie_data{
             src.id,
@@ -82,12 +82,12 @@ class sortie_data final {
 
     constexpr sortie_data(
         std::int32_t id, int version, int world, int map,
-        std::optional<kcapi::svdata<kcapi::api_req_battle_midnight::battle::response>>
+        std::optional<kcsapi::svdata<kcsapi::api_req_battle_midnight::battle::response>>
             api_req_battle_midnight_battle_response,
-        std::optional<kcapi::api_req_map::start::request> api_req_map_start_request,
-        std::optional<kcapi::svdata<kcapi::api_req_map::start::response>> api_req_map_start_response,
-        std::optional<kcapi::svdata<kcapi::api_req_sortie::battle::response>> api_req_sortie_battle_response,
-        std::optional<kcapi::svdata<kcapi::api_req_sortie::battleresult::response>>
+        std::optional<kcsapi::api_req_map::start::request> api_req_map_start_request,
+        std::optional<kcsapi::svdata<kcsapi::api_req_map::start::response>> api_req_map_start_response,
+        std::optional<kcsapi::svdata<kcsapi::api_req_sortie::battle::response>> api_req_sortie_battle_response,
+        std::optional<kcsapi::svdata<kcsapi::api_req_sortie::battleresult::response>>
             api_req_sortie_battleresult_response,
         kcv::fleet_data fleet_data, std::optional<kcv::fleet_data> fleet_after_sortie_data, kcv::map_data map_data
     )
@@ -158,12 +158,12 @@ class sortie_data final {
     int version_;
     int world_;
     int map_;
-    std::optional<kcapi::svdata<kcapi::api_req_battle_midnight::battle::response>>
+    std::optional<kcsapi::svdata<kcsapi::api_req_battle_midnight::battle::response>>
         api_req_battle_midnight_battle_response_;
-    std::optional<kcapi::api_req_map::start::request> api_req_map_start_request_;
-    std::optional<kcapi::svdata<kcapi::api_req_map::start::response>> api_req_map_start_response_;
-    std::optional<kcapi::svdata<kcapi::api_req_sortie::battle::response>> api_req_sortie_battle_response_;
-    std::optional<kcapi::svdata<kcapi::api_req_sortie::battleresult::response>> api_req_sortie_battleresult_response_;
+    std::optional<kcsapi::api_req_map::start::request> api_req_map_start_request_;
+    std::optional<kcsapi::svdata<kcsapi::api_req_map::start::response>> api_req_map_start_response_;
+    std::optional<kcsapi::svdata<kcsapi::api_req_sortie::battle::response>> api_req_sortie_battle_response_;
+    std::optional<kcsapi::svdata<kcsapi::api_req_sortie::battleresult::response>> api_req_sortie_battleresult_response_;
     kcv::fleet_data fleet_data_;
     std::optional<kcv::fleet_data> fleet_after_sortie_data_;
     kcv::map_data map_data_;

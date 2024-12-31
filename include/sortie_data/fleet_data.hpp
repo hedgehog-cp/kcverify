@@ -19,7 +19,7 @@ class fleet_data final {
     using eoen_type = eoen::database::sortie::sortie_fleet_data;
 
     static constexpr auto from_eoen(
-        const eoen_type& src, const kcapi::api_mst_ship& mst_ship, const kcapi::api_mst_slotitem& mst_slotitem
+        const eoen_type& src, const kcsapi::api_mst_ship& mst_ship, const kcsapi::api_mst_slotitem& mst_slotitem
     ) -> fleet_data {
         return fleet_data{
             src.fleet_id,               //

@@ -33,26 +33,26 @@ enable_testing()
 
 include_directories(test)
 
-add_executable(test_api_req_battle_midnight_battle_response ./test/kcapi/api_req_battle_midnight/battle/response.cpp)
-add_test(NAME kcapi_api_req_battle_midnight_battle_response COMMAND test_api_req_battle_midnight_battle_response)
+add_executable(test_api_req_battle_midnight_battle_response ./test/kcsapi/api_req_battle_midnight/battle/response.cpp)
+add_test(NAME kcsapi_api_req_battle_midnight_battle_response COMMAND test_api_req_battle_midnight_battle_response)
 
-add_executable(test_kcapi_api_req_map_start_request ./test/kcapi/api_req_map/start/request.cpp)
-add_test(NAME kcapi_api_req_map_start_request COMMAND test_kcapi_api_req_map_start_request)
+add_executable(test_kcsapi_api_req_map_start_request ./test/kcsapi/api_req_map/start/request.cpp)
+add_test(NAME kcsapi_api_req_map_start_request COMMAND test_kcsapi_api_req_map_start_request)
 
-add_executable(test_kcapi_api_req_map_start_response ./test/kcapi/api_req_map/start/response.cpp)
-add_test(NAME kcapi_api_req_map_start_response COMMAND test_kcapi_api_req_map_start_response)
+add_executable(test_kcsapi_api_req_map_start_response ./test/kcsapi/api_req_map/start/response.cpp)
+add_test(NAME kcsapi_api_req_map_start_response COMMAND test_kcsapi_api_req_map_start_response)
 
-add_executable(test_kcapi_api_req_sortie_battle_response ./test/kcapi/api_req_sortie/battle/response.cpp)
-add_test(NAME kcapi_api_req_sortie_battle_response COMMAND test_kcapi_api_req_sortie_battle_response)
+add_executable(test_kcsapi_api_req_sortie_battle_response ./test/kcsapi/api_req_sortie/battle/response.cpp)
+add_test(NAME kcsapi_api_req_sortie_battle_response COMMAND test_kcsapi_api_req_sortie_battle_response)
 
-add_executable(test_kcapi_api_req_sortie_battleresult_response ./test/kcapi/api_req_sortie/battleresult/response.cpp)
-add_test(NAME kcapi_api_req_sortie_battleresult_response COMMAND test_kcapi_api_req_sortie_battleresult_response)
+add_executable(test_kcsapi_api_req_sortie_battleresult_response ./test/kcsapi/api_req_sortie/battleresult/response.cpp)
+add_test(NAME kcsapi_api_req_sortie_battleresult_response COMMAND test_kcsapi_api_req_sortie_battleresult_response)
 
-add_executable(test_kcapi_api_start2_api_mst_ship ./test/kcapi/api_start2/api_mst_ship.cpp)
-add_test(NAME kcapi_api_start2_api_mst_ship COMMAND test_kcapi_api_start2_api_mst_ship)
+add_executable(test_kcsapi_api_start2_api_mst_ship ./test/kcsapi/api_start2/api_mst_ship.cpp)
+add_test(NAME kcsapi_api_start2_api_mst_ship COMMAND test_kcsapi_api_start2_api_mst_ship)
 
-add_executable(test_kcapi_api_start2_api_mst_slotitem ./test/kcapi/api_start2/api_mst_slotitem.cpp)
-add_test(NAME kcapi_api_start2_api_mst_slotitem COMMAND test_kcapi_api_start2_api_mst_slotitem)
+add_executable(test_kcsapi_api_start2_api_mst_slotitem ./test/kcsapi/api_start2/api_mst_slotitem.cpp)
+add_test(NAME kcsapi_api_start2_api_mst_slotitem COMMAND test_kcsapi_api_start2_api_mst_slotitem)
 
 add_executable(test_eoen_sortie_record ./test/eoen/sortie_record/sortie_record.cpp)
 add_test(NAME eoen_sortie_record COMMAND test_eoen_sortie_record)
