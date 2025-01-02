@@ -57,8 +57,8 @@ add_test(NAME kcsapi_api_start2_api_mst_slotitem COMMAND test_kcsapi_api_start2_
 add_executable(test_eoen_sortie_record ./test/eoen/sortie_record/sortie_record.cpp)
 add_test(NAME eoen_sortie_record COMMAND test_eoen_sortie_record)
 
-add_executable(test_eoen_fit_bonus ./test/eoen/fit_bonus/fit_bonus.cpp)
-add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus)
-
 add_executable(test_sortie_data ./test/sortie_data/sortie_data.cpp)
 add_test(NAME sortie_data COMMAND test_sortie_data)
+
+add_executable(test_eoen_fit_bonus ./test/eoen/fit_bonus/fit_bonus.cpp)
+add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus)
