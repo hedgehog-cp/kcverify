@@ -1,7 +1,6 @@
-// WIP
-
 // std
 #include <algorithm>
+#include <cstdlib>
 #include <filesystem>
 #include <ranges>
 
@@ -52,15 +51,6 @@ auto test(const std::filesystem::path& fname) -> std::vector<kcv::fit_bonuses::b
     }();
     const auto sortie_data = kcv::sortie_data::from_eoen(sortie_record, api_mst_ship, api_mst_slotitem);
     const auto& fleet      = *sortie_data.fleet_data().fleets().at(0);
-    // return fleet.ships()  //
-    //      | std::ranges::views::transform([](const auto& e) {
-    //            auto acc = kcv::fit_bonuses::bonus_value{};
-    //            for (const auto& [bonus, times] : kcv::fit_bonuses::extract_bonuses(e, fit_bonuses)) {
-    //                return acc + bonus * times;
-    //            }
-    //            return acc;
-    //        })
-    //      | std::ranges::to<std::vector>();
     return fleet.ships()  //
          | std::ranges::views::transform([&](const kcv::ship& e) {
                return kcv::fit_bonuses::calc_bonus(e, fit_bonuses);
@@ -137,10 +127,12 @@ int main() {
         });
         const auto result   = test("test/eoen/fit_bonus/sortie_record/0/sortie_record.json");
 
-        if (const bool all_ok = (result == expected); all_ok) {
+        if (const bool is_ok = (result == expected); is_ok) {
             std::println("ok");
         } else {
             for (const auto& e : result) print_bonus(e);
+
+            std::exit(EXIT_FAILURE);
         }
     }
 
@@ -218,10 +210,12 @@ int main() {
         });
         const auto result   = test("test/eoen/fit_bonus/sortie_record/1/sortie_record.json");
 
-        if (const bool all_ok = (result == expected); all_ok) {
+        if (const bool is_ok = (result == expected); is_ok) {
             std::println("ok");
         } else {
             for (const auto& e : result) print_bonus(e);
+
+            std::exit(EXIT_FAILURE);
         }
     }
 }

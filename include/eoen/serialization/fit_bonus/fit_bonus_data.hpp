@@ -25,7 +25,7 @@ struct fit_bonus_data final {
     std::optional<int> num;
     std::optional<fit_bonus_value> bonus;
     std::optional<std::vector<kcv::kcsapi::ship_id>> ship_id;
-    std::optional<fit_bonus_value> air_radar;
+    std::optional<fit_bonus_value> bonus_if_has_anti_air_radar;
     std::optional<std::vector<kcv::kcsapi::ship_id>> original_id;
     std::optional<std::vector<kcv::kcsapi::equipment_id>> requires_id;
     std::optional<int> requires_level;
@@ -33,9 +33,9 @@ struct fit_bonus_data final {
     std::optional<std::vector<kcv::kcsapi::category>> requires_type;
     std::optional<int> requires_num_type;
     std::optional<std::vector<kcv::kcsapi::ctype>> ship_class;
-    std::optional<fit_bonus_value> surface_radar;
+    std::optional<fit_bonus_value> bonus_if_has_surface_radar;
     std::optional<std::vector<kcv::kcsapi::nationality>> nationality;
-    std::optional<fit_bonus_value> accuracy_radar;
+    std::optional<fit_bonus_value> bonus_if_has_accuracy_radar;
 };
 
 }  // namespace fit_bonus

@@ -19,7 +19,7 @@ struct glz::meta<kcv::eoen::serialization::fit_bonus::fit_bonus_data> {
         "num",             &T::num,
         "bonus",           &T::bonus,
         "shipX",           &T::ship_id,
-        "bonusAR",         &T::air_radar,
+        "bonusAR",         &T::bonus_if_has_anti_air_radar,
         "shipS",           &T::original_id,
         "requires",        &T::requires_id, 
         "requiresLevel",   &T::requires_level,
@@ -27,9 +27,9 @@ struct glz::meta<kcv::eoen::serialization::fit_bonus::fit_bonus_data> {
         "requiresType",    &T::requires_type,
         "requiresNumType", &T::requires_num_type,
         "shipClass",       &T::ship_class,
-        "bonusSR",         &T::surface_radar,
+        "bonusSR",         &T::bonus_if_has_surface_radar,
         "shipNationality", &T::nationality,
-        "bonusAccR",       &T::accuracy_radar
+        "bonusAccR",       &T::bonus_if_has_accuracy_radar
 
         // clang-format on
     );
