@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_GET_SHIP_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_GET_SHIP_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_GET_SHIP_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_GET_SHIP_HPP_INCLUDED
 
 // std
 #include <string>
@@ -20,4 +20,4 @@ struct api_get_ship final {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_GET_SHIP_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_GET_SHIP_HPP_INCLUDED

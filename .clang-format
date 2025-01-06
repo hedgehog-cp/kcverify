@@ -14,7 +14,7 @@ AlignOperands: AlignAfterOperator
 AlignTrailingComments: true
 AllowShortBlocksOnASingleLine: Empty
 # AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
 BreakBeforeBinaryOperators: All
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma

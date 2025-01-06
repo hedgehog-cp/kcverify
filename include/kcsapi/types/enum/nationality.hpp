@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_ENUM_NATIONALITY_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_ENUM_NATIONALITY_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_ENUM_NATIONALITY_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_ENUM_NATIONALITY_HPP_INCLUDED
 
 namespace kcv {
 namespace kcsapi {
@@ -39,4 +39,4 @@ constexpr auto to_nationality(int sort_id) noexcept -> nationality {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_ENUM_NATIONALITY_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_ENUM_NATIONALITY_HPP_INCLUDED

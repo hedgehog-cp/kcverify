@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
 
 #include <string>
 
@@ -18,4 +18,4 @@ struct api_cell_flavor final {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
