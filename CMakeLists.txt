@@ -39,6 +39,10 @@ add_executable(test_api_req_battle_midnight_battle_response ./test/kcsapi/api_re
 target_include_directories(test_api_req_battle_midnight_battle_response PRIVATE test)
 add_test(NAME kcsapi_api_req_battle_midnight_battle_response COMMAND test_api_req_battle_midnight_battle_response)
 
+add_executable(test_kcsapi_api_req_map_next_response ./test/kcsapi/api_req_map/next/response.cpp)
+target_include_directories(test_kcsapi_api_req_map_next_response PRIVATE test)
+add_test(NAME kcsapi_api_req_map_next_response COMMAND test_kcsapi_api_req_map_next_response)
+
 add_executable(test_kcsapi_api_req_map_start_request ./test/kcsapi/api_req_map/start/request.cpp)
 target_include_directories(test_kcsapi_api_req_map_start_request PRIVATE test)
 add_test(NAME kcsapi_api_req_map_start_request COMMAND test_kcsapi_api_req_map_start_request)
