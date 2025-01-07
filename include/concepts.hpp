@@ -1,6 +1,13 @@
 #ifndef KCVERIFY_CONCEPTS_HPP_INCLUDED
 #define KCVERIFY_CONCEPTS_HPP_INCLUDED
 
+/**
+ * @file concepts.hpp
+ * @brief 標準ヘッダ<concepts>の拡張.
+ */
+#include <concepts>
+
+// std
 #include <ranges>
 #include <type_traits>
 

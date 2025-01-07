@@ -78,3 +78,7 @@ add_test(NAME sortie_data COMMAND test_sortie_data)
 add_executable(test_eoen_fit_bonus ./test/eoen/fit_bonus/fit_bonus.cpp)
 target_include_directories(test_eoen_fit_bonus PRIVATE test)
 add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus)
+
+add_executable(test_damage_formula_modifier ./test/damage_formula/modifier.cpp)
+target_include_directories(test_damage_formula_modifier PRIVATE test)
+add_test(NAME damage_formula_modifier COMMAND test_damage_formula_modifier)

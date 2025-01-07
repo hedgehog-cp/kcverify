@@ -1,13 +1,19 @@
 #ifndef KCVERIFY_OPTIONAL_HPP_INCLUDED
 #define KCVERIFY_OPTIONAL_HPP_INCLUDED
 
-#include <memory>
+/**
+ * @file optional.hpp
+ * @brief 標準ヘッダ<optional>の拡張.
+ * @note C++26まで.
+ */
 #include <optional>
+
+// std
+#include <memory>
 
 namespace kcv {
 
 /// @brief std::optionalをstd::ranges::range対応するための標準公開継承派生クラス.
-/// @note C++26まで.
 template <typename T>
 class optional final : public std::optional<T> {
    public:
