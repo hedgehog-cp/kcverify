@@ -43,7 +43,7 @@ class composition_function_adapter final {
 };
 
 /// @brief 関数の合成を表現する.
-/// @note auto y = (f | y)(x);  // のように使う.
+/// @note auto y = (f | g)(x);  // のように使う.
 /// ただし, y = g(f(x)) = (g ∘ f)(x) = (f | g)(x).
 /// (g | f)(x)と書く設計にしてもよいが, pipeを尊重して左から右に適用する.
 /// ならば, x | f | g または (x | f | g)()ではないかとなるが, これでは関数オブジェクトとして扱いづらい.
