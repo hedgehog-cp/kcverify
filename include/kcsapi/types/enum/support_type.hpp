@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_ENUM_SUPPORT_TYPE_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_ENUM_SUPPORT_TYPE_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_ENUM_SUPPORT_TYPE_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_ENUM_SUPPORT_TYPE_HPP_INCLUDED
 
 namespace kcv {
 namespace kcsapi {
@@ -25,4 +25,4 @@ enum class support_type {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_ENUM_SUPPORT_TYPE_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_ENUM_SUPPORT_TYPE_HPP_INCLUDED

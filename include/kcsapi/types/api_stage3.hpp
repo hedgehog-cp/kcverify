@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_STAGE3_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_STAGE3_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_STAGE3_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_STAGE3_HPP_INCLUDED
 
 // std
 #include <optional>
@@ -49,4 +49,4 @@ struct api_stage3 final {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_STAGE3_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_STAGE3_HPP_INCLUDED

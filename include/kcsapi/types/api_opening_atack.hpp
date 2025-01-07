@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_OPENING_ATACK_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_OPENING_ATACK_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_OPENING_ATACK_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_OPENING_ATACK_HPP_INCLUDED
 
 #include <optional>
 #include <vector>
@@ -22,4 +22,4 @@ struct api_opening_atack final {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_OPENING_ATACK_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_OPENING_ATACK_HPP_INCLUDED

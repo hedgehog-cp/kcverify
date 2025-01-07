@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_STAGE3_COMBINED_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_STAGE3_COMBINED_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_STAGE3_COMBINED_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_STAGE3_COMBINED_HPP_INCLUDED
 
 #include "kcsapi/types/api_stage3.hpp"
 
@@ -12,4 +12,4 @@ using api_stage3_combined = api_stage3;
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_STAGE3_COMBINED_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_STAGE3_COMBINED_HPP_INCLUDED

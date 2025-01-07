@@ -15,7 +15,7 @@
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcsapi/types/enum/nationality.hpp"
 #include "kcsapi/types/enum/ship_id.hpp"
-#include "optional/optional.hpp"
+#include "optional.hpp"
 #include "sortie_data/slot.hpp"
 
 namespace kcv {

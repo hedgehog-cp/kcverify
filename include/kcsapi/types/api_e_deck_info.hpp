@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_E_DECK_INFO_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_E_DECK_INFO_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_E_DECK_INFO_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_E_DECK_INFO_HPP_INCLUDED
 
 // std
 #include <vector>
@@ -29,4 +29,4 @@ using api_e_deck_info = std::vector<api_e_deck_info_value_t>;
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_E_DECK_INFO_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_E_DECK_INFO_HPP_INCLUDED

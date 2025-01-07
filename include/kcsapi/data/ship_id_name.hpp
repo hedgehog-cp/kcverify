@@ -1,5 +1,5 @@
-// #ifndef KCVERIFY_kcsapi_DATA_SHIP_ID_NAME_HPP_INCLUDED
-// #define KCVERIFY_kcsapi_DATA_SHIP_ID_NAME_HPP_INCLUDED
+// #ifndef KCVERIFY_KCSAPI_DATA_SHIP_ID_NAME_HPP_INCLUDED
+// #define KCVERIFY_KCSAPI_DATA_SHIP_ID_NAME_HPP_INCLUDED
 
 // // std
 // #include <array>
@@ -1531,4 +1531,4 @@
 // }  // namespace kcsapi
 // }  // namespace kcv
 
-// #endif  // KCVERIFY_kcsapi_DATA_SHIP_ID_NAME_HPP_INCLUDED
+// #endif  // KCVERIFY_KCSAPI_DATA_SHIP_ID_NAME_HPP_INCLUDED

@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_NDOCK_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_NDOCK_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_NDOCK_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_NDOCK_HPP_INCLUDED
 
 #include <cstdint>
 #include <string>
@@ -43,4 +43,4 @@ struct api_ndock final {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_NDOCK_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_NDOCK_HPP_INCLUDED

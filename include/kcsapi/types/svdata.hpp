@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_SVDATA_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_SVDATA_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_SVDATA_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_SVDATA_HPP_INCLUDED
 
 #include <string>
 
@@ -21,4 +21,4 @@ struct svdata final {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_SVDATA_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_SVDATA_HPP_INCLUDED

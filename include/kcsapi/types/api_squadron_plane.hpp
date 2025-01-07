@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_SQUADRON_PLANE_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_SQUADRON_PLANE_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_SQUADRON_PLANE_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_SQUADRON_PLANE_HPP_INCLUDED
 
 #include "kcsapi/types/enum/equipment_id.hpp"
 
@@ -14,4 +14,4 @@ struct api_squadoron_plane final {
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_SQUADRON_PLANE_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_SQUADRON_PLANE_HPP_INCLUDED

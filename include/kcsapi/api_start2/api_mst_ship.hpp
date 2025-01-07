@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_API_START2_API_MST_SHIP_HPP_INCLUDED
-#define KCVERIFY_kcsapi_API_START2_API_MST_SHIP_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_API_START2_API_MST_SHIP_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_API_START2_API_MST_SHIP_HPP_INCLUDED
 
 // std
 #include <array>
@@ -57,4 +57,4 @@ using api_mst_ship = std::vector<api_mst_ship_value_t>;
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_API_START2_API_MST_SHIP_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_API_START2_API_MST_SHIP_HPP_INCLUDED

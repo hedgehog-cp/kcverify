@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_kcsapi_TYPES_API_MINMAX_HPP_INCLUDED
-#define KCVERIFY_kcsapi_TYPES_API_MINMAX_HPP_INCLUDED
+#ifndef KCVERIFY_KCSAPI_TYPES_API_MINMAX_HPP_INCLUDED
+#define KCVERIFY_KCSAPI_TYPES_API_MINMAX_HPP_INCLUDED
 
 #include <array>
 #include <cstddef>
@@ -26,4 +26,4 @@ using api_minmax = std::array<int, 2>;
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_kcsapi_TYPES_API_MINMAX_HPP_INCLUDED
+#endif  // KCVERIFY_KCSAPI_TYPES_API_MINMAX_HPP_INCLUDED
