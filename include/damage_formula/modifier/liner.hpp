@@ -13,7 +13,7 @@ struct liner_inverse final {
     const T a = 1.0;
     const T b = 0.0;
 
-    constexpr auto operator()(const T& x) const -> std::optional<T> {
+    constexpr auto operator()(const auto& x) const -> std::optional<decltype((x - b) / a)> {
         if (a == 0) return std::nullopt;
         return (x - b) / a;
     }
@@ -26,11 +26,11 @@ struct liner final {
     const T a = 1.0;
     const T b = 0.0;
 
-    constexpr auto operator()(const T& x) const {
+    constexpr auto operator()(const auto& x) const {
         return x * a + b;
     }
 
-    constexpr auto operator^(int) const -> liner_inverse<T> {
+    constexpr auto operator^(int) const noexcept -> liner_inverse<T> {
         return liner_inverse<T>{a, b};
     }
 };

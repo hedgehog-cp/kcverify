@@ -4,10 +4,10 @@
 // std
 #include <algorithm>
 #include <cmath>
+#include <type_traits>
 
 // kcv
 #include "numeric.hpp"
-#include "type_traits.hpp"
 
 namespace kcv {
 namespace mod {
@@ -21,7 +21,7 @@ struct softcap_inverse final {
     /// @tparam T 浮動小数点数または機械区間.
     template <typename T>
     static constexpr auto operator()(const T& postcap) -> T {
-        if constexpr (kcv::is_interval_v<T>) {
+        if constexpr (std::is_same_v<T, kcv::interval>) {
             // XXX: 仮実装. たぶんだめ.
             return postcap < cap ? postcap : boost::numeric::square(postcap - cap) + cap;
         } else {
@@ -39,11 +39,10 @@ struct softcap final {
     /// @tparam T 浮動小数点数または機械区間.
     template <typename T>
     static constexpr auto operator()(const T& precap) -> T {
-        if constexpr (kcv::is_interval_v<T>) {
-            return boost::numeric::min(precap, cap) + boost::numeric::sqrt(boost::numeric::max(precap - cap, 0.0));
-        } else {
-            return std::min(precap, cap) + std::sqrt(std::max(precap - cap, 0.0));
-        }
+        using boost::numeric::min, boost::numeric::max, boost::numeric::sqrt;
+        using std::min, std::max, std::sqrt;
+
+        return min(precap, cap) + sqrt(max(precap - cap, 0.0));
     }
 
     constexpr auto operator^(int) const noexcept -> softcap_inverse<Cap> {

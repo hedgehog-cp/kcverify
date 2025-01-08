@@ -38,8 +38,11 @@ class composition_function_adapter final {
     }
 
    private:
-    const F1& f1_;
-    const F2& f2_;
+    // FIXME:
+    // 右辺値をconst左辺値参照で束縛すると, 合成関数を持ちまわれなくなるのでとりあえずコピーする.
+    // 特に逆関数を右辺値で構築しがち.
+    const F1 f1_;
+    const F2 f2_;
 };
 
 /// @brief 関数の合成を表現する.
