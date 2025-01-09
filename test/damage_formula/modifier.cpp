@@ -32,7 +32,7 @@ constexpr auto f(const T &x) {
     const auto pt       = kcv::mod::pt{};
     const auto critical = kcv::mod::critical{true};
 
-    const auto func     = f1 | f2 | softcap | floor | f3 | pt | critical | &kcv::mod::g<T>;
+    const auto func     = f1 | f2 | softcap | floor | f3 | pt | critical | &kcv::mod::g<T> | &kcv::mod::g<const T &>;
     const auto func_inv = critical ^ -1 | pt ^ 1 | f3 ^ -1 | floor ^ 1 | softcap ^ 1 | f2 ^ -1 | f1 ^ -1;
 
     const auto y = (func | func_inv)(x);

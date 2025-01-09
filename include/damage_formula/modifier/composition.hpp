@@ -1,6 +1,11 @@
 #ifndef KCVERIFY_DAMAGE_FORMULA_MODIFIER_COMPOSITION_HPP_INCLUDED
 #define KCVERIFY_DAMAGE_FORMULA_MODIFIER_COMPOSITION_HPP_INCLUDED
 
+// std
+#include <concepts>
+
+// kcv
+#include "numeric.hpp"
 #include "type_traits.hpp"
 
 namespace kcv {
@@ -51,7 +56,14 @@ class composition_function_adapter final {
 /// (g | f)(x)と書く設計にしてもよいが, pipeを尊重して左から右に適用する.
 /// ならば, x | f | g または (x | f | g)()ではないかとなるが, これでは関数オブジェクトとして扱いづらい.
 /// @todo 合成できる関数を制限する.
+/// @todo 左辺値参照やconst右辺値参照を引数とする関数は呼び出せないため, ここで合成できないようにしたい.
 template <typename F1, typename F2>
+// clang-format off
+    // 左辺値参照を引数にとる関数を排除するために, 右辺値で呼び出せるかを検証する.
+    // 右辺値を左辺値参照で束縛できないため, 実体化に失敗する.
+    requires (std::invocable<F1, kcv::float64_t> or std::invocable<F1, kcv::interval>)
+         and (std::invocable<F2, kcv::float64_t> or std::invocable<F2, kcv::interval>)
+// clang-format on
 constexpr auto operator|(const F1& f1, const F2& f2) noexcept -> kcv::mod::composition_function_adapter<F1, F2> {
     return kcv::mod::composition_function_adapter<F1, F2>{f1, f2};
 }
