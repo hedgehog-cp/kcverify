@@ -1,6 +1,7 @@
 /*
 
 !/.vscode
+!/assets
 !/document/asset
 !/include
 !/source
@@ -12,3 +13,6 @@
 !CMakeLists.txt
 !Doxyfile
 !README.md
+!setup.sh
+
+include/constants/*.inc

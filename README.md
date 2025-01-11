@@ -5,7 +5,6 @@ KanColle Verification Tool
 Feature:
 
 - Rigorous numerical calculations
-- fast
 
 ## Development Environment
 
@@ -23,6 +22,8 @@ Feature:
   - C++17 and part of C++20, C++23
 - [CMake](https://cmake.org/)
   - `sudo apt install cmake`
+- [jq](https://jqlang.github.io/jq/)
+  - `sudo apt install jq`
 
 ### Library
 
