@@ -82,3 +82,11 @@ add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus)
 add_executable(test_damage_formula_modifier ./test/damage_formula/modifier.cpp)
 target_include_directories(test_damage_formula_modifier PRIVATE test)
 add_test(NAME damage_formula_modifier COMMAND test_damage_formula_modifier)
+
+add_executable(test_constants_ship ./test/constants/ship.cpp)
+target_include_directories(test_constants_ship PRIVATE test)
+add_test(NAME constants_ship COMMAND test_constants_ship)
+
+add_executable(test_constants_equipment ./test/constants/equipment.cpp)
+target_include_directories(test_constants_equipment PRIVATE test)
+add_test(NAME constants_equipment COMMAND test_constants_equipment)
