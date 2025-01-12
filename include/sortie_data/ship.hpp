@@ -6,8 +6,9 @@
 #include <ranges>
 #include <vector>
 
-// ranges: C++26から不要
-#include <range/v3/view/concat.hpp>
+// alt std
+#include "optional.hpp"
+#include "ranges.hpp"
 
 // kcv
 #include "eoen/database/sortie/sortie_ship.hpp"
@@ -15,7 +16,6 @@
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcsapi/types/enum/nationality.hpp"
 #include "kcsapi/types/enum/ship_id.hpp"
-#include "optional.hpp"
 #include "sortie_data/slot.hpp"
 
 namespace kcv {
@@ -65,8 +65,7 @@ class ship final {
         , original_id_{original_id}
         , nationality_{kcv::kcsapi::to_nationality(mst.api_sort_id)}
         , eqslots_{std::move(slots)}
-        , exslot_{std::move(ex)} {
-    }
+        , exslot_{std::move(ex)} {}
 
     constexpr auto mst() const noexcept -> const kcsapi::api_mst_ship_value_t& {
         return this->mst_;
@@ -90,9 +89,8 @@ class ship final {
     }
 
     /// @brief 装備スロットと補強増設スロット.
-    /// @note C++26のstd::ranges::views::concatの代替として, range-v3を使って実装.
-    constexpr std::ranges::range auto slots() const noexcept {
-        return ::ranges::views::concat(this->eqslots_, this->exslot_);
+    constexpr auto slots() const noexcept -> kcv::ranges::range_of<slot> auto {
+        return kcv::ranges::views::concat(this->eqslots_, this->exslot_);
     }
 
    private:

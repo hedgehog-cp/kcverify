@@ -18,6 +18,7 @@
 // #include <strict_float>
 
 // std
+#include <concepts>
 #include <limits>
 
 // boost
@@ -32,6 +33,48 @@ static_assert(std::numeric_limits<float64_t>::is_iec559);
 
 /// @brief 機械区間.
 using interval = boost::numeric::interval<float64_t>;
+
+template <typename T>
+constexpr auto sqrt(const T& x) {
+    if constexpr (std::same_as<T, kcv::interval>) {
+        return boost::numeric::sqrt(x);
+    } else {
+        return std::sqrt(x);
+    }
+}
+
+template <typename T>
+constexpr auto square(const T& x) {
+    if constexpr (std::same_as<T, kcv::interval>) {
+        return boost::numeric::square(x);
+    } else {
+        return std::pow(x, 2);
+    }
+}
+
+// interval版はコピーを返すことに注意.
+
+template <typename T, typename U>
+    requires std::same_as<T, kcv::interval> or std::same_as<U, kcv::interval>
+inline auto min(const T& a, const U& b) -> kcv::interval {
+    return boost::numeric::min(a, b);
+}
+
+template <typename T>
+constexpr auto min(const T& a, const T& b) -> const T& {
+    return std::min(a, b);
+}
+
+template <typename T, typename U>
+    requires std::same_as<T, kcv::interval> or std::same_as<U, kcv::interval>
+inline auto max(const T& a, const U& b) -> kcv::interval {
+    return boost::numeric::max(a, b);
+}
+
+template <typename T>
+constexpr auto max(const T& a, const T& b) -> const T& {
+    return std::max(a, b);
+}
 
 }  // namespace kcv
 

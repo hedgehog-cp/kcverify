@@ -5,6 +5,7 @@
 #include <algorithm>
 
 // kcv
+#include "constants/equipment.hpp"
 #include "eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "eoen/serialization/fit_bonus/fit_bonus_value.hpp"
@@ -23,33 +24,20 @@ using bonus_equipment = eoen::serialization::fit_bonus::fit_bonus_per_equipment;
 using bonus_value     = eoen::serialization::fit_bonus::fit_bonus_value;
 
 /// @brief 各種電探の搭載状態.
-/// @note より汎用的な関数を実装した際に不要となるが, それまではこれを使う.
 struct radar final {
-    static constexpr bool is_radar(const std::optional<kcv::equipment>& e) noexcept {
-        if (not e.has_value()) return false;
-        return std::get<kcsapi::idx_type::icon>(e->mst().api_type) == kcsapi::icon::radar;
-    }
-
-    static constexpr bool is_anti_air_radar(const std::optional<kcv::equipment>& e) noexcept {
-        if (not e.has_value()) return false;
-        return is_radar(e) and e->mst().api_tyku >= 2;
-    }
-
-    static constexpr bool is_surface_air_radar(const std::optional<kcv::equipment>& e) noexcept {
-        if (not e.has_value()) return false;
-        return is_radar(e) and e->mst().api_saku >= 5;
-    }
-
-    static constexpr bool is_accuracy_air_radar(const std::optional<kcv::equipment>& e) noexcept {
-        if (not e.has_value()) return false;
-        return is_radar(e) and e->mst().api_houm >= 8;
-    }
-
     constexpr radar(const ship& attacker) noexcept
-        : has_anti_air_radar{std::ranges::any_of(attacker.eqslots(), &is_anti_air_radar, &kcv::slot::equipment)}
-        , has_surface_radar{std::ranges::any_of(attacker.eqslots(), &is_surface_air_radar, &kcv::slot::equipment)}
-        , has_accuracy_radar{std::ranges::any_of(attacker.eqslots(), &is_accuracy_air_radar, &kcv::slot::equipment)} {
-    }
+        : has_anti_air_radar{std::ranges::any_of(
+              attacker.slots(), [](const auto& e) -> bool { return e.has_value() and is_anti_air_radar(e->mst()); },
+              &kcv::slot::equipment
+          )}
+        , has_surface_radar{std::ranges::any_of(
+              attacker.slots(), [](const auto& e) -> bool { return e.has_value() and is_surface_radar(e->mst()); },
+              &kcv::slot::equipment
+          )}
+        , has_accuracy_radar{std::ranges::any_of(
+              attacker.slots(), [](const auto& e) -> bool { return e.has_value() and is_accuracy_radar(e->mst()); },
+              &kcv::slot::equipment
+          )} {}
 
     const bool has_anti_air_radar;
     const bool has_surface_radar;
@@ -185,7 +173,7 @@ constexpr bool matches_bonus_data(const bonus_data& bonus_data, const ship& ship
 
 /// @brief 指定された条件を満たす装備の搭載数を数え上げる.
 constexpr int count_fit_equipment(
-    const ship& ship, 
+    const ship& ship,
     const bonus_equipment& bonus_equipment,
     const bonus_data& bonus_data
 ) {
