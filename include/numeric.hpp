@@ -18,6 +18,7 @@
 // #include <strict_float>
 
 // std
+#include <concepts>
 #include <limits>
 
 // boost
@@ -32,6 +33,27 @@ static_assert(std::numeric_limits<float64_t>::is_iec559);
 
 /// @brief 機械区間.
 using interval = boost::numeric::interval<float64_t>;
+
+template <typename T>
+constexpr auto sqrt(const T& x) {
+    if constexpr (std::same_as<T, kcv::interval>) {
+        return boost::numeric::sqrt(x);
+    } else {
+        return std::sqrt(x);
+    }
+}
+
+template <typename T>
+constexpr auto square(const T& x) {
+    if constexpr (std::same_as<T, kcv::interval>) {
+        return boost::numeric::square(x);
+    } else {
+        return std::sqrt(x);
+    }
+}
+
+// TODO: kcv::min, kcv::maxを定義する.
+// シグネチャの都合でちょっと定義するのが難しいので後回し.
 
 }  // namespace kcv
 

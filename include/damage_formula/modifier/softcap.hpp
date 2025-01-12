@@ -21,12 +21,8 @@ struct softcap_inverse final {
     /// @tparam T 浮動小数点数または機械区間.
     template <typename T>
     static constexpr auto operator()(const T& postcap) -> T {
-        if constexpr (std::is_same_v<T, kcv::interval>) {
-            // XXX: 仮実装. たぶんだめ.
-            return postcap < cap ? postcap : boost::numeric::square(postcap - cap) + cap;
-        } else {
-            return postcap < cap ? postcap : std::pow(postcap - cap, 2.0) + cap;
-        }
+        // REVIEW: 区間に対する大小比較.
+        return postcap < cap ? postcap : kcv::square(postcap - cap) + cap;
     }
 };
 
@@ -39,10 +35,10 @@ struct softcap final {
     /// @tparam T 浮動小数点数または機械区間.
     template <typename T>
     static constexpr auto operator()(const T& precap) -> T {
-        using boost::numeric::min, boost::numeric::max, boost::numeric::sqrt;
-        using std::min, std::max, std::sqrt;
+        using boost::numeric::min, boost::numeric::max;
+        using std::min, std::max;
 
-        return min(precap, cap) + sqrt(max(precap - cap, 0.0));
+        return min(precap, cap) + kcv::sqrt(max(precap - cap, 0.0));
     }
 
     constexpr auto operator^(int) const noexcept -> softcap_inverse<Cap> {
