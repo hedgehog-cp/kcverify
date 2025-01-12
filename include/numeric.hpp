@@ -48,12 +48,33 @@ constexpr auto square(const T& x) {
     if constexpr (std::same_as<T, kcv::interval>) {
         return boost::numeric::square(x);
     } else {
-        return std::sqrt(x);
+        return std::pow(x, 2);
     }
 }
 
-// TODO: kcv::min, kcv::maxを定義する.
-// シグネチャの都合でちょっと定義するのが難しいので後回し.
+// interval版はコピーを返すことに注意.
+
+template <typename T, typename U>
+    requires std::same_as<T, kcv::interval> or std::same_as<U, kcv::interval>
+inline auto min(const T& a, const U& b) -> kcv::interval {
+    return boost::numeric::min(a, b);
+}
+
+template <typename T>
+constexpr auto min(const T& a, const T& b) -> const T& {
+    return std::min(a, b);
+}
+
+template <typename T, typename U>
+    requires std::same_as<T, kcv::interval> or std::same_as<U, kcv::interval>
+inline auto max(const T& a, const U& b) -> kcv::interval {
+    return boost::numeric::max(a, b);
+}
+
+template <typename T>
+constexpr auto max(const T& a, const T& b) -> const T& {
+    return std::max(a, b);
+}
 
 }  // namespace kcv
 
