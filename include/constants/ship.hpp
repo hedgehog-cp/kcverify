@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <concepts>
 #include <cstddef>
 #include <ranges>
 #include <string_view>
@@ -37,19 +36,6 @@ inline constexpr auto api_mst_ship = std::to_array<api_mst_ship_value_t>({
 #include "constants/ship.hpp.inc"
 });
 static_assert(std::ranges::is_sorted(api_mst_ship, {}, &api_mst_ship_value_t::api_id));
-
-/// @brief 条件に一致するマスタデータを抽出して, コピーした値を固定長配列で返す.
-/// @note predをラムダ式で定義するとき, キャプチャをするとconstexprの文脈で使えなくなるためコンパイルエラーとなる.
-consteval auto extract_ships_from_mst(const std::predicate<const api_mst_ship_value_t&> auto pred) {
-    constexpr auto size = std::ranges::count_if(api_mst_ship, pred);
-
-    auto arr = std::array<api_mst_ship_value_t, size>{};
-    for (auto&& [dst, src] : std::ranges::views::zip(arr, api_mst_ship | std::ranges::views::filter(pred))) {
-        dst = src;
-    }
-
-    return arr;
-}
 
 }  // namespace detail
 
