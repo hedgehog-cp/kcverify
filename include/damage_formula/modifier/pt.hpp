@@ -21,7 +21,7 @@ struct pt_inverse final {
         using std::sqrt;
 
         const auto d2 = (-3.0 * x + sqrt(T{5.0}) * sqrt(d1) + 25.0);
-        if (d2 == 0) return std::nullopt;
+        if (d2 >= 0 and d2 <= 0) return std::nullopt;
 
         return -10.0 / 9.0 * d2;
     }

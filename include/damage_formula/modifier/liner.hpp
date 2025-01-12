@@ -14,7 +14,7 @@ struct liner_inverse final {
     const T b = 0.0;
 
     constexpr auto operator()(const auto& x) const -> std::optional<decltype((x - b) / a)> {
-        if (a == 0) return std::nullopt;
+        if (a >= 0 and a <= 0) return std::nullopt;
         return (x - b) / a;
     }
 };

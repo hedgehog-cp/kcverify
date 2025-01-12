@@ -1,5 +1,6 @@
 // std
 #include <cassert>
+#include <print>
 
 // kcv
 #include "damage_formula/modifier/composition.hpp"
@@ -32,10 +33,10 @@ constexpr auto f(const T &x) {
     const auto pt       = kcv::mod::pt{};
     const auto critical = kcv::mod::critical{true};
 
-    const auto func     = f1 | f2 | softcap | floor | f3 | pt | critical | &kcv::mod::g<T> | &kcv::mod::g<const T &>;
-    const auto func_inv = critical ^ -1 | pt ^ 1 | f3 ^ -1 | floor ^ 1 | softcap ^ 1 | f2 ^ -1 | f1 ^ -1;
+    const auto func = f1 | f2 | softcap | floor | f3 | pt | critical | &kcv::mod::g<T> | &kcv::mod::g<const T &>;
+    const auto inv  = (critical ^ -1) | (pt ^ -1) | (f3 ^ -1) | (floor ^ -1) | (softcap ^ -1) | (f2 ^ -1) | (f1 ^ -1);
 
-    const auto y = (func | func_inv)(x);
+    const auto y = (func | inv)(x);
 
     return y;
 }
@@ -47,11 +48,13 @@ int main() {
 
     {
         const auto y = f<kcv::float64_t>(x).value();
+        std::println("[{:.16f}, {:.16f}]", y.lower(), y.upper());
         assert(y.lower() <= x and x <= y.upper());
     }
 
     {
         const auto y = f<kcv::interval>(x).value();
+        std::println("[{:.16f}, {:.16f}]", y.lower(), y.upper());
         assert(y.lower() <= x and x <= y.upper());
     }
 }
