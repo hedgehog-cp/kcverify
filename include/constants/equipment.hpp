@@ -75,6 +75,26 @@ constexpr auto get_if(kcv::kcsapi::equipment_id id, const kcv::kcsapi::api_mst_s
 
 // 以下の関数群は全て`std::predicate<const kcv::kcsapi::api_mst_slotitem &>`を満たす.
 
+/// @brief 電探であるかを検証する.
+constexpr bool is_radar(const kcv::kcsapi::api_mst_slotitem_value_t &mst) noexcept {
+    return std::get<kcsapi::idx_type::icon>(mst.api_type) == kcsapi::icon::radar;
+}
+
+/// @brief 対空電探であるかを検証する.
+constexpr bool is_anti_air_radar(const kcv::kcsapi::api_mst_slotitem_value_t &mst) noexcept {
+    return is_radar(mst) and mst.api_tyku >= 2;
+}
+
+/// @brief 水上電探であるかを検証する.
+constexpr bool is_surface_radar(const kcv::kcsapi::api_mst_slotitem_value_t &mst) noexcept {
+    return is_radar(mst) and mst.api_saku >= 5;
+}
+
+/// @brief 命中電探であるかを検証する.
+constexpr bool is_accuracy_radar(const kcv::kcsapi::api_mst_slotitem_value_t &mst) noexcept {
+    return is_radar(mst) and mst.api_houm >= 8;
+}
+
 /// @brief 夜間作戦航空要員であるかを検証する.
 constexpr bool is_night_operation_aviation_personnel(const kcv::kcsapi::api_mst_slotitem_value_t &mst) noexcept {
     switch (mst.api_id) {
