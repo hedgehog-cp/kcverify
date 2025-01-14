@@ -11,6 +11,7 @@
 #include <vector>
 
 // kcv
+#include "inplace_vector.hpp"
 #include "kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcsapi/types/enum/ship_id.hpp"
 #include "kcsapi/types/enum/stype.hpp"
@@ -74,7 +75,86 @@ constexpr auto get_if(kcv::kcsapi::ship_id id, const kcv::kcsapi::api_mst_ship& 
     return nullptr;
 }
 
+// MARK: 述語関数
 // 以下の関数群は全て`std::predicate<const kcv::kcsapi::api_mst_ship_value_t& `を満たす.
+
+/// @brief 深海棲艦であるかを検証する.
+constexpr bool is_abyssal_ship(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    return mst.api_id > kcv::kcsapi::ship_id{1500};
+}
+
+/// @brief 陸上型であるかを検証する.
+constexpr bool is_installation(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    return mst.api_soku == 0;
+}
+
+/// @brief トーチカであるかを検証する.
+constexpr bool is_pillbox(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    static constexpr auto ids = kcv::detail::api_mst_ship  //
+                              | std::ranges::views::filter([](const auto& e) -> bool {
+                                    static constexpr auto pillboxes = std::to_array<std::string_view>({
+                                        "砲台小鬼",
+                                        "トーチカ小鬼",
+                                        "対空小鬼",
+                                        "トーチカ要塞棲姫",
+                                        "トーチカ要塞棲姫-壊",
+                                    });
+                                    return std::ranges::contains(pillboxes, e.api_name);
+                                })
+                              | std::ranges::views::transform(&kcv::detail::api_mst_ship_value_t::api_id)
+                              | std::ranges::to<kcv::inplace_vector<kcv::kcsapi::ship_id, 13>>();
+
+    return std::ranges::binary_search(ids, mst.api_id);
+}
+
+/// @brief 離島棲姫であるかを検証する.
+constexpr bool is_isolated_island(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    static constexpr auto ids = kcv::detail::api_mst_ship                               //
+                              | std::ranges::views::filter([](const auto& e) -> bool {  //
+                                    return e.api_name == "離島棲姫";
+                                })
+                              | std::ranges::views::transform(&kcv::detail::api_mst_ship_value_t::api_id)
+                              | std::ranges::to<kcv::inplace_vector<kcv::kcsapi::ship_id, 5>>();
+
+    return std::ranges::binary_search(ids, mst.api_id);
+}
+
+/// @brief 港湾棲姫であるかを検証する.
+constexpr bool is_harbour_summer_princess(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    static constexpr auto ids = kcv::detail::api_mst_ship  //
+                              | std::ranges::views::filter([](const auto& e) -> bool {
+                                    static constexpr auto arbour_summer_princesses = std::to_array<std::string_view>({
+                                        "港湾夏姫",
+                                        "港湾夏姫II",
+                                        "港湾夏姫II-壊",
+                                        "港湾夏姫-壊",
+                                        "港湾棲姫 休日mode",
+                                        "港湾棲姫 休日mode-壊",
+                                    });
+                                    return std::ranges::contains(arbour_summer_princesses, e.api_name);
+                                })
+                              | std::ranges::views::transform(&kcv::detail::api_mst_ship_value_t::api_id)
+                              | std::ranges::to<kcv::inplace_vector<kcv::kcsapi::ship_id, 16>>();
+
+    return std::ranges::binary_search(ids, mst.api_id);
+}
+
+/// @brief ソフトスキンであるかを検証する.
+constexpr bool is_soft_skin(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    return is_installation(mst) and not(is_pillbox(mst) or is_isolated_island(mst) or is_harbour_summer_princess(mst));
+}
+
+/// @brief 集積地棲姫であるかを検証する.
+constexpr bool is_supply_depot(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    static constexpr auto ids = kcv::detail::api_mst_ship                               //
+                              | std::ranges::views::filter([](const auto& e) -> bool {  //
+                                    return e.api_name.starts_with("集積地棲姫");
+                                })
+                              | std::ranges::views::transform(&kcv::detail::api_mst_ship_value_t::api_id)
+                              | std::ranges::to<kcv::inplace_vector<kcv::kcsapi::ship_id, 62>>();
+
+    return std::ranges::binary_search(ids, mst.api_id);
+}
 
 /// @brief 潜水艦であるかを検証する.
 constexpr bool is_submarine(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
