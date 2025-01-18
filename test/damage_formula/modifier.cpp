@@ -1,13 +1,14 @@
 // std
 #include <cassert>
-#include <limits>
 #include <print>
 
 // kcv
+#include "damage_formula/modifier/air_attack.hpp"
 #include "damage_formula/modifier/composition.hpp"
 #include "damage_formula/modifier/critical.hpp"
 #include "damage_formula/modifier/floor_if.hpp"
 #include "damage_formula/modifier/liner.hpp"
+#include "damage_formula/modifier/proficiency.hpp"
 #include "damage_formula/modifier/pt.hpp"
 #include "damage_formula/modifier/softcap.hpp"
 #include "numeric.hpp"
@@ -30,20 +31,26 @@ constexpr auto g2(const auto &x) noexcept {
 
 template <typename T>
 constexpr auto f(const T &x) {
-    const auto f1     = kcv::mod::liner<T>{1.5, 10.0};
-    const auto f2     = kcv::mod::liner<T>{1.25, 20.0};
-    const auto precap = &kcv::mod::g1<T> | f1 | f2 | &g2<const T &>;
+    const auto f1                  = kcv::mod::liner<T>{1.5, 10.0};
+    const auto air_attack          = kcv::mod::air_attack{true};
+    const auto floor_if_air_attack = kcv::mod::floor_if{air_attack.is_air_attack};
+    const auto f2                  = kcv::mod::liner<T>{1.25, 20.0};
+    const auto precap              = &kcv::mod::g1<T> | f1 | air_attack | floor_if_air_attack | f2 | &g2<const T &>;
 
     const auto softcap = kcv::mod::softcap<220>{};
 
-    const auto floor    = kcv::mod::floor_if{true};
-    const auto f3       = kcv::mod::liner<T>{1.0, 100.0};
-    const auto pt       = kcv::mod::pt{};
-    const auto critical = kcv::mod::critical{true};
-    const auto postcap  = floor | f3 | pt | critical;
+    const auto floor             = kcv::mod::floor{};
+    const auto f3                = kcv::mod::liner<T>{1.0, 100.0};
+    const auto pt                = kcv::mod::pt{};
+    const auto critical          = kcv::mod::critical{true};
+    const auto proficiency       = kcv::mod::proficiency{1.5};
+    const auto floor_if_critical = kcv::mod::floor_if{critical.is_critical};
+    const auto postcap           = floor | f3 | pt | critical | proficiency | floor_if_critical;
 
     const auto func = precap | softcap | postcap;
-    const auto inv  = (critical ^ -1) | (pt ^ -1) | (f3 ^ -1) | (floor ^ -1) | (softcap ^ -1) | (f2 ^ -1) | (f1 ^ -1);
+    const auto inv  = (floor_if_critical ^ -1) | (proficiency ^ -1) | (critical ^ -1) | (pt ^ -1) | (f3 ^ -1)
+                   | (floor ^ -1) | (softcap ^ -1) | (f2 ^ -1) | (floor_if_air_attack ^ -1) | (air_attack ^ -1)
+                   | (f1 ^ -1);
 
     const auto y = (func | inv)(x);
 
