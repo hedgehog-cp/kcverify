@@ -123,7 +123,7 @@ constexpr bool is_isolated_island(const kcv::kcsapi::api_mst_ship_value_t& mst) 
 constexpr bool is_harbour_summer_princess(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
     static constexpr auto ids = kcv::detail::api_mst_ship  //
                               | std::ranges::views::filter([](const auto& e) -> bool {
-                                    static constexpr auto arbour_summer_princesses = std::to_array<std::string_view>({
+                                    static constexpr auto harbour_summer_princesses = std::to_array<std::string_view>({
                                         "港湾夏姫",
                                         "港湾夏姫II",
                                         "港湾夏姫II-壊",
@@ -131,7 +131,7 @@ constexpr bool is_harbour_summer_princess(const kcv::kcsapi::api_mst_ship_value_
                                         "港湾棲姫 休日mode",
                                         "港湾棲姫 休日mode-壊",
                                     });
-                                    return std::ranges::contains(arbour_summer_princesses, e.api_name);
+                                    return std::ranges::contains(harbour_summer_princesses, e.api_name);
                                 })
                               | std::ranges::views::transform(&kcv::detail::api_mst_ship_value_t::api_id)
                               | std::ranges::to<kcv::inplace_vector<kcv::kcsapi::ship_id, 16>>();
