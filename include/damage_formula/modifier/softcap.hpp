@@ -19,12 +19,12 @@ struct softcap_inverse final {
     /// @tparam T 浮動小数点数または機械区間.
     template <typename T>
     static constexpr auto operator()(const T& postcap) -> T {
-        // REVIEW: 区間に対する大小比較.
+        constexpr auto impl = [](const auto& x) static constexpr { return x <= cap ? x : kcv::square(x - cap) + cap; };
+
         if constexpr (std::same_as<T, kcv::interval>) {
-            constexpr auto f = [](const auto& x) { return x <= cap ? x : kcv::square(x - cap) + cap; };
-            return kcv::interval{f(postcap.lower()), f(postcap.upper())};
+            return kcv::interval{impl(postcap.lower()), impl(postcap.upper())};
         } else {
-            return postcap < cap ? postcap : kcv::square(postcap - cap) + cap;
+            return impl(postcap);
         }
     }
 };
