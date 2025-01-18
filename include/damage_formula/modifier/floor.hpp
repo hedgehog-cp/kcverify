@@ -3,7 +3,7 @@
 
 // std
 #include <cmath>
-#include <type_traits>
+#include <concepts>
 
 // kcv
 #include "numeric.hpp"
@@ -16,7 +16,7 @@ namespace mod {
 struct floor_inverse final {
     template <typename T>
     static auto operator()(const T& x) -> kcv::interval {
-        if constexpr (std::is_same_v<T, kcv::interval>) {
+        if constexpr (std::same_as<T, kcv::interval>) {
             return kcv::interval{std::ceil(x.lower()), std::ceil(x.upper()) + 1};
         } else {
             return kcv::interval{x, x + 1};
@@ -28,7 +28,7 @@ struct floor_inverse final {
 struct floor final {
     template <typename T>
     static constexpr auto operator()(const T& x) -> T {
-        if constexpr (std::is_same_v<T, kcv::interval>) {
+        if constexpr (std::same_as<T, kcv::interval>) {
             return T{std::floor(x.lower()), std::floor(x.upper())};
         } else {
             return std::floor(x);

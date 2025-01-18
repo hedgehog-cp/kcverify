@@ -3,6 +3,7 @@
 
 // std
 #include <concepts>
+#include <type_traits>
 
 // kcv
 #include "numeric.hpp"
@@ -30,7 +31,7 @@ class composition_function_adapter final {
     /// std::optionalで多重にラップされた型 e.g. std::optional<std::optional<U>> を生成してしまう.
     /// この関数は, std::optionalを適切に処理し, 返り値の型をUまたはstd::optional<U>に整える.
     template <typename F, typename T>
-    constexpr auto invoke(const F& f, const T& x) const {
+    static constexpr auto invoke(const F& f, const T& x) {
         if constexpr (kcv::is_optional_v<T>) {
             if constexpr (kcv::is_optional_v<std::invoke_result_t<F, const typename T::value_type&>>) {
                 return x.and_then(f);
