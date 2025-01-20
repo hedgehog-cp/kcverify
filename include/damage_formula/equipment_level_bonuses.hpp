@@ -138,6 +138,27 @@ constexpr auto day_shelling(const kcv::kcsapi::api_mst_slotitem_value_t& mst) no
     }
 }
 
+template <typename T>
+constexpr auto torpedo(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept -> bonus_formula<T> {
+    using none  = no_bonus<T>;
+    using liner = liner_bonus<T>;
+    using sqrt  = sqrt_bonus<T>;
+
+    const auto& category = std::get<kcv::kcsapi::idx_type::category>(mst.api_type);
+
+    switch (category) {
+        case kcv::kcsapi::category::torpedo:
+        case kcv::kcsapi::category::aa_gun:
+            return sqrt{1.2};
+
+        case kcv::kcsapi::category::submarine_torpedo:
+            return liner{1.0};
+
+        default:
+            return none{};
+    }
+}
+
 }  // namespace equipment_level_bonuses
 }  // namespace kcv
 
