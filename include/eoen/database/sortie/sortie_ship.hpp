@@ -2,6 +2,8 @@
 #define KCVERIFY_EOEN_DATABASE_SORTIE_SORTIE_SHIP_HPP_INCLUDED
 
 // std
+#include <array>
+#include <cstdint>
 #include <optional>
 #include <vector>
 
@@ -16,59 +18,86 @@ namespace database {
 namespace sortie {
 
 /// @brief `ツール` -> `出撃記録` -> `出撃詳細` より出力される `Ships` の要素型.
-/// /0/FleetData/Fleets/0/Ships/0
-/// /0/FleetAfterSortieData/Fleets/0/Ships/0
-/// @see namespace ElectronicObserver.Database.Sortie; public class SortieShip { ... }
+/// @brief namespace ElectronicObserver.Database.Sortie; public class SortieShip { ... }
+/// @see ElectronicObserver/Database/Sortie/SortieShip.cs
 struct sortie_ship final {
-    kcsapi::ship_id id;
+    /// @brief 艦船ID.
+    kcv::kcsapi::ship_id id;
 
-    /// @brief nullopt for older data.
-    std::optional<int> drop_id;
+    /// @brief ドロップした艦娘の艦船ID.
+    /// nullopt for older data.
+    std::optional<kcv::kcsapi::ship_id> drop_id;
 
-    int level;
-    int condition;
-    std::vector<int> kyouka;
-    int fuel;
-    int ammo;
-    int hp;
+    /// @brief レベル.
+    std::int32_t level;
 
-    /// @brief nullopt for older data.
-    std::optional<int> armor;
+    /// @brief 疲労度.
+    std::int32_t condition;
 
-    /// @brief nullopt for older data.
-    std::optional<int> evasion;
+    /// @brief 近代化改修. 0=火力, 1=雷装, 2=対空, 3=装甲, 4=運, 5=耐久, 6=対潜.
+    std::array<std::int32_t, 7> kyouka;
 
-    /// @brief nullopt for older data.
-    std::optional<std::vector<int>> aircraft;
+    /// @brief 搭載燃料.
+    std::int32_t fuel;
 
-    int range;
-    int speed;
+    /// @brief 搭載弾薬量.
+    std::int32_t ammo;
 
-    /// @brief nullopt for older data.
-    std::optional<int> firepower;
+    /// @brief 耐久.
+    std::int32_t hp;
 
-    /// @brief nullopt for older data.
-    std::optional<int> torpedo;
+    /// @brief 装甲.
+    /// nullopt for older data.
+    std::optional<std::int32_t> armor;
 
-    /// @brief nullopt for older data.
-    std::optional<int> aa;
+    /// @brief 回避.
+    /// nullopt for older data.
+    std::optional<std::int32_t> evasion;
 
-    /// @brief nullopt for older data.
-    std::optional<int> asw;
+    /// @brief 搭載数.
+    /// nullopt for older data.
+    std::optional<std::vector<std::int32_t>> aircraft;
 
-    /// @brief nullopt for older data.
-    std::optional<int> search;
+    /// @brief 射程.
+    std::int32_t range;
 
-    /// @brief nullopt for older data.
-    std::optional<int> luck;
+    /// @brief 速度.
+    std::int32_t speed;
 
-    std::vector<sortie_equipment_slot> equipment_slots;
+    /// @brief 火力.
+    /// nullopt for older data.
+    std::optional<std::int32_t> firepower;
 
-    /// @brief null = expansion slot not available.
-    std::optional<sortie_equipment_slot> expansion_slot;
+    /// @brief 雷装.
+    /// nullopt for older data.
+    std::optional<std::int32_t> torpedo;
 
-    /// @brief nullopt for older data.
-    std::optional<std::vector<kcsapi::sp_effect_item>> special_effect_items;
+    /// @brief 対空.
+    /// nullopt for older data.
+    std::optional<std::int32_t> aa;
+
+    /// @brief 対潜.
+    /// nullopt for older data.
+    std::optional<std::int32_t> asw;
+
+    /// @brief 索敵.
+    /// nullopt for older data.
+    std::optional<std::int32_t> search;
+
+    /// @brief 運.
+    /// nullopt for older data.
+    std::optional<std::int32_t> luck;
+
+    /// @brief 装備スロット.
+    std::vector<kcv::eoen::database::sortie::sortie_equipment_slot> equipment_slots;
+
+    /// @brief 増設スロット.
+    /// null = expansion slot not available.
+    std::optional<kcv::eoen::database::sortie::sortie_equipment_slot> expansion_slot;
+
+    /// @brief 特注アイテム.
+    /// nullopt for older data.
+    std::optional<std::vector<kcv::kcsapi::sp_effect_item>> special_effect_items;
 };
 
 }  // namespace sortie

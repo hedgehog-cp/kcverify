@@ -16,9 +16,14 @@ namespace serialization {
 namespace fit_bonus {
 
 struct fit_bonus_per_equipment final {
+    /// @brief カテゴリID条件.
     std::optional<std::vector<kcv::kcsapi::category>> equipment_types;
+
+    /// @brief 装備ID条件.
     std::optional<std::vector<kcv::kcsapi::equipment_id>> equipment_ids;
-    std::vector<fit_bonus_data> bonuses;
+
+    /// @brief ボーナス.
+    std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_data> bonuses;
 };
 
 }  // namespace fit_bonus

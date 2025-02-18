@@ -2,6 +2,7 @@
 #define KCVERIFY_EOEN_DATABASE_SORTIE_SORTIE_FLEET_DATA_HPP_INCLUDED
 
 // std
+#include <cstdint>
 #include <optional>
 #include <vector>
 
@@ -15,23 +16,26 @@ namespace database {
 namespace sortie {
 
 /// @brief `ツール` -> `出撃記録` -> `出撃詳細` より出力される `FleetData` または `FleetAfterSortieData`.
-/// /0/FleetData
-/// /0/FleetAfterSortieData
-/// @see namespace ElectronicObserver.Database.Sortie; public class SortieFleetData { ... }
+/// @brief namespace ElectronicObserver.Database.Sortie; public class SortieFleetData { ... }
+/// @see ElectronicObserver/Database/Sortie/SortieFleetData.cs
 struct sortie_fleet_data final {
-    int fleet_id;
+    /// @brief 1 or 2 or 3 or 4.
+    std::int32_t fleet_id;
 
-    /// @brief 0 = none, 1~4 = fleets
-    int node_support_fleet_id;
+    /// @brief 前衛支援. 0 = none, 1~4 = fleets
+    std::int32_t node_support_fleet_id;
 
-    int boss_support_fleet_id;
+    /// @brief 艦隊決戦支援.
+    std::int32_t boss_support_fleet_id;
 
     /// @see https://github.com/ElectronicObserverEN/ElectronicObserver/blob/main/ElectronicObserverTypes/FleetType.cs
-    int combined_flag;
+    std::int32_t combined_flag;
 
-    std::vector<std::optional<sortie_fleet>> fleets;
+    /// @brief 第1艦隊~第4艦隊.
+    std::vector<std::optional<kcv::eoen::database::sortie::sortie_fleet>> fleets;
 
-    std::vector<sortie_air_base> air_bases;
+    /// @brief 第1基地航空隊~第3基地航空隊.
+    std::vector<kcv::eoen::database::sortie::sortie_air_base> air_bases;
 };
 
 }  // namespace sortie

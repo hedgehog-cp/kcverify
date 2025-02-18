@@ -232,16 +232,16 @@ constexpr auto calc_bonus(const ship& ship, const std::vector<bonus_equipment>& 
                 }
             }
 
-            if (bonus_data.bonus_if_has_anti_air_radar.has_value() and radar.has_anti_air_radar) {
-                total += *bonus_data.bonus_if_has_anti_air_radar;
+            if (bonus_data.bonus_if_anti_air_radar.has_value() and radar.has_anti_air_radar) {
+                total += *bonus_data.bonus_if_anti_air_radar;
             }
 
-            if (bonus_data.bonus_if_has_accuracy_radar.has_value() and radar.has_accuracy_radar) {
-                total += *bonus_data.bonus_if_has_accuracy_radar;
+            if (bonus_data.bonus_if_accuracy_radar.has_value() and radar.has_accuracy_radar) {
+                total += *bonus_data.bonus_if_accuracy_radar;
             }
 
-            if (bonus_data.bonus_if_has_surface_radar.has_value() and radar.has_surface_radar) {
-                total += *bonus_data.bonus_if_has_surface_radar;
+            if (bonus_data.bonus_if_surface_radar.has_value() and radar.has_surface_radar) {
+                total += *bonus_data.bonus_if_surface_radar;
             }
         }
     }

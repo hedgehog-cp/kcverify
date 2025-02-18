@@ -14,7 +14,7 @@ struct glz::meta<kcv::eoen::database::sortie::sortie_map_data> {
     static constexpr auto value = object(
         // clang-format off
 
-        "RequiredDefeatedCount", &T::required_defeated_count,
+        "RequiredDefeatedCount", &T::required_defeat_count,
         "MapHPCurrent",          &T::map_hp_current,
         "MapHPMax",              &T::map_hp_max
 

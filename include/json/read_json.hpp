@@ -21,8 +21,9 @@
 
 namespace kcv {
 
+template <glz::opts opt = {}>
 void read_json(auto& dst, const std::string& buffer) noexcept try {
-    if (const auto error = glz::read_json(dst, buffer); error) {
+    if (const auto error = glz::read<opt>(dst, buffer); error) {
         std::println(stderr, "{}.", glz::format_error(error, buffer));
         std::exit(EXIT_FAILURE);
     }
@@ -35,13 +36,14 @@ void read_json(auto& dst, const std::string& buffer) noexcept try {
     std::exit(EXIT_FAILURE);
 }
 
+template <glz::opts opt = {}>
 void read_json(auto& dst, const std::filesystem::path& fname) noexcept try {
     auto buffer = std::string{};
     buffer.resize_and_overwrite(std::filesystem::file_size(fname), [&](char* data, std::size_t size) -> std::size_t {
         std::ifstream{fname}.read(data, size);
         return size;
     });
-    kcv::read_json(dst, buffer);
+    kcv::read_json<opt>(dst, buffer);
 } catch (const std::exception& e) {
     std::println(stderr, "{}.", e.what());
     std::println(stderr, "could not read {}.", fname.c_str());

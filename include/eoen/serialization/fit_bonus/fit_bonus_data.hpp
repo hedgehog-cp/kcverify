@@ -2,6 +2,7 @@
 #define KCVERIFY_EOEN_SERIALIZATION_FIT_BONUS_FIT_BONUS_DATA_HPP_INCLUDED
 
 // std
+#include <cstdint>
 #include <optional>
 #include <vector>
 
@@ -20,22 +21,53 @@ namespace serialization {
 namespace fit_bonus {
 
 struct fit_bonus_data final {
-    std::optional<std::vector<kcv::kcsapi::stype>> ship_type;
-    std::optional<int> level;
-    std::optional<int> num;
-    std::optional<fit_bonus_value> bonus;
-    std::optional<std::vector<kcv::kcsapi::ship_id>> ship_id;
-    std::optional<fit_bonus_value> bonus_if_has_anti_air_radar;
+    /// @brief 艦船条件. 未改造ID.
     std::optional<std::vector<kcv::kcsapi::ship_id>> original_id;
-    std::optional<std::vector<kcv::kcsapi::equipment_id>> requires_id;
-    std::optional<int> requires_level;
-    std::optional<int> requires_num;
-    std::optional<std::vector<kcv::kcsapi::category>> requires_type;
-    std::optional<int> requires_num_type;
+
+    /// @brief 艦船条件. 艦型.
     std::optional<std::vector<kcv::kcsapi::ctype>> ship_class;
-    std::optional<fit_bonus_value> bonus_if_has_surface_radar;
+
+    /// @brief 艦船条件. 艦籍.
     std::optional<std::vector<kcv::kcsapi::nationality>> nationality;
-    std::optional<fit_bonus_value> bonus_if_has_accuracy_radar;
+
+    /// @brief 艦船条件. 艦種.
+    std::optional<std::vector<kcv::kcsapi::stype>> ship_type;
+
+    /// @brief 艦船条件. 艦船ID.
+    std::optional<std::vector<kcv::kcsapi::ship_id>> ship_id;
+
+    /// @brief 装備ID条件. 装備ID.
+    std::optional<std::vector<kcv::kcsapi::equipment_id>> requires_id;
+
+    /// @brief 装備ID条件. 改修値.
+    std::optional<std::int32_t> requires_level;
+
+    /// @brief 装備ID条件. 搭載数.
+    std::optional<std::int32_t> requires_num;
+
+    /// @brief 装備カテゴリ条件. カテゴリID.
+    std::optional<std::vector<kcv::kcsapi::category>> requires_type;
+
+    /// @brief 装備カテゴリ条件. 搭載数.
+    std::optional<std::int32_t> requires_num_type;
+
+    /// @brief 装備条件. 改修値
+    std::optional<std::int32_t> level;
+
+    /// @brief 装備条件. 搭載数.
+    std::optional<std::int32_t> num;
+
+    /// @brief ボーナス.
+    std::optional<kcv::eoen::serialization::fit_bonus::fit_bonus_value> bonus;
+
+    /// @brief 対空電探が要求されるボーナス.
+    std::optional<kcv::eoen::serialization::fit_bonus::fit_bonus_value> bonus_if_anti_air_radar;
+
+    /// @brief 命中電探が要求されるボーナス.
+    std::optional<kcv::eoen::serialization::fit_bonus::fit_bonus_value> bonus_if_accuracy_radar;
+
+    /// @brief 水上電探が要求されるボーナス.
+    std::optional<kcv::eoen::serialization::fit_bonus::fit_bonus_value> bonus_if_surface_radar;
 };
 
 }  // namespace fit_bonus

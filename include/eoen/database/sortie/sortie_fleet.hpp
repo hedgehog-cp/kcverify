@@ -14,12 +14,14 @@ namespace database {
 namespace sortie {
 
 /// @brief `ツール` -> `出撃記録` -> `出撃詳細` より出力される `Fleets` の要素型.
-/// /0/FleetData/Fleets/0
-/// /0/FleetAfterSortieData/Fleets/0
-/// @see namespace ElectronicObserver.Database.Sortie; public class SortieFleet { ... }
+/// @brief namespace ElectronicObserver.Database.Sortie; public class SortieFleet { ... }
+/// @see ElectronicObserver/Database/Sortie/SortieFleet.cs
 struct sortie_fleet final {
+    /// @brief 艦隊名.
     std::string name;
-    std::vector<sortie_ship> ships;
+
+    /// @brief 艦船.
+    std::vector<kcv::eoen::database::sortie::sortie_ship> ships;
 };
 
 }  // namespace sortie
