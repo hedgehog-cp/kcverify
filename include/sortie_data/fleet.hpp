@@ -15,41 +15,45 @@ namespace kcv {
 /// @brief 艦隊.
 class fleet final {
    public:
-    using eoen_type = eoen::database::sortie::sortie_fleet;
+    using eoen_type = kcv::eoen::database::sortie::sortie_fleet;
 
-    static auto from_eoen(
-        const eoen_type& src, const kcsapi::api_mst_ship& mst_ship, const kcsapi::api_mst_slotitem& mst_slotitem
+    // clang-format off
+
+    static constexpr auto from_eoen(
+        const eoen_type& src,
+        const kcv::kcsapi::api_mst_ship& api_mst_ship,
+        const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
     ) -> fleet {
         return fleet{
-            std::move(src.name),  //
-            src.ships             //
+            src.name,
+            src.ships
                 | std::ranges::views::transform([&](const auto& e) {
-                      return ship::from_eoen(e, mst_ship, mst_slotitem);
-                  })
-                | std::ranges::to<std::vector>()
+                      return kcv::ship::from_eoen(e, api_mst_ship, api_mst_slotitem);
+                  }) 
+                | std::ranges::to<std::vector>(),
         };
     }
 
-    constexpr fleet(std::string name, std::vector<ship> ships)
+    // clang-format on
+
+    constexpr fleet(std::string name, std::vector<kcv::ship> ships)
         : name_{std::move(name)}
-        , ships_{std::move(ships)} {
+        , ships_{std::move(ships)} {}
+
+    constexpr auto name() const noexcept -> decltype(auto) {
+        return (this->name_);
     }
 
-    constexpr fleet(std::vector<ship>&& ships)
-        : ships_{std::move(ships)} {
-    }
-
-    constexpr auto name() const noexcept -> const std::string& {
-        return this->name_;
-    }
-
-    constexpr auto ships() const noexcept -> const std::vector<ship>& {
-        return this->ships_;
+    constexpr auto ships() const noexcept -> decltype(auto) {
+        return (this->ships_);
     }
 
    private:
+    /// @brief 艦隊名.
     std::string name_;
-    std::vector<ship> ships_;
+
+    /// @brief 艦船.
+    std::vector<kcv::ship> ships_;
 };
 
 }  // namespace kcv

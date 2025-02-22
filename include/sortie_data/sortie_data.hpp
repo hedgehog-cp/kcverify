@@ -3,179 +3,226 @@
 
 // std
 #include <cstdlib>
+#include <variant>
+#include <vector>
 
 // glz
 #include <glaze/json.hpp>
-#include <variant>
 
 // kcv
 #include "eoen/database/kancolle_api/api_file_type.hpp"
 #include "eoen/database/sortie/sortie_record.hpp"
 #include "json/read_json.hpp"
+#include "kcsapi/api_get_member/ship_deck/response.hpp"
 #include "kcsapi/api_req_battle_midnight/battle/response.hpp"
+#include "kcsapi/api_req_map/next/response.hpp"
 #include "kcsapi/api_req_map/start/request.hpp"
 #include "kcsapi/api_req_map/start/response.hpp"
 #include "kcsapi/api_req_sortie/battle/response.hpp"
 #include "kcsapi/api_req_sortie/battleresult/response.hpp"
+#include "kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcsapi/types/svdata.hpp"
 #include "sortie_data/fleet_data.hpp"
 #include "sortie_data/map_data.hpp"
 
 namespace kcv {
 
+// clang-format off
+
+/// @brief 出撃API.
 using sortie_api = std::variant<
     std::monostate,
+    kcv::kcsapi::api_req_map::start::request,
+    kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>,
+    kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>,
+    kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>,
+    kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>,
+    kcv::kcsapi::svdata<kcv::kcsapi::api_get_member::ship_deck::response>,
+    kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>
+>;
 
-    // [出撃選択]
-    // api_get_member/mapinfo
-
-    // [出撃]
-    // api_req_map/start
-    kcsapi::api_req_map::start::request,  //
-    kcsapi::svdata<kcsapi::api_req_map::start::response>,
-
-    // [戦闘-昼戦]
-    // api_req_sortie/battle
-    kcsapi::svdata<kcsapi::api_req_sortie::battle::response>,
-
-    // [夜戦]
-    // api_req_battle_midnight/battle
-    kcsapi::svdata<kcsapi::api_req_battle_midnight::battle::response>,
-
-    // [戦闘終了]
-    // api_req_sortie/battleresult
-    kcsapi::svdata<kcsapi::api_req_sortie::battleresult::response>
-
-    // [進撃]
-    // api_get_member/ship_deck
-    // api_req_map/next
-
-    // [超重爆迎撃戦闘開始]
-    // api_req_map/air_raid
-
-    // [緊急泊地修理承諾]
-    // api_req_map/anchorage_repair
-
-    // [帰投]
-    // api_port/port
-    // api_get_member/slot_item
-    // api_get_member/unsetslot
-    // api_get_member/useitem
-    >;
+// clang-format on
 
 class sortie_data final {
    public:
-    using eoen_type = eoen::database::sortie::sortie_record;
+    using eoen_type = kcv::eoen::database::sortie::sortie_record;
 
     static auto from_eoen(
-        const eoen_type& src, const kcsapi::api_mst_ship& mst_ship, const kcsapi::api_mst_slotitem& mst_slotitem
+        const eoen_type &src, const kcv::kcsapi::api_mst_ship &api_mst_ship,
+        const kcv::kcsapi::api_mst_slotitem &api_mst_slotitem
     ) -> sortie_data {
-        auto result = sortie_data{
-            src.id,
-            src.version,
-            src.world,
-            src.map,
-            src.api_files  //
-                | std::ranges::views::transform([](const auto& e) -> kcv::sortie_api {
-                      const auto& type    = e.api_file_type;
-                      const auto& name    = e.name;
-                      const auto& content = e.content;
-                      using api_file_type = kcv::eoen::database::kancolle_api::api_file_type;
+        constexpr auto parse_api_files
+            = [](std::vector<kcv::sortie_api> &dst,
+                 const std::vector<kcv::eoen::database::kancolle_api::api_files> &src) static -> void {
+            for (const auto &e : src) {
+                const auto &type    = e.api_file_type;
+                const auto &name    = e.name;
+                const auto &content = e.content;
 
-                      if (type == api_file_type::request and name == "api_req_map/start") {
-                          auto data = kcv::kcsapi::api_req_map::start::request{};
-                          kcv::read_json(data, content);
-                          return data;
-                      }
-                      if (type == api_file_type::response and name == "api_req_map/start") {
-                          auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>{};
-                          kcv::read_json(data, content);
-                          return data;
-                      }
-                      if (type == api_file_type::response and name == "api_req_sortie/battle") {
-                          auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>{};
-                          kcv::read_json(data, content);
-                          return data;
-                      }
-                      if (type == api_file_type::response and name == "api_req_battle_midnight/battle") {
-                          auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>{};
-                          kcv::read_json(data, content);
-                          return data;
-                      }
-                      if (type == api_file_type::response and name == "api_req_sortie/battleresult") {
-                          auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>{};
-                          kcv::read_json(data, content);
-                          return data;
-                      }
-                      return std::monostate{};
-                  })
-                | std::ranges::to<std::vector>(),
-            fleet_data::from_eoen(src.fleet_data, mst_ship, mst_slotitem),
-            src.fleet_after_sortie_data.transform([&](const auto& e) {
-                return fleet_data::from_eoen(e, mst_ship, mst_slotitem);
-            }),
-            map_data::from_eoen(src.map_data),
+                // std::vectorの要素をapi構造体Tで初期化し(emplace_back),
+                // その初期化された領域にTとしてapiを読み込む(read_json).
+                using std::literals::string_view_literals::operator""sv;
+                using file_type = kcv::eoen::database::kancolle_api::api_file_type;
+                if (name == "api_req_map/start"sv and type == file_type::request) {
+                    using T = kcv::kcsapi::api_req_map::start::request;
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/request", name));
+                }
+                if (name == "api_req_map/start"sv and type == file_type::response) {
+                    using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>;
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                }
+                if (name == "api_req_sortie/battle"sv and type == file_type::response) {
+                    using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>;
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                }
+                if (name == "api_req_battle_midnight/battle"sv and type == file_type::response) {
+                    using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>;
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                }
+                if (name == "api_req_sortie/battleresult"sv and type == file_type::response) {
+                    using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>;
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                }
+                if (name == "api_get_member/ship_deck"sv and type == file_type::response) {
+                    using T = kcv::kcsapi::svdata<kcv::kcsapi::api_get_member::ship_deck::response>;
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                }
+                if (name == "api_req_map/next"sv and type == file_type::response) {
+                    using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>;
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                }
+            }
         };
 
-        return result;
+        auto api_files = std::vector<kcv::sortie_api>{};
+        parse_api_files(api_files, src.api_files);
+
+        return sortie_data{
+            src.world,
+            src.map,
+            std::move(api_files),
+            kcv::fleet_data::from_eoen(src.fleet_data, api_mst_ship, api_mst_slotitem),
+            src.fleet_after_sortie_data.transform([&](const auto &e) {
+                return kcv::fleet_data::from_eoen(e, api_mst_ship, api_mst_slotitem);
+            }),
+            kcv::map_data::from_eoen(src.map_data),
+        };
+
+        // auto result = sortie_data{
+        //     src.world,
+        //     src.map,
+        //     src.api_files  //
+        //         | std::ranges::views::transform([](const auto& e) -> kcv::sortie_api {
+        //               const auto& type    = e.api_file_type;
+        //               const auto& name    = e.name;
+        //               const auto& content = e.content;
+        //               using api_file_type = kcv::eoen::database::kancolle_api::api_file_type;
+
+        //               if (type == api_file_type::request and name == "api_req_map/start") {
+        //                   auto data = kcv::kcsapi::api_req_map::start::request{};
+        //                   kcv::read_json(data, content);
+        //                   return data;
+        //               }
+        //               if (type == api_file_type::response and name == "api_req_map/start") {
+        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>{};
+        //                   kcv::read_json(data, content);
+        //                   return data;
+        //               }
+        //               if (type == api_file_type::response and name == "api_req_sortie/battle") {
+        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>{};
+        //                   kcv::read_json(data, content);
+        //                   return data;
+        //               }
+        //               if (type == api_file_type::response and name == "api_req_battle_midnight/battle") {
+        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>{};
+        //                   kcv::read_json(data, content);
+        //                   return data;
+        //               }
+        //               if (type == api_file_type::response and name == "api_req_sortie/battleresult") {
+        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>{};
+        //                   kcv::read_json(data, content);
+        //                   return data;
+        //               }
+        //               return std::monostate{};
+        //           })
+        //         | std::ranges::to<std::vector>(),
+        //     kcv::fleet_data::from_eoen(src.fleet_data, api_mst_ship, api_mst_slotitem),
+        //     src.fleet_after_sortie_data.transform([&](const auto& e) {
+        //         return kcv::fleet_data::from_eoen(e, api_mst_ship, api_mst_slotitem);
+        //     }),
+        //     kcv::map_data::from_eoen(src.map_data),
+        // };
+
+        // return result;
     }
 
-    constexpr sortie_data() = default;
+    // clang-format off
 
     constexpr sortie_data(
-        std::int32_t id, int version, int world, int map, std::vector<sortie_api> sortie_api,
-        kcv::fleet_data fleet_data, std::optional<kcv::fleet_data> fleet_after_sortie_data, kcv::map_data map_data
+        std::int32_t world,
+        std::int32_t map,
+        std::vector<sortie_api> sortie_api,
+        kcv::fleet_data fleet_data,
+        std::optional<kcv::fleet_data> fleet_after_sortie_data,
+        kcv::map_data map_data
     )
-        : id_{id}
-        , version_{version}
-        , world_{world}
-        , map_{map}
+        : world_{std::move(world)}
+        , map_{std::move(map)}
         , sortie_api_{std::move(sortie_api)}
         , fleet_data_{std::move(fleet_data)}
         , fleet_after_sortie_data_{std::move(fleet_after_sortie_data)}
-        , map_data_{std::move(map_data)} {
+        , map_data_{std::move(map_data)} {}
+
+    // clang-format on
+
+    constexpr auto world() const noexcept -> decltype(auto) {
+        return (this->world_);
     }
 
-    constexpr auto id() const noexcept -> std::int32_t {
-        return this->id_;
+    constexpr auto map() const noexcept -> decltype(auto) {
+        return (this->map_);
     }
 
-    constexpr int version() const noexcept {
-        return this->version_;
+    constexpr auto sortie_api() const noexcept -> decltype(auto) {
+        return (this->sortie_api_);
     }
 
-    constexpr int world() const noexcept {
-        return this->world_;
+    constexpr auto fleet_data() const noexcept -> decltype(auto) {
+        return (this->fleet_data_);
     }
 
-    constexpr int map() const noexcept {
-        return this->map_;
+    constexpr auto fleet_after_sortie_data() const noexcept -> decltype(auto) {
+        return (this->fleet_after_sortie_data_);
     }
 
-    constexpr auto sortie_api() const noexcept -> const std::vector<sortie_api>& {
-        return this->sortie_api_;
-    }
-
-    constexpr auto fleet_data() const noexcept -> const fleet_data& {
-        return this->fleet_data_;
-    }
-
-    constexpr auto fleet_after_sortie_data() const noexcept -> const std::optional<kcv::fleet_data>& {
-        return this->fleet_after_sortie_data_;
-    }
-
-    constexpr auto map_data() const noexcept -> const map_data& {
-        return this->map_data_;
+    constexpr auto map_data() const noexcept -> decltype(auto) {
+        return (this->map_data_);
     }
 
    private:
-    std::int32_t id_;
-    int version_;
-    int world_;
-    int map_;
+    /// @brief 74式ENの何某かの管理用ID.
+    // std::int32_t id_;
+
+    /// @brief 74式ENの何某かの管理用Version.
+    // std::int32_t version_;
+
+    /// @brief 海域. #5-3-Pに対する5.
+    std::int32_t world_;
+
+    /// @brief 海域. #5-3-Pに対する3.
+    std::int32_t map_;
+
+    /// @brief この出撃中に送受信したAPI
     std::vector<kcv::sortie_api> sortie_api_;
+
+    /// @brief 出撃前艦隊データ.
     kcv::fleet_data fleet_data_;
+
+    /// @brief 出撃後艦隊データ.
     std::optional<kcv::fleet_data> fleet_after_sortie_data_;
+
+    /// @brief 海域攻略進捗データ.
     kcv::map_data map_data_;
 };
 

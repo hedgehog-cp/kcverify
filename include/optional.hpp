@@ -14,6 +14,7 @@
 namespace kcv {
 
 /// @brief std::optionalをstd::ranges::range対応するための標準公開継承派生クラス.
+/// @note kcv::read_jsonで読み取れない.
 template <typename T>
 class optional final : public std::optional<T> {
    public:
@@ -40,14 +41,15 @@ class optional final : public std::optional<T> {
 }  // namespace kcv
 
 #include <ranges>
-template <class T>
+template <typename T>
 constexpr bool std::ranges::enable_view<kcv::optional<T>> = true;
 
 // #include <format>
-// template <class T>
+// template <typename T>
 // constexpr auto std::format_kind<kcv::optional<T>> = std::range_format::disabled;
 
-static_assert(std::ranges::range<kcv::optional<int>>);
-static_assert(std::ranges::view<kcv::optional<int>>);
+#include <variant>
+static_assert(std::ranges::range<kcv::optional<std::monostate>>);
+static_assert(std::ranges::view<kcv::optional<std::monostate>>);
 
 #endif  // KCVERIFY_OPTIONAL_HPP_INCLUDED

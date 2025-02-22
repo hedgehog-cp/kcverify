@@ -1,16 +1,13 @@
-#ifndef KCVERIFY_SORTIE_EQUIPMENT_HPP_INCLUDED
-#define KCVERIFY_SORTIE_EQUIPMENT_HPP_INCLUDED
+#ifndef KCVERIFY_SORTIE_DATA_EQUIPMENT_HPP_INCLUDED
+#define KCVERIFY_SORTIE_DATA_EQUIPMENT_HPP_INCLUDED
 
 // std
 #include <algorithm>
-#include <cstdio>
-#include <cstdlib>
-#include <functional>
-#include <print>
-#include <utility>
+#include <cstdint>
 
 // kcv
 #include "eoen/database/sortie/sortie_equipment.hpp"
+#include "exit.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
 
 namespace kcv {
@@ -20,45 +17,50 @@ class equipment final {
    public:
     using eoen_type = eoen::database::sortie::sortie_equipment;
 
-    static auto from_eoen(const eoen_type& src, const kcsapi::api_mst_slotitem& mst) -> equipment {
-        const auto itr = std::ranges::lower_bound(mst, src.id, {}, &kcsapi::api_mst_slotitem_value_t::api_id);
-        if (itr != std::ranges::end(mst) and itr->api_id == src.id) [[likely]] {
-            return equipment{*itr, src.level, src.aircraft_level};
-        } else {
-            std::println(stderr, "{} not found in api_mst_slotitem.", std::to_underlying(src.id));
-            std::exit(EXIT_FAILURE);
-        }
+    static constexpr auto from_eoen(const eoen_type& src, const kcv::kcsapi::api_mst_slotitem& mst) -> equipment {
+        return equipment{
+            kcv::binary_search_or_exit(src.id, mst),
+            src.level,
+            src.aircraft_level,
+        };
     }
 
-    constexpr equipment(const kcsapi::api_mst_slotitem_value_t& mst, int level, int aircraft_level) noexcept
+    // clang-format off
+
+    constexpr equipment(
+        const kcv::kcsapi::api_mst_slotitem_value_t& mst,
+        std::int32_t level,
+        std::int32_t aircraft_level
+    ) noexcept
         : mst_{mst}
-        , level_{level}
-        , aircraft_level_{aircraft_level} {
+        , level_{std::move(level)}
+        , aircraft_level_{std::move(aircraft_level)} {}
+
+    // clang-format on
+
+    constexpr auto mst() const noexcept -> decltype(auto) {
+        return (this->mst_);
     }
 
-    constexpr auto mst() const noexcept -> const kcsapi::api_mst_slotitem_value_t& {
-        return this->mst_;
+    constexpr auto level() const noexcept -> decltype(auto) {
+        return (this->level_);
     }
 
-    constexpr int level() const noexcept {
-        return this->level_;
-    }
-
-    constexpr int aircraft_level() const noexcept {
-        return this->aircraft_level_;
+    constexpr auto aircraft_level() const noexcept -> decltype(auto) {
+        return (this->aircraft_level_);
     }
 
    private:
     /// @brief 装備マスタ.
-    const kcsapi::api_mst_slotitem_value_t& mst_;
+    const kcv::kcsapi::api_mst_slotitem_value_t& mst_;
 
     /// @brief 改修値.
-    int level_;
+    std::int32_t level_;
 
     /// @brief 熟練度.
-    int aircraft_level_;
+    std::int32_t aircraft_level_;
 };
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_SORTIE_EQUIPMENT_HPP_INCLUDED
+#endif  // KCVERIFY_SORTIE_DATA_EQUIPMENT_HPP_INCLUDED
