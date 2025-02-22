@@ -7,7 +7,7 @@
 #include <vector>
 
 // kcv
-#include "eoen/database/sortie/sorite_air_base_squadron.hpp"
+#include "eoen/database/sortie/sortie_air_base_squadron.hpp"
 #include "kcsapi/types/enum/air_base_action.hpp"
 
 namespace kcv {
@@ -37,7 +37,7 @@ struct sortie_air_base final {
     std::int32_t bonus_distance;
 
     /// @brief 第N中隊.
-    std::vector<kcv::eoen::database::sortie::sorite_air_base_squadron> squadrons;
+    std::vector<kcv::eoen::database::sortie::sortie_air_base_squadron> squadrons;
 };
 
 }  // namespace sortie

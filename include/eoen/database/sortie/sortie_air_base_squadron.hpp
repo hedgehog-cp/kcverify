@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_EOEN_DATABASE_SORTIE_SORITE_AIR_BASE_SQUADRON_HPP_INCLUDED
-#define KCVERIFY_EOEN_DATABASE_SORTIE_SORITE_AIR_BASE_SQUADRON_HPP_INCLUDED
+#ifndef KCVERIFY_EOEN_DATABASE_SORTIE_SORTIE_AIR_BASE_SQUADRON_HPP_INCLUDED
+#define KCVERIFY_EOEN_DATABASE_SORTIE_SORTIE_AIR_BASE_SQUADRON_HPP_INCLUDED
 
 // std
 #include <cstdint>
@@ -16,11 +16,14 @@ namespace sortie {
 /// @brief `ツール` -> `出撃記録` -> `出撃詳細` より出力される `Squadrons` の要素型.
 /// @brief namespace ElectronicObserver.Database.Sortie; public class SortieAirBaseSquadron { ... }
 /// @see ElectronicObserver/Database/Sortie/SortieAirBaseSquadron.cs
-struct sorite_air_base_squadron final {
+struct sortie_air_base_squadron final {
     /// @brief 現在搭載数.
     std::optional<std::int32_t> aircraft_current;
 
+    /// @brief 0=未配属, 1=配属済み, 2=配置転換中.
     std::int32_t state;
+
+    /// @brief 疲労度. 1=通常, 2=黄疲労, 3=赤疲労. 未配属なら存在しない.
     std::int32_t condition;
 
     /// @brief 装備スロット.
@@ -32,4 +35,4 @@ struct sorite_air_base_squadron final {
 }  // namespace eoen
 }  // namespace kcv
 
-#endif  // KCVERIFY_EOEN_DATABASE_SORTIE_SORITE_AIR_BASE_SQUADRON_HPP_INCLUDED
+#endif  // KCVERIFY_EOEN_DATABASE_SORTIE_SORTIE_AIR_BASE_SQUADRON_HPP_INCLUDED

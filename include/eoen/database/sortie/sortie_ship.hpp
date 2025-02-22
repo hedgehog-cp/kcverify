@@ -24,9 +24,9 @@ struct sortie_ship final {
     /// @brief 艦船ID.
     kcv::kcsapi::ship_id id;
 
-    /// @brief ドロップした艦娘の艦船ID.
+    /// @brief 着任順の固有ID.
     /// nullopt for older data.
-    std::optional<kcv::kcsapi::ship_id> drop_id;
+    std::optional<std::int32_t> drop_id;
 
     /// @brief レベル.
     std::int32_t level;
