@@ -10,6 +10,7 @@
 #include "kcsapi/types/api_e_deck_info.hpp"
 #include "kcsapi/types/api_eventmap.hpp"
 #include "kcsapi/types/api_happening.hpp"
+#include "kcsapi/types/api_itemget.hpp"
 #include "kcsapi/types/api_select_route.hpp"
 #include "kcsapi/types/enum/cell_type.hpp"
 
@@ -67,7 +68,7 @@ struct response final {
 
     /// Element type is <see cref="Models.ApiItemget"/> or <see cref="List{T}"/> of <see cref="Models.ApiItemget"/>s.
     /// @brief
-    // std::optional<std::variant<kcsapi::api_itemget, std::vector<kcsapi::api_itemget> >> api_itemget;
+    std::optional<std::variant<kcsapi::api_itemget, std::vector<kcsapi::api_itemget>>> api_itemget;
 
     /// @brief
     // std::optional<kcsapi::api_itemget_eo> api_itemget_eo_comment;
