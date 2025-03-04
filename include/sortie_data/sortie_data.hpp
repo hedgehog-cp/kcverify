@@ -66,31 +66,31 @@ class sortie_data final {
                 using file_type = kcv::eoen::database::kancolle_api::api_file_type;
                 if (name == "api_req_map/start"sv and type == file_type::request) {
                     using T = kcv::kcsapi::api_req_map::start::request;
-                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/request", name));
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content);
                 }
                 if (name == "api_req_map/start"sv and type == file_type::response) {
                     using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>;
-                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content);
                 }
                 if (name == "api_req_sortie/battle"sv and type == file_type::response) {
                     using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>;
-                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content);
                 }
                 if (name == "api_req_battle_midnight/battle"sv and type == file_type::response) {
                     using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>;
-                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content);
                 }
                 if (name == "api_req_sortie/battleresult"sv and type == file_type::response) {
                     using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>;
-                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content);
                 }
                 if (name == "api_get_member/ship_deck"sv and type == file_type::response) {
                     using T = kcv::kcsapi::svdata<kcv::kcsapi::api_get_member::ship_deck::response>;
-                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content);
                 }
                 if (name == "api_req_map/next"sv and type == file_type::response) {
                     using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>;
-                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content, std::format("{}/response", name));
+                    kcv::read_json(std::get<T>(dst.emplace_back<T>({})), content);
                 }
             }
         };
@@ -108,53 +108,6 @@ class sortie_data final {
             }),
             kcv::map_data::from_eoen(src.map_data),
         };
-
-        // auto result = sortie_data{
-        //     src.world,
-        //     src.map,
-        //     src.api_files  //
-        //         | std::ranges::views::transform([](const auto& e) -> kcv::sortie_api {
-        //               const auto& type    = e.api_file_type;
-        //               const auto& name    = e.name;
-        //               const auto& content = e.content;
-        //               using api_file_type = kcv::eoen::database::kancolle_api::api_file_type;
-
-        //               if (type == api_file_type::request and name == "api_req_map/start") {
-        //                   auto data = kcv::kcsapi::api_req_map::start::request{};
-        //                   kcv::read_json(data, content);
-        //                   return data;
-        //               }
-        //               if (type == api_file_type::response and name == "api_req_map/start") {
-        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>{};
-        //                   kcv::read_json(data, content);
-        //                   return data;
-        //               }
-        //               if (type == api_file_type::response and name == "api_req_sortie/battle") {
-        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>{};
-        //                   kcv::read_json(data, content);
-        //                   return data;
-        //               }
-        //               if (type == api_file_type::response and name == "api_req_battle_midnight/battle") {
-        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>{};
-        //                   kcv::read_json(data, content);
-        //                   return data;
-        //               }
-        //               if (type == api_file_type::response and name == "api_req_sortie/battleresult") {
-        //                   auto data = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>{};
-        //                   kcv::read_json(data, content);
-        //                   return data;
-        //               }
-        //               return std::monostate{};
-        //           })
-        //         | std::ranges::to<std::vector>(),
-        //     kcv::fleet_data::from_eoen(src.fleet_data, api_mst_ship, api_mst_slotitem),
-        //     src.fleet_after_sortie_data.transform([&](const auto& e) {
-        //         return kcv::fleet_data::from_eoen(e, api_mst_ship, api_mst_slotitem);
-        //     }),
-        //     kcv::map_data::from_eoen(src.map_data),
-        // };
-
-        // return result;
     }
 
     // clang-format off

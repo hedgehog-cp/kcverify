@@ -6,8 +6,8 @@
 #include <cstdint>
 
 // kcv
+#include "common.hpp"
 #include "eoen/database/sortie/sortie_equipment.hpp"
-#include "exit.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
 
 namespace kcv {
@@ -19,7 +19,7 @@ class equipment final {
 
     static constexpr auto from_eoen(const eoen_type& src, const kcv::kcsapi::api_mst_slotitem& mst) -> equipment {
         return equipment{
-            kcv::binary_search_or_exit(src.id, mst),
+            kcv::binary_search(mst, src.id),
             src.level,
             src.aircraft_level,
         };

@@ -13,8 +13,8 @@
 #include "ranges.hpp"
 
 // kcv
+#include "common.hpp"
 #include "eoen/database/sortie/sortie_ship.hpp"
-#include "exit.hpp"
 #include "kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcsapi/types/enum/nationality.hpp"
@@ -35,7 +35,7 @@ class ship final {
         const kcv::kcsapi::api_mst_ship& api_mst_ship,
         const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
     ) -> ship {
-        const auto& mst = kcv::binary_search_or_exit(src.id, api_mst_ship);
+        const auto& mst = kcv::binary_search(api_mst_ship, src.id);
 
         const auto original_id = std::ranges::fold_left_first(
             api_mst_ship
