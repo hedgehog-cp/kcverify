@@ -6,7 +6,7 @@
 namespace kcv::test {
 
 /// @brief buildディレクトリから見たroot. buildディレクトリからctestを実行するため.
-inline const auto root = std::filesystem::path{"../"};
+inline const auto root = std::filesystem::path{"../../"};
 
 }  // namespace kcv::test
 

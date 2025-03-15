@@ -1,8 +1,7 @@
 #include "common.hpp"
 
-#include <bits/ranges_algo.h>
-
 // std
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>

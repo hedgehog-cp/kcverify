@@ -1,0 +1,61 @@
+include_directories(./)
+
+add_executable(test_kcsapi_api_get_member_ship_deck_response ./kcsapi/api_get_member/ship_deck/response.cpp)
+target_link_libraries(test_kcsapi_api_get_member_ship_deck_response PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_get_member_ship_deck_response COMMAND test_kcsapi_api_get_member_ship_deck_response)
+
+add_executable(test_api_req_battle_midnight_battle_response ./kcsapi/api_req_battle_midnight/battle/response.cpp)
+target_link_libraries(test_api_req_battle_midnight_battle_response PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_req_battle_midnight_battle_response COMMAND test_api_req_battle_midnight_battle_response)
+
+add_executable(test_kcsapi_api_req_map_next_response ./kcsapi/api_req_map/next/response.cpp)
+target_link_libraries(test_kcsapi_api_req_map_next_response PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_req_map_next_response COMMAND test_kcsapi_api_req_map_next_response)
+
+add_executable(test_kcsapi_api_req_map_start_request ./kcsapi/api_req_map/start/request.cpp)
+target_link_libraries(test_kcsapi_api_req_map_start_request PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_req_map_start_request COMMAND test_kcsapi_api_req_map_start_request)
+
+add_executable(test_kcsapi_api_req_map_start_response ./kcsapi/api_req_map/start/response.cpp)
+target_link_libraries(test_kcsapi_api_req_map_start_response PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_req_map_start_response COMMAND test_kcsapi_api_req_map_start_response)
+
+add_executable(test_kcsapi_api_req_sortie_battle_response ./kcsapi/api_req_sortie/battle/response.cpp)
+target_link_libraries(test_kcsapi_api_req_sortie_battle_response PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_req_sortie_battle_response COMMAND test_kcsapi_api_req_sortie_battle_response)
+
+add_executable(test_kcsapi_api_req_sortie_battleresult_response ./kcsapi/api_req_sortie/battleresult/response.cpp)
+target_link_libraries(test_kcsapi_api_req_sortie_battleresult_response PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_req_sortie_battleresult_response COMMAND test_kcsapi_api_req_sortie_battleresult_response)
+
+add_executable(test_kcsapi_api_start2_api_mst_ship ./kcsapi/api_start2/api_mst_ship.cpp)
+target_link_libraries(test_kcsapi_api_start2_api_mst_ship PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_start2_api_mst_ship COMMAND test_kcsapi_api_start2_api_mst_ship)
+
+add_executable(test_kcsapi_api_start2_api_mst_slotitem ./kcsapi/api_start2/api_mst_slotitem.cpp)
+target_link_libraries(test_kcsapi_api_start2_api_mst_slotitem PRIVATE kcvcommon)
+add_test(NAME kcsapi_api_start2_api_mst_slotitem COMMAND test_kcsapi_api_start2_api_mst_slotitem)
+
+add_executable(test_eoen_sortie_record ./eoen/sortie_record/sortie_record.cpp)
+target_link_libraries(test_eoen_sortie_record PRIVATE kcvcommon)
+add_test(NAME eoen_sortie_record COMMAND test_eoen_sortie_record)
+
+add_executable(test_sortie_data ./sortie_data/sortie_data.cpp)
+target_link_libraries(test_sortie_data PRIVATE kcvcommon)
+add_test(NAME sortie_data COMMAND test_sortie_data)
+
+add_executable(test_eoen_fit_bonus ./eoen/fit_bonus/fit_bonus.cpp)
+target_link_libraries(test_eoen_fit_bonus PRIVATE kcvcommon)
+add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus)
+
+add_executable(test_damage_formula_modifier ./damage_formula/modifier.cpp)
+target_link_libraries(test_damage_formula_modifier PRIVATE kcvcommon)
+add_test(NAME damage_formula_modifier COMMAND test_damage_formula_modifier)
+
+add_executable(test_constants_ship ./constants/ship.cpp)
+target_link_libraries(test_constants_ship PRIVATE kcvcommon)
+add_test(NAME constants_ship COMMAND test_constants_ship)
+
+add_executable(test_constants_equipment ./constants/equipment.cpp)
+target_link_libraries(test_constants_equipment PRIVATE kcvcommon)
+add_test(NAME constants_equipment COMMAND test_constants_equipment)
