@@ -3,11 +3,12 @@
 #include <cstdlib>
 #include <filesystem>
 #include <ranges>
+#include <vector>
 
 // kcv
+#include "common.hpp"
 #include "eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "fit_bonuses/fit_bonuses.hpp"
-#include "json/read_json.hpp"
 #include "kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "sortie/ship.hpp"
@@ -46,7 +47,7 @@ const auto fit_bonuses = []() static -> std::vector<kcv::eoen::serialization::fi
 
 auto test(const std::filesystem::path& fname) -> std::vector<kcv::fit_bonuses::bonus_value> {
     const auto sortie_record = [&fname]() -> kcv::eoen::database::sortie::sortie_record {
-        auto temp = std::array<kcv::eoen::database::sortie::sortie_record, 1>{};
+        auto temp = std::vector<kcv::eoen::database::sortie::sortie_record>{};
         kcv::read_json(temp, kcv::test::root / fname);
         return temp.at(0);
     }();

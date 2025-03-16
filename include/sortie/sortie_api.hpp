@@ -1,11 +1,13 @@
 #ifndef KCVERIFY_SORTIE_SORTIE_API_HPP_INCLUDED
 #define KCVERIFY_SORTIE_SORTIE_API_HPP_INCLUDED
 
+// std
 #include <variant>
 #include <vector>
 
+// kcv
+#include "common.hpp"
 #include "eoen/database/kancolle_api/api_files.hpp"
-#include "json/read_json.hpp"
 #include "kcsapi/api_get_member/ship_deck/response.hpp"
 #include "kcsapi/api_req_battle_midnight/battle/response.hpp"
 #include "kcsapi/api_req_map/next/response.hpp"

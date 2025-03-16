@@ -2,7 +2,7 @@
 #include <filesystem>
 
 // kcv
-#include "json/read_json.hpp"
+#include "common.hpp"
 #include "kcsapi/api_get_member/ship_deck/response.hpp"
 #include "kcsapi/types/svdata.hpp"
 
