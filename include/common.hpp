@@ -41,15 +41,21 @@ bool is_readable(const std::filesystem::path& fname, std::error_code& ec) noexce
 /// @param api_mst_ship 艦船マスタ.
 /// @param id 艦船ID.
 /// @return 艦船IDに一致する艦船マスタ.
-auto binary_search(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
+auto binary_search_or_exit(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
     -> const kcv::kcsapi::api_mst_ship::value_type&;
 
 /// @brief 装備IDに一致する装備マスタを二分探索で取得する. 存在しなければエラーとしてプログラムを終了する.
 /// @param api_mst_ship 装備マスタ.
 /// @param id 装備ID.
 /// @return 装備IDに一致する装備マスタ.
-auto binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
+auto binary_search_or_exit(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
     -> const kcv::kcsapi::api_mst_slotitem::value_type&;
+
+/// @brief 艦娘の未改造IDを取得する. 存在しなければエラーとしてプログラムを終了する.
+/// @param mst 艦船マスタ.
+/// @param api_mst_ship 艦船マスタ.
+auto original_id_or_exit(const kcv::kcsapi::api_mst_ship_value_t& mst, const kcv::kcsapi::api_mst_ship& api_mst_ship)
+    -> kcv::kcsapi::ship_id;
 
 }  // namespace kcv
 

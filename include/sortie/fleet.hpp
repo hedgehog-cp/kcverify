@@ -3,14 +3,18 @@
 
 // std
 #include <ranges>
+#include <string>
 #include <utility>
 #include <vector>
 
 // kcv
 #include "eoen/database/sortie/sortie_fleet.hpp"
-#include "sortie_data/ship.hpp"
+#include "kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "sortie/ship.hpp"
 
 namespace kcv {
+namespace sortie {
 
 /// @brief 艦隊.
 class fleet final {
@@ -28,7 +32,7 @@ class fleet final {
             src.name,
             src.ships
                 | std::ranges::views::transform([&](const auto& e) {
-                      return kcv::ship::from_eoen(e, api_mst_ship, api_mst_slotitem);
+                      return kcv::sortie::ship::from_eoen(e, api_mst_ship, api_mst_slotitem);
                   }) 
                 | std::ranges::to<std::vector>(),
         };
@@ -36,16 +40,16 @@ class fleet final {
 
     // clang-format on
 
-    constexpr fleet(std::string name, std::vector<kcv::ship> ships)
+    constexpr fleet(std::string name, std::vector<kcv::sortie::ship> ships)
         : name_{std::move(name)}
         , ships_{std::move(ships)} {}
 
-    constexpr auto name() const noexcept -> decltype(auto) {
-        return (this->name_);
+    constexpr auto name(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.name_);
     }
 
-    constexpr auto ships() const noexcept -> decltype(auto) {
-        return (this->ships_);
+    constexpr auto ships(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.ships_);
     }
 
    private:
@@ -53,9 +57,10 @@ class fleet final {
     std::string name_;
 
     /// @brief 艦船.
-    std::vector<kcv::ship> ships_;
+    std::vector<kcv::sortie::ship> ships_;
 };
 
+}  // namespace sortie
 }  // namespace kcv
 
 #endif  // KCVERIFY_SORTIE_DATA_FLEET_HPP_INCLUDED

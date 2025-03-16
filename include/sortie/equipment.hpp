@@ -1,9 +1,9 @@
-#ifndef KCVERIFY_SORTIE_DATA_EQUIPMENT_HPP_INCLUDED
-#define KCVERIFY_SORTIE_DATA_EQUIPMENT_HPP_INCLUDED
+#ifndef KCVERIFY_SORTIE_EQUIPMENT_HPP_INCLUDED
+#define KCVERIFY_SORTIE_EQUIPMENT_HPP_INCLUDED
 
 // std
-#include <algorithm>
 #include <cstdint>
+#include <utility>
 
 // kcv
 #include "common.hpp"
@@ -11,6 +11,7 @@
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
 
 namespace kcv {
+namespace sortie {
 
 /// @brief 装備.
 class equipment final {
@@ -19,7 +20,7 @@ class equipment final {
 
     static constexpr auto from_eoen(const eoen_type& src, const kcv::kcsapi::api_mst_slotitem& mst) -> equipment {
         return equipment{
-            kcv::binary_search(mst, src.id),
+            kcv::binary_search_or_exit(mst, src.id),
             src.level,
             src.aircraft_level,
         };
@@ -38,16 +39,16 @@ class equipment final {
 
     // clang-format on
 
-    constexpr auto mst() const noexcept -> decltype(auto) {
-        return (this->mst_);
+    constexpr auto mst(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.mst_);
     }
 
-    constexpr auto level() const noexcept -> decltype(auto) {
-        return (this->level_);
+    constexpr auto level(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.level_);
     }
 
-    constexpr auto aircraft_level() const noexcept -> decltype(auto) {
-        return (this->aircraft_level_);
+    constexpr auto aircraft_level(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.aircraft_level_);
     }
 
    private:
@@ -61,6 +62,7 @@ class equipment final {
     std::int32_t aircraft_level_;
 };
 
+}  // namespace sortie
 }  // namespace kcv
 
-#endif  // KCVERIFY_SORTIE_DATA_EQUIPMENT_HPP_INCLUDED
+#endif  // KCVERIFY_SORTIE_EQUIPMENT_HPP_INCLUDED

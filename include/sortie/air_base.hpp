@@ -5,14 +5,16 @@
 #include <cstdint>
 #include <ranges>
 #include <string>
+#include <utility>
 #include <vector>
 
 // kcv
 #include "eoen/database/sortie/sortie_air_base.hpp"
 #include "kcsapi/types/enum/air_base_action.hpp"
-#include "sortie_data/air_base_squadron.hpp"
+#include "sortie/air_base_squadron.hpp"
 
 namespace kcv {
+namespace sortie {
 
 /// @brief 基地航空隊. 第N航空隊の第1~4中隊. スロット1~4に相当.
 class air_base final {
@@ -31,7 +33,7 @@ class air_base final {
             src.bonus_distance,
             src.squadrons
                 | std::ranges::views::transform([&](const auto& e) {
-                      return kcv::air_base_squadron::from_eoen(e, mst);
+                      return kcv::sortie::air_base_squadron::from_eoen(e, mst);
                   })
                 | std::ranges::to<std::vector>(),
         };
@@ -48,7 +50,7 @@ class air_base final {
         kcsapi::air_base_action action_kind,
         std::int32_t base_distance,
         std::int32_t bonus_distance,
-        std::vector<air_base_squadron> squadrons
+        std::vector<kcv::sortie::air_base_squadron> squadrons
     ) noexcept
         : name_{std::move(name)}
         , map_area_id_{std::move(map_area_id)}
@@ -60,32 +62,32 @@ class air_base final {
 
     // clang-format on
 
-    constexpr auto name() const noexcept -> decltype(auto) {
-        return (this->name_);
+    constexpr auto name(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.name_);
     }
 
-    constexpr auto map_area_id() const noexcept -> decltype(auto) {
-        return (this->map_area_id_);
+    constexpr auto map_area_id(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.map_area_id_);
     }
 
-    constexpr auto air_corps_id() const noexcept -> decltype(auto) {
-        return (this->air_corps_id_);
+    constexpr auto air_corps_id(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.air_corps_id_);
     }
 
-    constexpr auto action_kind() const noexcept -> decltype(auto) {
-        return (this->action_kind_);
+    constexpr auto action_kind(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.action_kind_);
     }
 
-    constexpr auto base_distance() const noexcept -> decltype(auto) {
-        return (this->base_distance_);
+    constexpr auto base_distance(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.base_distance_);
     }
 
-    constexpr auto bonus_distance() const noexcept -> decltype(auto) {
-        return (this->bonus_distance_);
+    constexpr auto bonus_distance(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.bonus_distance_);
     }
 
-    constexpr auto squadrons() const noexcept -> decltype(auto) {
-        return (this->squadrons_);
+    constexpr auto squadrons(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.squadrons_);
     }
 
    private:
@@ -107,9 +109,10 @@ class air_base final {
     std::int32_t bonus_distance_;
 
     /// @brief 第N中隊.
-    std::vector<air_base_squadron> squadrons_;
+    std::vector<kcv::sortie::air_base_squadron> squadrons_;
 };
 
+}  // namespace sortie
 }  // namespace kcv
 
 #endif  // KCVERIFY_SORTIE_AIR_BASE_HPP_INCLUDED

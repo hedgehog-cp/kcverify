@@ -2,16 +2,21 @@
 #define KCVERIFY_SORTIE_DATA_FLEET_DATA_HPP_INCLUDED
 
 // std
+#include <cstdint>
 #include <optional>
 #include <ranges>
+#include <utility>
 #include <vector>
 
 // kcv
 #include "eoen/database/sortie/sortie_fleet_data.hpp"
-#include "sortie_data/air_base.hpp"
-#include "sortie_data/fleet.hpp"
+#include "kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "sortie/air_base.hpp"
+#include "sortie/fleet.hpp"
 
 namespace kcv {
+namespace sortie {
 
 /// @brief 第1~4艦隊と基地航空隊.
 class fleet_data final {
@@ -33,12 +38,12 @@ class fleet_data final {
             src.fleets
                 | std::ranges::views::transform([&](const auto& opt) {
                       return opt.transform([&](const auto& e) {
-                          return fleet::from_eoen(e, api_mst_ship, api_mst_slotitem);
+                          return kcv::sortie::fleet::from_eoen(e, api_mst_ship, api_mst_slotitem);
                       });
                   })
                 | std::ranges::to<std::vector>(),
             src.air_bases
-                | std::ranges::views::transform([&](const auto& e) { return air_base::from_eoen(e, api_mst_slotitem); })
+                | std::ranges::views::transform([&](const auto& e) { return kcv::sortie::air_base::from_eoen(e, api_mst_slotitem); })
                 | std::ranges::to<std::vector>()
         };
     }
@@ -52,8 +57,8 @@ class fleet_data final {
         std::int32_t node_support_fleet_id,
         std::int32_t boss_support_fleet_id,
         std::int32_t combined_flag,
-        std::vector<std::optional<kcv::fleet>> fleets,
-        std::vector<kcv::air_base> air_bases
+        std::vector<std::optional<kcv::sortie::fleet>> fleets,
+        std::vector<kcv::sortie::air_base> air_bases
     ) noexcept
         : fleet_id_{std::move(fleet_id)}
         , node_support_fleet_id_{std::move(node_support_fleet_id)}
@@ -64,28 +69,28 @@ class fleet_data final {
 
     // clang-format on
 
-    constexpr auto fleet_id() const noexcept -> decltype(auto) {
-        return (this->fleet_id_);
+    constexpr auto fleet_id(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.fleet_id_);
     }
 
-    constexpr auto node_support_fleet_id() const noexcept -> decltype(auto) {
-        return (this->node_support_fleet_id_);
+    constexpr auto node_support_fleet_id(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.node_support_fleet_id_);
     }
 
-    constexpr auto boss_support_fleet_id() const noexcept -> decltype(auto) {
-        return (this->boss_support_fleet_id_);
+    constexpr auto boss_support_fleet_id(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.boss_support_fleet_id_);
     }
 
-    constexpr auto combined_flag() const noexcept -> decltype(auto) {
-        return (this->combined_flag_);
+    constexpr auto combined_flag(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.combined_flag_);
     }
 
-    constexpr auto fleets() const noexcept -> decltype(auto) {
-        return (this->fleets_);
+    constexpr auto fleets(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.fleets_);
     }
 
-    constexpr auto air_bases() const noexcept -> decltype(auto) {
-        return (this->air_bases_);
+    constexpr auto air_bases(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.air_bases_);
     }
 
    private:
@@ -102,12 +107,13 @@ class fleet_data final {
     std::int32_t combined_flag_;
 
     /// @brief 第1艦隊~第4艦隊.
-    std::vector<std::optional<kcv::fleet>> fleets_;
+    std::vector<std::optional<kcv::sortie::fleet>> fleets_;
 
     /// @brief 第1基地航空隊~第3基地航空隊.
-    std::vector<kcv::air_base> air_bases_;
+    std::vector<kcv::sortie::air_base> air_bases_;
 };
 
+}  // namespace sortie
 }  // namespace kcv
 
 #endif  // KCVERIFY_SORTIE_DATA_FLEET_DATA_HPP_INCLUDED

@@ -9,6 +9,7 @@
 #include "eoen/database/sortie/sortie_map_data.hpp"
 
 namespace kcv {
+namespace sortie {
 
 class map_data final {
    public:
@@ -35,16 +36,16 @@ class map_data final {
 
     // clang-format on
 
-    constexpr auto required_defeated_count() const noexcept -> decltype(auto) {
-        return this->required_defeated_count_;
+    constexpr auto required_defeated_count(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.required_defeated_count_);
     }
 
-    constexpr auto map_hp_current() const noexcept -> decltype(auto) {
-        return this->map_hp_current_;
+    constexpr auto map_hp_current(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.map_hp_current_);
     }
 
-    constexpr auto map_hp_max() const noexcept -> decltype(auto) {
-        return this->map_hp_max_;
+    constexpr auto map_hp_max(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.map_hp_max_);
     }
 
    private:
@@ -58,6 +59,7 @@ class map_data final {
     std::int32_t map_hp_max_;
 };
 
+}  // namespace sortie
 }  // namespace kcv
 
 #endif  // KCVERIFY_SORTIE_MAP_DATA_HPP_INCLUDED

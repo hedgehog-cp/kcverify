@@ -12,9 +12,9 @@
 #include "kcsapi/types/api_type.hpp"
 #include "kcsapi/types/enum/category.hpp"
 #include "kcsapi/types/enum/equipment_id.hpp"
-#include "sortie_data/equipment.hpp"
-#include "sortie_data/ship.hpp"
-#include "sortie_data/slot.hpp"
+#include "sortie/equipment.hpp"
+#include "sortie/ship.hpp"
+#include "sortie/slot.hpp"
 
 namespace kcv {
 namespace fit_bonuses {
@@ -25,18 +25,18 @@ using bonus_value     = eoen::serialization::fit_bonus::fit_bonus_value;
 
 /// @brief 各種電探の搭載状態.
 struct radar final {
-    constexpr radar(const ship& attacker) noexcept
+    constexpr radar(const kcv::sortie::ship& attacker) noexcept
         : has_anti_air_radar{std::ranges::any_of(
               attacker.slots(), [](const auto& e) -> bool { return e.has_value() and is_anti_air_radar(e->mst()); },
-              &kcv::slot::equipment
+              [](const auto& e) { return e.equipment(); }
           )}
         , has_surface_radar{std::ranges::any_of(
               attacker.slots(), [](const auto& e) -> bool { return e.has_value() and is_surface_radar(e->mst()); },
-              &kcv::slot::equipment
+              [](const auto& e) { return e.equipment(); }
           )}
         , has_accuracy_radar{std::ranges::any_of(
               attacker.slots(), [](const auto& e) -> bool { return e.has_value() and is_accuracy_radar(e->mst()); },
-              &kcv::slot::equipment
+              [](const auto& e) { return e.equipment(); }
           )} {}
 
     const bool has_anti_air_radar;
@@ -46,7 +46,9 @@ struct radar final {
 
 /// @brief 装備種3(カテゴリ)で指定された装備を搭載しているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
-constexpr bool matches_equipment(const std::optional<std::vector<kcsapi::category>>& categories, const ship& attacker) {
+constexpr bool matches_equipment(
+    const std::optional<std::vector<kcsapi::category>>& categories, const kcv::sortie::ship& attacker
+) {
     if (categories.has_value()) {
         const bool has_fit_equipment = std::ranges::any_of(
             attacker.slots(),
@@ -55,7 +57,7 @@ constexpr bool matches_equipment(const std::optional<std::vector<kcsapi::categor
                 const auto category = std::get<kcsapi::idx_type::category>(equipment->mst().api_type);
                 return std::ranges::contains(*categories, category);
             },
-            &slot::equipment
+            [](const auto& e) { return e.equipment(); }
         );
         if (not has_fit_equipment) {
             return false;
@@ -67,7 +69,9 @@ constexpr bool matches_equipment(const std::optional<std::vector<kcsapi::categor
 
 /// @brief 装備IDで指定された装備を搭載しているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
-constexpr bool matches_equipment(const std::optional<std::vector<kcsapi::equipment_id>>& ids, const ship& attacker) {
+constexpr bool matches_equipment(
+    const std::optional<std::vector<kcsapi::equipment_id>>& ids, const kcv::sortie::ship& attacker
+) {
     if (ids.has_value()) {
         const bool has_fit_equipment = std::ranges::any_of(
             attacker.slots(),
@@ -76,7 +80,7 @@ constexpr bool matches_equipment(const std::optional<std::vector<kcsapi::equipme
                 const auto id = equipment->mst().api_id;
                 return std::ranges::contains(*ids, id);
             },
-            &slot::equipment
+            [](const auto& e) { return e.equipment(); }
         );
         if (not has_fit_equipment) {
             return false;
@@ -89,14 +93,14 @@ constexpr bool matches_equipment(const std::optional<std::vector<kcsapi::equipme
 /// @brief 指定された装備を搭載しているかを検証する.
 /// 搭載していないならば, ボーナス付与なし. 次のボーナスへ.
 /// もとより指定されていなければ, 無条件として通過する.
-constexpr bool matches_bonus_equipment(const bonus_equipment& bonus_equipment, const ship& ship) {
+constexpr bool matches_bonus_equipment(const bonus_equipment& bonus_equipment, const kcv::sortie::ship& ship) {
     const auto& [categories, ids, _] = bonus_equipment;
     return matches_equipment(categories, ship) and matches_equipment(ids, ship);
 }
 
 /// @brief 指定された艦娘の条件を満たしているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
-constexpr bool matches_ship(const bonus_data& cnd, const ship& ship) {
+constexpr bool matches_ship(const bonus_data& cnd, const kcv::sortie::ship& ship) {
     if (cnd.original_id.has_value() and not std::ranges::contains(*cnd.original_id, ship.original_id())) {
         return false;
     }
@@ -122,7 +126,7 @@ constexpr bool matches_ship(const bonus_data& cnd, const ship& ship) {
 
 /// @brief 指定された装備の条件を満たしているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
-constexpr bool matches_required_id(const bonus_data& cnd, const ship& attacker) {
+constexpr bool matches_required_id(const bonus_data& cnd, const kcv::sortie::ship& attacker) {
     if (cnd.requires_id.has_value()) {
         const auto count = std::ranges::count_if(
             attacker.slots(),
@@ -131,7 +135,7 @@ constexpr bool matches_required_id(const bonus_data& cnd, const ship& attacker) 
                 return std::ranges::contains(*cnd.requires_id, equipment->mst().api_id)
                    and (not cnd.requires_level.has_value() or equipment->level() >= *cnd.requires_level);
             },
-            &slot::equipment
+            [](const auto& e) { return e.equipment(); }
         );
         if (count < cnd.requires_num.value_or(1)) {
             return false;
@@ -143,7 +147,7 @@ constexpr bool matches_required_id(const bonus_data& cnd, const ship& attacker) 
 
 /// @brief 指定された装備の条件を満たしているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
-constexpr bool matches_required_category(const bonus_data& cnd, const ship& attacker) {
+constexpr bool matches_required_category(const bonus_data& cnd, const kcv::sortie::ship& attacker) {
     if (cnd.requires_type.has_value()) {
         const auto count = std::ranges::count_if(
             attacker.slots(),
@@ -152,7 +156,7 @@ constexpr bool matches_required_category(const bonus_data& cnd, const ship& atta
                 const auto category = std::get<kcsapi::idx_type::category>(equipment->mst().api_type);
                 return std::ranges::contains(categories, category);
             },
-            &slot::equipment
+            [](const auto& e) { return e.equipment(); }
         );
         if (count < cnd.requires_num_type.value_or(1)) {
             return false;
@@ -165,23 +169,20 @@ constexpr bool matches_required_category(const bonus_data& cnd, const ship& atta
 /// @brief 指定された条件を満たしているかを検証する.
 /// 満たしていないならば, ボーナス付与なし. 次のボーナスへ.
 /// もとより指定されていなければ, 無条件として通過する.
-constexpr bool matches_bonus_data(const bonus_data& bonus_data, const ship& ship) {
-    return matches_ship(bonus_data, ship)
-       and matches_required_id(bonus_data, ship)
+constexpr bool matches_bonus_data(const bonus_data& bonus_data, const kcv::sortie::ship& ship) {
+    return matches_ship(bonus_data, ship) and matches_required_id(bonus_data, ship)
        and matches_required_category(bonus_data, ship);
 }
 
 /// @brief 指定された条件を満たす装備の搭載数を数え上げる.
 constexpr int count_fit_equipment(
-    const ship& ship,
-    const bonus_equipment& bonus_equipment,
-    const bonus_data& bonus_data
+    const kcv::sortie::ship& ship, const bonus_equipment& bonus_equipment, const bonus_data& bonus_data
 ) {
     const auto& [categories, ids, _] = bonus_equipment;
 
     return std::ranges::count_if(
         ship.slots(),
-        [&](const std::optional<equipment>& e) -> bool {
+        [&](const std::optional<kcv::sortie::equipment>& e) -> bool {
             if (not e.has_value()) return false;
 
             if (ids.has_value()) {
@@ -206,12 +207,13 @@ constexpr int count_fit_equipment(
 
             return true;
         },
-        &slot::equipment
+        [](const auto& e) { return e.equipment(); }
     );
 }
 
 /// @brief 装備ボーナスを求める.
-constexpr auto calc_bonus(const ship& ship, const std::vector<bonus_equipment>& bonus_list) -> bonus_value {
+constexpr auto calc_bonus(const kcv::sortie::ship& ship, const std::vector<bonus_equipment>& bonus_list)
+    -> bonus_value {
     auto total = bonus_value{};
 
     for (const auto radar = kcv::fit_bonuses::radar{ship}; const auto& bonus_equipment : bonus_list) {
@@ -225,7 +227,8 @@ constexpr auto calc_bonus(const ship& ship, const std::vector<bonus_equipment>& 
 
                 if (bonus_data.num.has_value() and count < *bonus_data.num) {
                     // 算入しない.
-                } else if (bonus_data.num.has_value() or bonus_data.requires_id.has_value() or bonus_data.requires_type.has_value()) {
+                } else if (bonus_data.num.has_value() or bonus_data.requires_id.has_value()
+                           or bonus_data.requires_type.has_value()) {
                     total += *bonus_data.bonus;
                 } else {
                     total += *bonus_data.bonus * count;

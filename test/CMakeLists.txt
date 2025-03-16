@@ -40,9 +40,9 @@ add_executable(test_eoen_sortie_record ./eoen/sortie_record/sortie_record.cpp)
 target_link_libraries(test_eoen_sortie_record PRIVATE kcvcommon)
 add_test(NAME eoen_sortie_record COMMAND test_eoen_sortie_record)
 
-add_executable(test_sortie_data ./sortie_data/sortie_data.cpp)
-target_link_libraries(test_sortie_data PRIVATE kcvcommon)
-add_test(NAME sortie_data COMMAND test_sortie_data)
+add_executable(test_sortie ./sortie/sortie.cpp)
+target_link_libraries(test_sortie PRIVATE kcvcommon)
+add_test(NAME sortie COMMAND test_sortie)
 
 add_executable(test_eoen_fit_bonus ./eoen/fit_bonus/fit_bonus.cpp)
 target_link_libraries(test_eoen_fit_bonus PRIVATE kcvcommon)

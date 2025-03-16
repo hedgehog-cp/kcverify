@@ -10,7 +10,8 @@
 #include "json/read_json.hpp"
 #include "kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
-#include "sortie_data/sortie_data.hpp"
+#include "sortie/ship.hpp"
+#include "sortie/sortie_data.hpp"
 
 // kcv::test
 #include "root.hpp"
@@ -49,10 +50,10 @@ auto test(const std::filesystem::path& fname) -> std::vector<kcv::fit_bonuses::b
         kcv::read_json(temp, kcv::test::root / fname);
         return temp.at(0);
     }();
-    const auto sortie_data = kcv::sortie_data::from_eoen(sortie_record, api_mst_ship, api_mst_slotitem);
+    const auto sortie_data = kcv::sortie::sortie_data::from_eoen(sortie_record, api_mst_ship, api_mst_slotitem);
     const auto& fleet      = *sortie_data.fleet_data().fleets().at(0);
     return fleet.ships()  //
-         | std::ranges::views::transform([&](const kcv::ship& e) {
+         | std::ranges::views::transform([&](const kcv::sortie::ship& e) {
                return kcv::fit_bonuses::calc_bonus(e, fit_bonuses);
            })
          | std::ranges::to<std::vector>();

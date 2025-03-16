@@ -4,13 +4,15 @@
 // std
 #include <cstdint>
 #include <optional>
+#include <utility>
 
 // kcv
 #include "eoen/database/sortie/sortie_air_base_squadron.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
-#include "sortie_data/slot.hpp"
+#include "sortie/slot.hpp"
 
 namespace kcv {
+namespace sortie {
 
 /// @brief 基地航空隊. 第N航空隊の中隊. スロット1つに相当.
 class air_base_squadron final {
@@ -32,7 +34,7 @@ class air_base_squadron final {
         std::optional<std::int32_t> aircraft_current,
         std::int32_t state,
         std::int32_t condition,
-        kcv::slot slot
+        kcv::sortie::slot slot
     ) noexcept
         : aircraft_current_{std::move(aircraft_current)}
         , state_{std::move(state)}
@@ -41,20 +43,20 @@ class air_base_squadron final {
 
     // clang-format on
 
-    constexpr auto aircraft_current() const noexcept -> decltype(auto) {
-        return (this->aircraft_current_);
+    constexpr auto aircraft_current(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.aircraft_current_);
     }
 
-    constexpr auto state() const noexcept -> decltype(auto) {
-        return (this->state_);
+    constexpr auto state(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.state_);
     }
 
-    constexpr auto condition() const noexcept -> decltype(auto) {
-        return (this->condition_);
+    constexpr auto condition(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.condition_);
     }
 
-    constexpr auto slot() const noexcept -> decltype(auto) {
-        return (this->slot_);
+    constexpr auto slot(this auto&& self) noexcept -> decltype(auto) {
+        return std::forward_like<decltype(self)>(self.slot_);
     }
 
    private:
@@ -68,9 +70,10 @@ class air_base_squadron final {
     std::int32_t condition_;
 
     /// @brief 装備スロット.
-    kcv::slot slot_;
+    kcv::sortie::slot slot_;
 };
 
+}  // namespace sortie
 }  // namespace kcv
 
 #endif  // KCVERIFY_SORTIE_AIR_BASE_SQUADRON_HPP_INCLUDED

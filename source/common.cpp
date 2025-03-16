@@ -12,6 +12,7 @@
 #include <utility>
 
 #include "kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcsapi/types/enum/ship_id.hpp"
 
 // clang-format off
 
@@ -40,7 +41,7 @@ bool kcv::is_readable(const std::filesystem::path& fname, std::error_code& ec) n
 
 // clang-format off
 
-auto kcv::binary_search(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
+auto kcv::binary_search_or_exit(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
     -> const kcv::kcsapi::api_mst_ship::value_type&
 {
     using value_type = kcv::kcsapi::api_mst_ship::value_type;
@@ -57,7 +58,7 @@ auto kcv::binary_search(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsa
 
 // clang-format off
 
-auto kcv::binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
+auto kcv::binary_search_or_exit(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
     -> const kcv::kcsapi::api_mst_slotitem::value_type&
 {
     using value_type = kcv::kcsapi::api_mst_slotitem::value_type;
@@ -67,6 +68,30 @@ auto kcv::binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, k
     }
 
     const auto msg = std::format("equipment id not found. [equipment id = {}].", std::to_underlying(id));
+    kcv::exit_with_error(msg);
+}
+
+// clang-format on
+
+// clang-format off
+
+auto kcv::original_id_or_exit(
+    const kcv::kcsapi::api_mst_ship_value_t& mst,
+    const kcv::kcsapi::api_mst_ship& api_mst_ship
+) 
+    -> kcv::kcsapi::ship_id
+{
+    auto ids = api_mst_ship
+             | std::ranges::views::filter([&mst](const auto& e) -> bool {
+                   return e.api_yomi == mst.api_yomi and e.api_sort_id % 10 == 1;
+               })
+             | std::ranges::views::transform(&kcv::kcsapi::api_mst_ship_value_t::api_id);
+
+    for (const auto& id : ids) {
+        return id;
+    }
+
+    const auto msg = std::format("original id not found in api_mst_ship. [id = {}]", std::to_underlying(mst.api_id));
     kcv::exit_with_error(msg);
 }
 
