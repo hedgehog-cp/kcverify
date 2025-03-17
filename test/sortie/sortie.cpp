@@ -5,10 +5,10 @@
 #include <ranges>
 
 // kcv
-#include "common.hpp"
 #include "eoen/database/sortie/sortie_record.hpp"
 #include "kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "read_json.hpp"
 #include "sortie/sortie_data.hpp"
 
 // kcv::test

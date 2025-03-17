@@ -6,11 +6,11 @@
 #include <vector>
 
 // kcv
-#include "common.hpp"
 #include "eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "fit_bonuses/fit_bonuses.hpp"
 #include "kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "read_json.hpp"
 #include "sortie/ship.hpp"
 #include "sortie/sortie_data.hpp"
 

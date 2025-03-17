@@ -6,7 +6,6 @@
 #include <vector>
 
 // kcv
-#include "common.hpp"
 #include "eoen/database/kancolle_api/api_files.hpp"
 #include "kcsapi/api_get_member/ship_deck/response.hpp"
 #include "kcsapi/api_req_battle_midnight/battle/response.hpp"
@@ -16,6 +15,7 @@
 #include "kcsapi/api_req_sortie/battle/response.hpp"
 #include "kcsapi/api_req_sortie/battleresult/response.hpp"
 #include "kcsapi/types/svdata.hpp"
+#include "read_json.hpp"
 
 namespace kcv {
 namespace sortie {

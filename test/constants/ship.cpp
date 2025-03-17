@@ -2,9 +2,9 @@
 #include <cassert>
 
 // kcv
-#include "common.hpp"
 #include "constants/ship.hpp"
 #include "kcsapi/types/enum/ship_id.hpp"
+#include "read_json.hpp"
 
 // test
 #include "root.hpp"

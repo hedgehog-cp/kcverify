@@ -3,8 +3,8 @@
 #include <vector>
 
 // kcv
-#include "common.hpp"
 #include "eoen/database/sortie/sortie_record.hpp"
+#include "read_json.hpp"
 
 // kcv::test
 #include "root.hpp"

@@ -2,9 +2,9 @@
 #include <cassert>
 
 // kcv
-#include "common.hpp"
 #include "constants/equipment.hpp"
 #include "kcsapi/types/enum/equipment_id.hpp"
+#include "read_json.hpp"
 
 // test
 #include "root.hpp"

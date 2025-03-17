@@ -2,8 +2,8 @@
 #include <filesystem>
 
 // kcv
-#include "common.hpp"
 #include "kcsapi/api_start2/api_mst_ship.hpp"
+#include "read_json.hpp"
 
 // kcv::test
 #include "root.hpp"

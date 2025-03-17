@@ -29,12 +29,18 @@ include_directories(include)
 
 # static lib ###################################################################
 
-add_library(kcvcommon STATIC ./source/common.cpp)
+add_library(kcv STATIC ./source/common.cpp ./source/read_json.cpp)
+
+# add_library(kcv_common STATIC ./source/common.cpp)
+
+# add_library(kcv_read_json STATIC ./source/read_json.cpp)
+# target_link_libraries(kcv_read_json PRIVATE kcv_common)
 
 # main #########################################################################
 
 add_executable(kcverify ./source/main.cpp)
-target_link_libraries(kcverify kcvcommon)
+# target_link_libraries(kcverify PRIVATE kcv_common kcv_read_json)
+target_link_libraries(kcverify PRIVATE kcv)
 
 # test #########################################################################
 
