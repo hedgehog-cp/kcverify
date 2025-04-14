@@ -1,0 +1,44 @@
+{
+  "api_result": 1,
+  "api_result_msg": "\\u6210\\u529f",
+  "api_data": {
+    "api_ship_id": [1572, 1530, 1530],
+    "api_win_rank": "S",
+    "api_get_exp": 1680,
+    "api_mvp": 3,
+    "api_member_lv": 120,
+    "api_member_exp": 303578310,
+    "api_get_base_exp": 330,
+    "api_get_ship_exp": [-1, 594, 396, 792, 396, 396, -1],
+    "api_get_exp_lvup": [
+      [11494308, 11600000],
+      [5429512, 5470000],
+      [12149441, 13000000],
+      [5886230, 5970000],
+      [11869258, 12100000]
+    ],
+    "api_dests": 3,
+    "api_destsf": 1,
+    "api_quest_name": "\\u30d6\\u30eb\\u30cd\\u30a4\\u6cca\\u5730\\u6c96",
+    "api_quest_level": 5,
+    "api_enemy_info": {
+      "api_level": "",
+      "api_rank": "",
+      "api_deck_name": "\\u6df1\\u6d77\\u6f5c\\u6c34\\u8266\\u968a\\u96c6\\u56e3 \\u65d7\\u8266\\u6226\\u968a"
+    },
+    "api_first_clear": 0,
+    "api_mapcell_incentive": 0,
+    "api_get_flag": [0, 1, 0],
+    "api_get_ship": {
+      "api_ship_id": 70,
+      "api_ship_type": "\\u91cd\\u5de1\\u6d0b\\u8266",
+      "api_ship_name": "\\u6700\\u4e0a",
+      "api_ship_getmes": "\\u30dc\\u30af\\u304c\\u6700\\u4e0a\\u3055\\u3002<br>\\u5927\\u4e08\\u592b\\u3001\\u4eca\\u5ea6\\u306f\\u885d\\u7a81\\u3057\\u306a\\u3044\\u3063\\u3066\\u3002\\u30db\\u30f3\\u30c8\\u3060\\u3088\\u3002"
+    },
+    "api_get_eventflag": 0,
+    "api_get_exmap_rate": 0,
+    "api_get_exmap_useitem_id": 0,
+    "api_escape_flag": 0,
+    "api_escape": null
+  }
+}

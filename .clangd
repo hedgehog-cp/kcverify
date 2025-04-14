@@ -3,3 +3,5 @@ InlayHints:
   ParameterNames: No
   DeducedTypes: No
   Designators: No
+CompileFlags:
+    Add: [-D__cpp_concepts=202002L]

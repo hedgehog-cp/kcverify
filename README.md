@@ -27,9 +27,6 @@ Feature:
 
 ### Library
 
-- [Boost](https://www.boost.org/)
-  - for Interval arithmetic, Validated Numerics
-  - `sudo apt install -libboost-all-dev`
 - [glaze](https://github.com/stephenberry/glaze)
   - for JSON
 - [range-v3](https://github.com/ericniebler/range-v3)
