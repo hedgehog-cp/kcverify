@@ -14,6 +14,14 @@ add_executable(test_core_equipment_bonus_eoen ./libkcv/core/equipment_bonus/eoen
 target_link_libraries(test_core_equipment_bonus_eoen PRIVATE kcv)
 add_test(NAME equipment_bonus COMMAND test_core_equipment_bonus_eoen WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+add_executable(test_eoen_fit_bonus ./libkcv/models/eoen/fit_bonus.cpp)
+target_link_libraries(test_eoen_fit_bonus PRIVATE kcv)
+add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_executable(test_eoen_sortie_record ./libkcv/models/eoen/sortie_record.cpp)
+target_link_libraries(test_eoen_sortie_record PRIVATE kcv)
+add_test(NAME eoen_sortie_record COMMAND test_eoen_sortie_record WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_executable(test_api_get_member_ship_deck_response ./libkcv/models/kcsapi/api_get_member/ship_deck/response.cpp)
 target_link_libraries(test_api_get_member_ship_deck_response PRIVATE kcv)
 add_test(NAME api_get_member_ship_deck_response COMMAND test_api_get_member_ship_deck_response WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
