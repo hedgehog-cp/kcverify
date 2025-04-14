@@ -5,4 +5,3 @@ InlayHints:
   Designators: No
 CompileFlags:
     Add: [-D__cpp_concepts=202002L]
-    Compiler: -fno-builtin-std-forward_like

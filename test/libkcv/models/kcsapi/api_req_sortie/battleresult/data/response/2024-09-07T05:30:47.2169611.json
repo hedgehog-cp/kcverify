@@ -1,0 +1,40 @@
+{
+  "api_result": 1,
+  "api_result_msg": "\\u6210\\u529f",
+  "api_data": {
+    "api_ship_id": [1572, 1572, 1572],
+    "api_win_rank": "S",
+    "api_get_exp": 175,
+    "api_mvp": 2,
+    "api_member_lv": 120,
+    "api_member_exp": 305313781,
+    "api_get_base_exp": 140,
+    "api_get_ship_exp": [-1, 252, 336, 168, 168, 168, 168, 168],
+    "api_get_exp_lvup": [
+      [3250335, 3310000],
+      [6642109, 6910000],
+      [1000000],
+      [13000000],
+      [13000000],
+      [1000000],
+      [1000000]
+    ],
+    "api_dests": 3,
+    "api_destsf": 1,
+    "api_quest_name": "\\u592a\\u5e73\\u6d0b\\u5357\\u90e8\\/\\u30c0\\u30d0\\u30aa\\u6c96\\/\\u30d3\\u30a2\\u30af\\u5cf6\\u6c96",
+    "api_quest_level": 16,
+    "api_enemy_info": {
+      "api_level": "",
+      "api_rank": "",
+      "api_deck_name": "\\u6df1\\u6d77\\u592a\\u5e73\\u6d0b\\u8266\\u968a Dabaw\\u54e8\\u6212 I\\u7fa4"
+    },
+    "api_first_clear": 0,
+    "api_mapcell_incentive": 0,
+    "api_get_flag": [0, 0, 0],
+    "api_get_eventflag": 0,
+    "api_get_exmap_rate": 0,
+    "api_get_exmap_useitem_id": 0,
+    "api_escape_flag": 0,
+    "api_escape": null
+  }
+}
