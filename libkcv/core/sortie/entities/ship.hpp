@@ -80,7 +80,8 @@ class ship final {
         return this->exslot_;
     }
 
-    constexpr auto slots() const /* -> auto range_of<kcv::sortie::slot> */ {
+    /// @note ライフタイム延命規定があるが, 返り値は一時オブジェクトであるため変数に束縛してから反復することを推奨する.
+    constexpr auto slots() const -> std::ranges::random_access_range auto {
         return kcv::ranges::views::concat(this->eqslots_, this->exslot_);
     }
 
