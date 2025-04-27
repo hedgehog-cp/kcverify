@@ -266,8 +266,8 @@ struct glz::meta<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
     static constexpr auto value = object(
         // clang-format off
 
-        "types",   &T::equipment_types,
-        "ids",     &T::equipment_ids,
+        "types",   &T::types,
+        "ids",     &T::ids,
         "bonuses", &T::bonuses
 
         // clang-format on

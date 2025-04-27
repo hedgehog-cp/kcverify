@@ -12,7 +12,7 @@ add_test(NAME damage_formula_function_function COMMAND test_damage_formula_funct
 
 add_executable(test_core_equipment_bonus_eoen ./libkcv/core/equipment_bonus/eoen.cpp)
 target_link_libraries(test_core_equipment_bonus_eoen PRIVATE kcv)
-add_test(NAME equipment_bonus COMMAND test_core_equipment_bonus_eoen WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_test(NAME equipment_bonus_eoen COMMAND test_core_equipment_bonus_eoen WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 add_executable(test_eoen_fit_bonus ./libkcv/models/eoen/fit_bonus.cpp)
 target_link_libraries(test_eoen_fit_bonus PRIVATE kcv)

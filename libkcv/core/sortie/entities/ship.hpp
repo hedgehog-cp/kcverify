@@ -14,7 +14,6 @@
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "optional.hpp"
 #include "ranges.hpp"
-#include "utility.hpp"
 
 namespace kcv {
 namespace sortie {
