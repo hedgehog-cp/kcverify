@@ -3,6 +3,7 @@
 // std
 #include <algorithm>
 #include <concepts>
+#include <map>
 #include <optional>
 #include <vector>
 
@@ -14,6 +15,7 @@
 #include "models/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
+#include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/api_type.hpp"
 #include "models/kcsapi/types/enum/category.hpp"
@@ -252,6 +254,243 @@ auto kcv::get_equipment_bonus(
             if (data.bonus_if_accuracy_radar.has_value() and has_accuracy_radar) {
                 total += *data.bonus_if_accuracy_radar;
             }
+        }
+    }
+
+    return total;
+}
+
+namespace {
+
+/// @brief 装備IDごとに装備の搭載数を数え上げる.
+auto count_equipments_by_id(const kcv::sortie::ship& ship) -> std::map<kcv::kcsapi::equipment_id, std::int32_t> {
+    auto map = std::map<kcv::kcsapi::equipment_id, std::int32_t>{};
+
+    for (const auto& slots = ship.slots(); const auto& slot : slots) {
+        if (const auto& e = slot.equipment(); e.has_value()) {
+            const auto& id = e->mst().api_id;
+            map[id]++;
+        }
+    }
+
+    return map;
+}
+
+/// @brief カテゴリIDごとに装備の搭載数を数え上げる.
+auto count_equipments_by_type(const kcv::sortie::ship& ship) -> std::map<kcv::kcsapi::category, std::int32_t> {
+    auto map = std::map<kcv::kcsapi::category, std::int32_t>{};
+
+    for (const auto& slots = ship.slots(); const auto& slot : slots) {
+        if (const auto& e = slot.equipment(); e.has_value()) {
+            const auto& category = std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type);
+            map[category]++;
+        }
+    }
+
+    return map;
+}
+
+/// @brief 装備IDごとに改修値の配列を構築し, これを返す.
+auto map_equipments_level(const kcv::sortie::ship& ship)               //
+    -> std::map<kcv::kcsapi::equipment_id, std::vector<std::int32_t>>  //
+{
+    auto map = std::map<kcv::kcsapi::equipment_id, std::vector<std::int32_t>>{};
+
+    for (const auto& slots = ship.slots(); const auto& slot : slots) {
+        if (const auto& e = slot.equipment(); e.has_value()) {
+            const auto& id = e->mst().api_id;
+            map[id].push_back(e->level());
+        }
+    }
+
+    return map;
+}
+
+/// @brief 指定された電探の条件を満たしているかを検証する.
+/// もとより指定されていなければ, 無条件として通過する.
+constexpr bool matches_radar(
+    bool has_anti_air_radar,             //
+    bool has_surface_radar,              //
+    bool has_accuracy_radar,             //
+    const kcv::kc3kai::bonus_data& data  //
+) noexcept {
+    if (data.requires_surface_radar.has_value() and not has_surface_radar) {
+        return false;
+    }
+
+    if (data.requires_anti_air_radar.has_value() and not has_anti_air_radar) {
+        return false;
+    }
+
+    if (data.requires_accuracy_radar.has_value() and not has_accuracy_radar) {
+        return false;
+    }
+
+    return true;
+}
+
+/// @brief 指定された艦娘の条件を満たしているかを検証する.
+/// もとより指定されていなければ, 無条件として通過する.
+constexpr bool matches_ship(const kcv::sortie::ship& ship, const kcv::kc3kai::bonus_data& data) {
+    if (data.ship_class.has_value() and not std::ranges::contains(*data.ship_class, ship.mst().api_ctype)) {
+        return false;
+    }
+
+    if (data.ship_country.has_value() and not std::ranges::contains(*data.ship_country, ship.nationality())) {
+        return false;
+    }
+
+    if (data.ship_id.has_value() and not std::ranges::contains(*data.ship_id, ship.mst().api_id)) {
+        return false;
+    }
+
+    if (data.ship_base.has_value() and not std::ranges::contains(*data.ship_base, ship.base_id())) {
+        return false;
+    }
+
+    if (data.ship_type.has_value() and not std::ranges::contains(*data.ship_type, ship.mst().api_stype)) {
+        return false;
+    }
+
+    return true;
+}
+
+/// @brief 指定された条件を満たしているかを検証する.
+/// 満たしていないならば, ボーナス付与なし. 次のボーナスへ.
+/// もとより指定されていなければ, 無条件として通過する.
+constexpr bool matches_data(
+    const kcv::sortie::ship& ship,       //
+    bool has_anti_air_radar,             //
+    bool has_surface_radar,              //
+    bool has_accuracy_radar,             //
+    const kcv::kc3kai::bonus_data& data  //
+) noexcept {
+    if (not matches_radar(has_anti_air_radar, has_surface_radar, has_accuracy_radar, data)) {
+        return false;
+    }
+
+    if (not matches_ship(ship, data)) {
+        return false;
+    }
+
+    return true;
+}
+
+}  // namespace
+
+auto kcv::get_equipment_bonus(
+    const kcv::sortie::ship& ship,                                   //
+    const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list,  //
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
+) -> kcv::kc3kai::bonus_value {
+    auto total = kcv::kc3kai::bonus_value{};
+
+    const bool has_anti_air_radar = is_equipped_with_if(ship, &kcv::is_anti_air_radar);
+    const bool has_surface_radar  = is_equipped_with_if(ship, &kcv::is_surface_radar);
+    const bool has_accuracy_radar = is_equipped_with_if(ship, &kcv::is_accuracy_radar);
+
+    const auto counts_by_id   = count_equipments_by_id(ship);
+    const auto counts_by_type = count_equipments_by_type(ship);
+    const auto levels_by_id   = map_equipments_level(ship);
+
+    for (const auto& [types, ids, bonuses] : bonus_list) {
+        int fit_num = 0;
+        auto levels = std::vector<std::int32_t>{};
+
+        if (ids.has_value()) {
+            for (const auto& [id, num] : counts_by_id) {
+                if (std::ranges::contains(*ids, id)) {
+                    fit_num += num;
+                    for (const auto& level : levels_by_id.at(id)) {
+                        levels.push_back(level);
+                    }
+                }
+            }
+        }
+
+        if (types.has_value()) {
+            for (const auto& [id, num] : counts_by_id) {
+                const auto itr = std::ranges::lower_bound(
+                    api_mst_slotitem, id, {}, &kcv::kcsapi::api_mst_slotitem::value_type::api_id
+                );
+                const auto type = std::get<kcv::kcsapi::idx_type::category>(itr->api_type);
+                if (std::ranges::contains(*types, type)) {
+                    fit_num += num;
+                    for (const auto& level : levels_by_id.at(id)) {
+                        levels.push_back(level);
+                    }
+                }
+            }
+        }
+
+        if (fit_num <= 0) {
+            continue;
+        }
+
+        for (const auto& data : bonuses) {
+            if (not matches_data(ship, has_anti_air_radar, has_surface_radar, has_accuracy_radar, data)) {
+                continue;
+            }
+
+            if (data.requires_id.has_value()) {
+                int count = 0;
+
+                for (const auto& id : *data.requires_id) {
+                    if (data.requires_id_level.has_value()) {
+                        if (const auto itr = levels_by_id.find(id); itr != levels_by_id.end()) {
+                            for (const auto& level : itr->second) {
+                                if (level >= *data.requires_id_level) {
+                                    count++;
+                                }
+                            }
+                        }
+                    } else {
+                        if (const auto itr = counts_by_id.find(id); itr != counts_by_id.end()) {
+                            count += itr->second;
+                        }
+                    }
+                }
+
+                if (count < data.requires_id_num.value_or(1)) {
+                    continue;
+                }
+            }
+
+            if (data.requires_type.has_value()) {
+                int count = 0;
+
+                for (const auto& type : *data.requires_type) {
+                    if (const auto itr = counts_by_type.find(type); itr != counts_by_type.end()) {
+                        count += itr->second;
+                    }
+                }
+
+                if (count < data.requires_type_num.value_or(1)) {
+                    continue;
+                }
+            }
+
+            int num = fit_num;
+            if (data.level.has_value()) {
+                int temp = 0;
+                for (const auto& e : levels) {
+                    if (e >= *data.level) {
+                        temp++;
+                    }
+                }
+                num = temp;
+                if (num <= 0) {
+                    continue;
+                }
+            }
+
+            if (data.num.has_value() and *data.num > num) {
+                continue;
+            }
+
+            if (data.num.has_value()) num = 1;
+
+            total += data.bonus * num;
         }
     }
 

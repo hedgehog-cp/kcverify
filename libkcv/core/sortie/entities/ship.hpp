@@ -57,7 +57,8 @@ class ship final {
         , base_id_{base_id}
         , nationality_{nationality}
         , eqslots_{eqslots}
-        , exslot_{exslot} {}
+        , exslot_{exslot}
+        , slots_{kcv::ranges::views::concat(this->eqslots_, this->exslot_)} {}
 
     constexpr auto mst() const noexcept -> const kcv::kcsapi::api_mst_ship_value_t& {
         return this->mst_;
@@ -79,9 +80,8 @@ class ship final {
         return this->exslot_;
     }
 
-    /// @note ライフタイム延命規定があるが, 返り値は一時オブジェクトであるため変数に束縛してから反復することを推奨する.
-    constexpr auto slots() const -> std::ranges::random_access_range auto {
-        return kcv::ranges::views::concat(this->eqslots_, this->exslot_);
+    constexpr auto slots() const noexcept -> const std::ranges::random_access_range auto& {
+        return this->slots_;
     }
 
    private:
@@ -99,6 +99,9 @@ class ship final {
 
     /// @brief 増設スロット.
     kcv::optional<kcv::sortie::slot> exslot_;
+
+    /// @brief 装備スロット.
+    decltype(kcv::ranges::views::concat(eqslots_, exslot_)) slots_;
 };
 
 }  // namespace sortie

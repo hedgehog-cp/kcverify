@@ -6,13 +6,13 @@
 #include <concepts>
 #include <cstdint>
 #include <optional>
-#include <string>
 #include <vector>
 
 // kcv
 #include "models/kcsapi/types/enum/category.hpp"
 #include "models/kcsapi/types/enum/ctype.hpp"
 #include "models/kcsapi/types/enum/equipment_id.hpp"
+#include "models/kcsapi/types/enum/nationality.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "models/kcsapi/types/enum/stype.hpp"
 
@@ -95,57 +95,60 @@ struct bonus_value final {
 /// @brief 装備ボーナスデータ.
 /// @see KC3Kai: kancolle-replay/js/data/mst_slotitem_bonus.json
 struct bonus_data final {
-    /// @brief ボーナス.
-    kcv::kc3kai::bonus_value bonus;
+    /// @brief 水上電探. 1または未指定.
+    std::optional<std::int32_t> requires_surface_radar;
+
+    /// @brief 対空電探. 1または未指定.
+    std::optional<std::int32_t> requires_anti_air_radar;
+
+    /// @brief 命中電探. 1または未指定.
+    std::optional<std::int32_t> requires_accuracy_radar;
+
+    /// @brief 艦型.
+    std::optional<std::vector<kcv::kcsapi::ctype>> ship_class;
+
+    /// @brief 艦籍.
+    std::optional<std::vector<kcv::kcsapi::nationality>> ship_country;
+
+    /// @brief 艦船ID.
+    std::optional<std::vector<kcv::kcsapi::ship_id>> ship_id;
+
+    /// @brief 未改造ID.
+    std::optional<std::vector<kcv::kcsapi::ship_id>> ship_base;
 
     /// @brief 艦種.
-    std::optional<std::vector<kcv::kcsapi::stype>> shipType;
+    std::optional<std::vector<kcv::kcsapi::stype>> ship_type;
 
-    /// @brief 搭載数.
-    std::optional<std::int32_t> num;
+    /// @brief 装備ID.
+    std::optional<std::vector<kcv::kcsapi::equipment_id>> requires_id;
+
+    /// @brief
+    std::optional<std::int32_t> requires_id_num;
+
+    /// @brief
+    std::optional<std::int32_t> requires_id_level;
+
+    /// @brief カテゴリID.
+    std::optional<std::vector<kcv::kcsapi::category>> requires_type;
+
+    /// @brief 存在しない.
+    std::optional<std::int32_t> requires_type_num;
 
     /// @brief 改修値.
     std::optional<std::int32_t> level;
 
-    /// @brief 艦船ID.
-    std::optional<std::vector<kcv::kcsapi::ship_id>> shipId;
+    /// @brief 搭載数.
+    std::optional<std::int32_t> num;
 
-    /// @brief 対空電探. 1 or null.
-    std::optional<std::int32_t> requiresAR;
-
-    /// @brief 未改造ID.
-    std::optional<std::vector<kcv::kcsapi::ship_id>> shipBase;
-
-    /// @brief 装備ID.
-    std::optional<std::vector<kcv::kcsapi::equipment_id>> requiresId;
-
-    /// @brief 艦型.
-    std::optional<std::vector<kcv::kcsapi::ctype>> shipClass;
-
-    /// @brief 水上電探.
-    std::optional<std::int32_t> requiresSR;
-
-    /// @brief
-    std::optional<std::int32_t> requiresIdNum;
-
-    /// @brief 艦籍.
-    std::optional<std::vector<std::string>> shipCountry;
-
-    /// @brief カテゴリID.
-    std::optional<std::vector<kcv::kcsapi::category>> requiresType;
-
-    /// @brief
-    std::optional<std::int32_t> requiresIdLevel;
-
-    /// @brief 命中電探.
-    std::optional<std::int32_t> requiresAccR;
+    /// @brief ボーナス.
+    kcv::kc3kai::bonus_value bonus;
 };
 
 /// @brief 装備ボーナスデータ.
 /// @see KC3Kai: kancolle-replay/js/data/mst_slotitem_bonus.json
 struct mst_slotitem_bonus final {
     /// @brief カテゴリID条件.
-    std::vector<kcv::kcsapi::category> types;
+    std::optional<std::vector<kcv::kcsapi::category>> types;
 
     /// @brief 装備ID条件.
     std::optional<std::vector<kcv::kcsapi::equipment_id>> ids;

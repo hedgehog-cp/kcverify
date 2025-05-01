@@ -14,6 +14,10 @@ add_executable(test_core_equipment_bonus_eoen ./libkcv/core/equipment_bonus/eoen
 target_link_libraries(test_core_equipment_bonus_eoen PRIVATE kcv)
 add_test(NAME equipment_bonus_eoen COMMAND test_core_equipment_bonus_eoen WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+add_executable(test_core_equipment_bonus_kc3kai ./libkcv/core/equipment_bonus/kc3kai.cpp)
+target_link_libraries(test_core_equipment_bonus_kc3kai PRIVATE kcv)
+add_test(NAME equipment_bonus_kc3kai COMMAND test_core_equipment_bonus_kc3kai WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_executable(test_eoen_fit_bonus ./libkcv/models/eoen/fit_bonus.cpp)
 target_link_libraries(test_eoen_fit_bonus PRIVATE kcv)
 add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

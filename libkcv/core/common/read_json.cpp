@@ -33,6 +33,7 @@
 #include "models/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
+#include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_get_member/ship_deck/response.hpp"
 #include "models/kcsapi/api_req_battle_midnight/battle/response.hpp"
 #include "models/kcsapi/api_req_map/next/response.hpp"
@@ -43,6 +44,65 @@
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/svdata.hpp"
+
+template <>
+struct glz::meta<kcv::kc3kai::bonus_data> {
+   public:
+    using T = kcv::kc3kai::bonus_data;
+
+   private:
+    static constexpr void impl(T& dst, const std::optional<std::vector<std::string_view>>& src) {
+        constexpr auto impl = [](std::string_view country) static -> kcv::kcsapi::nationality {
+            if (country == "JP") return kcv::kcsapi::nationality::japanese;
+            if (country == "DE") return kcv::kcsapi::nationality::german;
+            if (country == "IT") return kcv::kcsapi::nationality::italian;
+            if (country == "US") return kcv::kcsapi::nationality::american;
+            if (country == "GB") return kcv::kcsapi::nationality::british;
+            if (country == "FR") return kcv::kcsapi::nationality::french;
+            if (country == "RU") return kcv::kcsapi::nationality::russian;
+            if (country == "SE") return kcv::kcsapi::nationality::swedish;
+            if (country == "AU") return kcv::kcsapi::nationality::australian;
+            if (country == "NL") return kcv::kcsapi::nationality::dutch;
+            return kcv::kcsapi::nationality::unknown;
+        };
+        if (src.has_value()) {
+            dst.ship_country = std::vector<kcv::kcsapi::nationality>{};
+            dst.ship_country->reserve(src->size());
+            for (const auto& country : *src) {
+                dst.ship_country->push_back(impl(country));
+            }
+        } else {
+            dst.ship_country = std::nullopt;
+        }
+    }
+
+   public:
+    static constexpr auto value = object(
+        // clang-format off
+
+        "requiresAR",       &T::requires_anti_air_radar,
+        "requiresSR",       &T::requires_surface_radar,
+        "requiresAccR",     &T::requires_accuracy_radar,
+        "shipClass",        &T::ship_class,
+        "shipCountry",      glz::custom<
+                                [](T& dst, const std::optional<std::vector<std::string_view>>& src) { impl(dst, src); },
+                                &T::ship_country
+                            >,
+        "shipId",           &T::ship_id,
+        "shipBase",         &T::ship_base,
+        "shipType",         &T::ship_type,
+        "requiresId",       &T::requires_id,
+        "requiresIdNum",    &T::requires_id_num,
+        "requiresIdLevel",  &T::requires_id_level,
+        "requiresType",     &T::requires_type,
+        "requiresTypeNum",  &T::requires_type_num,
+        "level",            &T::level,
+        "num",              &T::num,
+        "bonus",            &T::bonus
+
+        // clang-format on
+    );
+};
 
 template <>
 struct glz::meta<kcv::eoen::database::kancolle_api::api_files> {
@@ -312,6 +372,12 @@ void kcv::read_json(auto& dst, const std::filesystem::path& fname) {
 // clang-format off
 
 // testで使う関数もここで明示的特殊化する
+template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>&, const std::string&);
+template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>&, const std::filesystem::path&);
+
+template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>&, const std::string&);
+template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>&, const std::filesystem::path&);
+
 template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_value>&, const std::string&);
 template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_value>&, const std::filesystem::path&);
 

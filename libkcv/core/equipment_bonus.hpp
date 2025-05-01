@@ -9,6 +9,7 @@
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
+#include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 
 namespace kcv {
 
@@ -23,11 +24,23 @@ auto get_equipment_bonus(
 
 /// @brief 装備ボーナスを求める.
 /// @param ship 艦船.
-/// @param bonus_object KC3改固有の装備ボーナスオブジェクト.
+/// @param bonus_list KC3改固有の装備ボーナスオブジェクト.
 /// @return 装備ボーナスの合計.
 [[deprecated("WIP")]]
 auto get_equipment_bonus(
-    const kcv::sortie::ship& ship, const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_object
+    const kcv::sortie::ship& ship,                                  //
+    const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list  //
+) -> kcv::kc3kai::bonus_value;
+
+/// @brief 装備ボーナスを求める.
+/// @param ship 艦船.
+/// @param bonus_list KC3改固有の装備ボーナスオブジェクト.
+/// @return 装備ボーナスの合計.
+[[deprecated("WIP")]]
+auto get_equipment_bonus(
+    const kcv::sortie::ship& ship,                                   //
+    const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list,  //
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
 ) -> kcv::kc3kai::bonus_value;
 
 }  // namespace kcv
