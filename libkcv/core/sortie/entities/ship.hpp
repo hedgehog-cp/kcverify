@@ -107,4 +107,25 @@ class ship final {
 }  // namespace sortie
 }  // namespace kcv
 
+// MARK: フリー関数
+// shipクラスのメンバ関数として`has_*`関数を定義することを考慮したが, shipクラスが巨大になる.
+// コンストラクト時に 全ての`bool has_*_;`メンバ変数を初期化することは高コストであり, sizeof(ship)の値も大きくなる.
+// 遅延評価クラス`kcv::lazy<T>`の導入を考慮したが, やはりこれもshipクラスが巨大になる.
+// 結論として, `has_*`関数を非ジェネリックなフリー関数で定義する.
+
+namespace kcv {
+namespace sortie {
+
+/// @brief 対空電探を搭載しているかを検証する.
+bool has_anti_air_radar(const kcv::sortie::ship& ship) noexcept;
+
+/// @brief 水上電探を搭載しているかを検証する.
+bool has_surface_radar(const kcv::sortie::ship& ship) noexcept;
+
+/// @brief 命中電探を搭載しているかを検証する.
+bool has_accuracy_radar(const kcv::sortie::ship& ship) noexcept;
+
+}  // namespace sortie
+}  // namespace kcv
+
 #endif  // KCVERIFY_CORE_SORTIE_ENTITIES_SHIP_HPP_INCLUDED

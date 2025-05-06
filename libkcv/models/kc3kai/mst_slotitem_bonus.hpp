@@ -123,10 +123,10 @@ struct bonus_data final {
     std::optional<std::vector<kcv::kcsapi::equipment_id>> requires_id;
 
     /// @brief
-    std::optional<std::int32_t> requires_id_num;
+    std::optional<std::int32_t> requires_id_level;
 
     /// @brief
-    std::optional<std::int32_t> requires_id_level;
+    std::optional<std::int32_t> requires_id_num;
 
     /// @brief カテゴリID.
     std::optional<std::vector<kcv::kcsapi::category>> requires_type;
