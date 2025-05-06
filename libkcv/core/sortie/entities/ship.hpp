@@ -14,7 +14,6 @@
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "optional.hpp"
 #include "ranges.hpp"
-#include "utility.hpp"
 
 namespace kcv {
 namespace sortie {
@@ -58,7 +57,8 @@ class ship final {
         , base_id_{base_id}
         , nationality_{nationality}
         , eqslots_{eqslots}
-        , exslot_{exslot} {}
+        , exslot_{exslot}
+        , slots_{kcv::ranges::views::concat(this->eqslots_, this->exslot_)} {}
 
     constexpr auto mst() const noexcept -> const kcv::kcsapi::api_mst_ship_value_t& {
         return this->mst_;
@@ -80,9 +80,8 @@ class ship final {
         return this->exslot_;
     }
 
-    /// @note ライフタイム延命規定があるが, 返り値は一時オブジェクトであるため変数に束縛してから反復することを推奨する.
-    constexpr auto slots() const -> std::ranges::random_access_range auto {
-        return kcv::ranges::views::concat(this->eqslots_, this->exslot_);
+    constexpr auto slots() const noexcept -> const std::ranges::random_access_range auto& {
+        return this->slots_;
     }
 
    private:
@@ -100,7 +99,31 @@ class ship final {
 
     /// @brief 増設スロット.
     kcv::optional<kcv::sortie::slot> exslot_;
+
+    /// @brief 装備スロット.
+    decltype(kcv::ranges::views::concat(eqslots_, exslot_)) slots_;
 };
+
+}  // namespace sortie
+}  // namespace kcv
+
+// MARK: フリー関数
+// shipクラスのメンバ関数として`has_*`関数を定義することを考慮したが, shipクラスが巨大になる.
+// コンストラクト時に 全ての`bool has_*_;`メンバ変数を初期化することは高コストであり, sizeof(ship)の値も大きくなる.
+// 遅延評価クラス`kcv::lazy<T>`の導入を考慮したが, やはりこれもshipクラスが巨大になる.
+// 結論として, `has_*`関数を非ジェネリックなフリー関数で定義する.
+
+namespace kcv {
+namespace sortie {
+
+/// @brief 対空電探を搭載しているかを検証する.
+bool has_anti_air_radar(const kcv::sortie::ship& ship) noexcept;
+
+/// @brief 水上電探を搭載しているかを検証する.
+bool has_surface_radar(const kcv::sortie::ship& ship) noexcept;
+
+/// @brief 命中電探を搭載しているかを検証する.
+bool has_accuracy_radar(const kcv::sortie::ship& ship) noexcept;
 
 }  // namespace sortie
 }  // namespace kcv
