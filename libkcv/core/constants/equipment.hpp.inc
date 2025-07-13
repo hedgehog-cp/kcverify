@@ -555,6 +555,7 @@ inline constexpr auto api_mst_slotitem = std::to_array<std::pair<kcv::kcsapi::eq
     {kcv::kcsapi::equipment_id{558}, "零式艦戦62型改(熟練/夜間爆戦)"},
     {kcv::kcsapi::equipment_id{559}, "Ju87 D-4(Fliegerass)"},
     {kcv::kcsapi::equipment_id{560}, "Bf109 T-3(G)"},
+    {kcv::kcsapi::equipment_id{561}, "Ho229"},
     {kcv::kcsapi::equipment_id{1501}, "5inch単装砲"},
     {kcv::kcsapi::equipment_id{1502}, "5inch連装砲"},
     {kcv::kcsapi::equipment_id{1503}, "3inch単装高角砲"},
