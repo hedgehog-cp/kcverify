@@ -6,9 +6,13 @@ add_executable(test_core_constants_ship ./libkcv/core/constants/ship.cpp)
 target_link_libraries(test_core_constants_ship PRIVATE kcv)
 add_test(NAME core_constants_ship COMMAND test_core_constants_ship WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-add_executable(test_damage_formula_function_function ./libkcv/core/damage_formula/function/function.cpp)
-target_link_libraries(test_damage_formula_function_function PRIVATE kcv)
-add_test(NAME damage_formula_function_function COMMAND test_damage_formula_function_function WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(test_damage_formula_functions_functions ./libkcv/core/damage_formula/functions/functions.cpp)
+target_link_libraries(test_damage_formula_functions_functions PRIVATE kcv)
+add_test(NAME damage_formula_functions_functions COMMAND test_damage_formula_functions_functions WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_executable(test_damage_formula_functions_inverse ./libkcv/core/damage_formula/functions/inverse.cpp)
+target_link_libraries(test_damage_formula_functions_inverse PRIVATE kcv)
+add_test(NAME damage_formula_functions_inverse COMMAND test_damage_formula_functions_inverse WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 add_executable(test_core_sortie_equipment_bonus_eoen ./libkcv/core/sortie/equipment_bonus/eoen.cpp)
 target_link_libraries(test_core_sortie_equipment_bonus_eoen PRIVATE kcv)
