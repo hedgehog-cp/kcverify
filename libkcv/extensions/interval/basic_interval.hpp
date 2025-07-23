@@ -1,80 +1,18 @@
-#ifndef KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_INTERVAL_HPP_INCLUDED
-#define KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_INTERVAL_HPP_INCLUDED
+#ifndef KCVERIFY_EXTENSIONS_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED
+#define KCVERIFY_EXTENSIONS_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED
 
 // std
 #include <algorithm>
-#include <cfenv>
 #include <cmath>
 #include <concepts>
 #include <limits>
 #include <numeric>
-#include <type_traits>
 #include <utility>
 
 // kcv
-#include "attributes.hpp"
-#include "stdfloat.hpp"
+#include "extensions/interval/floating_environment.hpp"
 
 namespace kcv {
-
-/// @brief 浮動小数点数環境.
-template <typename T>
-concept floating_environment = requires(const T x) {
-    // 引数無しで浮動小数点数環境を提供できること.
-    requires std::default_initializable<T>;
-
-    // RAIIを利用した浮動小数点数環境のリセットを例外なしで行えること.
-    requires std::is_nothrow_destructible_v<T>;
-
-    // 下向き丸め環境のもとで関数を評価するとともに, その結果を返すこと.
-    {
-        x.down([]() -> std::floating_point auto { return 0.0; })
-    } -> std::floating_point;
-
-    // 上向き丸め環境のもとで関数を評価するとともに, その結果を返すこと.
-    {
-        x.up([]() -> std::floating_point auto { return 0.0; })
-    } -> std::floating_point;
-};
-
-/// @brief 精度保証なし数値計算のための浮動小数点数環境.
-/// 単なる区間演算のための, 既定の最近接丸めの浮動小数点数環境を提供する.
-struct fenv_neutral final {
-    fenv_neutral() = default;
-
-    ~fenv_neutral() = default;
-
-    auto down(const std::invocable<> auto& f) const noexcept(noexcept(f())) {
-        return f();
-    }
-
-    auto up(const std::invocable<> auto& f) const noexcept(noexcept(f())) {
-        return f();
-    }
-};
-
-/// @brief 精度保証付き数値計算のための浮動小数点数環境.
-/// 最適化(inline展開が主原因か?)によって精度保証付き数値計算が壊れるため,
-/// 処理系が提供する非標準のnoinline属性を指定する.
-struct fenv_rounding final {
-    fenv_rounding() = default;
-
-    ~fenv_rounding() {
-        std::fesetround(FE_TONEAREST);
-    }
-
-    [[NOINLINE]]
-    auto down(const std::invocable<> auto& f) const noexcept(noexcept(f())) {
-        std::fesetround(FE_DOWNWARD);
-        return f();
-    }
-
-    [[NOINLINE]]
-    auto up(const std::invocable<> auto& f) const noexcept(noexcept(f())) {
-        std::fesetround(FE_UPWARD);
-        return f();
-    }
-};
 
 /// @brief 機械閉区間.
 /// @tparam T 浮動小数点数型.
@@ -82,12 +20,45 @@ struct fenv_rounding final {
 /// @note 空集合を表現できない.
 /// コンパイル時の浮動小数点数環境を指定することはできないため, 各関数constexprをすると意図しない結果を得る.
 /// @todo operator+=, operator-=, operator*=, operator/=, 0除算
-template <std::floating_point T, floating_environment Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 class basic_interval final {
    public:
     using base_type = T;
     using fenv_type = Fenv;
 
+    static auto whole() noexcept -> basic_interval {
+        return basic_interval{
+            -std::numeric_limits<base_type>::infinity(),
+            +std::numeric_limits<base_type>::infinity(),
+        };
+    }
+
+    basic_interval() = default;
+
+    basic_interval(base_type lower, base_type upper) noexcept
+        : lower_{lower}
+        , upper_{upper} {}
+
+    basic_interval(base_type x) noexcept
+        : lower_{x}
+        , upper_{x} {}
+
+    auto lower() const noexcept -> base_type {
+        return this->lower_;
+    }
+
+    auto upper() const noexcept -> base_type {
+        return this->upper_;
+    }
+
+   private:
+    /// @brief 区間の下側.
+    base_type lower_;
+
+    /// @brief 区間の上側.
+    base_type upper_;
+
+   private:
     // MARK: operator+
 
     friend auto operator+(const basic_interval& lhs, const basic_interval& rhs) noexcept -> basic_interval {
@@ -561,63 +532,25 @@ class basic_interval final {
     friend bool operator>(const base_type& lhs, const basic_interval& rhs) noexcept {
         return lhs > rhs.lower_ and rhs.lower_ > rhs.upper_;
     }
-
-    static auto whole() noexcept -> basic_interval {
-        return basic_interval{
-            -std::numeric_limits<base_type>::infinity(),
-            +std::numeric_limits<base_type>::infinity(),
-        };
-    }
-
-    basic_interval() = default;
-
-    basic_interval(base_type lower, base_type upper) noexcept
-        : lower_{lower}
-        , upper_{upper} {}
-
-    basic_interval(base_type x) noexcept
-        : lower_{x}
-        , upper_{x} {}
-
-    auto lower() const noexcept -> base_type {
-        return this->lower_;
-    }
-
-    auto upper() const noexcept -> base_type {
-        return this->upper_;
-    }
-
-   private:
-    /// @brief 区間の下側.
-    base_type lower_;
-
-    /// @brief 区間の上側.
-    base_type upper_;
 };
-
-/// @brief 順算用算術数値型. 精度保証なしの区間演算を行える.
-using number = basic_interval<kcv::float64_t, fenv_neutral>;
-
-/// @brief 逆算用算術数値型. 精度保証付きの区間演算を行える.
-using interval = basic_interval<kcv::float64_t, fenv_rounding>;
 
 // MARK: free functions
 
 /// @brief 区間の中点を返す. 必ずしも真の区間の中点ではない.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto midpoint(const basic_interval<T, Fenv>& x) noexcept -> T {
     return std::midpoint(x.lower(), x.upper());
 }
 
 /// @brief 区間幅を返す.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto width(const basic_interval<T, Fenv>& x) noexcept -> T {
     const auto fenv = Fenv{};
     return fenv.up([&]() { return x.upper() - x.lower(); });
 }
 
 /// @brief 区間半径を返す.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto radius(const basic_interval<T, Fenv>& x) noexcept -> T {
     const auto fenv = Fenv{};
     return fenv.up([&]() { return x.upper() / 2.0 - x.lower() / 2.0; });
@@ -625,20 +558,20 @@ auto radius(const basic_interval<T, Fenv>& x) noexcept -> T {
 
 /// @brief 区間に属するかを検証する.
 /// lhs ∊ rhs
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 bool in(T lhs, const basic_interval<T, Fenv>& rhs) noexcept {
     return rhs.lower() <= lhs and lhs <= rhs.upper();
 }
 
 /// @brief 区間に含まれるかを検証する.
 /// lhs ⊆ rhs
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 bool subset(const basic_interval<T, Fenv>& lhs, const basic_interval<T, Fenv>& rhs) noexcept {
     return rhs.lower() <= lhs.lower() and lhs.lower() <= lhs.upper() and lhs.upper() <= rhs.upper();
 }
 
 /// @brief 絶対値を返す.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto abs(const basic_interval<T, Fenv>& x) noexcept -> basic_interval<T, Fenv> {
     const auto lower = std::fabs(x.lower());
     const auto upper = std::fabs(x.upper());
@@ -650,7 +583,7 @@ auto abs(const basic_interval<T, Fenv>& x) noexcept -> basic_interval<T, Fenv> {
 
 /// @brief 最大値を返す.
 /// @note std::maxは意図しない結果を返す.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto max(const basic_interval<T, Fenv>& a, const basic_interval<T, Fenv>& b) noexcept -> basic_interval<T, Fenv> {
     return basic_interval<T, Fenv>{
         std::max(a.lower(), b.lower()),
@@ -660,7 +593,7 @@ auto max(const basic_interval<T, Fenv>& a, const basic_interval<T, Fenv>& b) noe
 
 /// @brief 最小値を返す.
 /// @note std::minは意図しない結果を返す.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto min(const basic_interval<T, Fenv>& a, const basic_interval<T, Fenv>& b) noexcept -> basic_interval<T, Fenv> {
     return basic_interval<T, Fenv>{
         std::min(a.lower(), b.lower()),
@@ -669,9 +602,9 @@ auto min(const basic_interval<T, Fenv>& a, const basic_interval<T, Fenv>& b) noe
 }
 
 /// @brief 平方根を返す.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto sqrt(const basic_interval<T, Fenv>& x) noexcept -> basic_interval<T, Fenv> {
-    const auto fenv = fenv_rounding{};
+    const auto fenv = Fenv{};
     return basic_interval<T, Fenv>{
         fenv.down([&]() { return std::sqrt(x.lower()); }),
         fenv.up([&]() { return std::sqrt(x.upper()); }),
@@ -680,41 +613,29 @@ auto sqrt(const basic_interval<T, Fenv>& x) noexcept -> basic_interval<T, Fenv> 
 
 /// @brief 2乗を返す.
 /// @todo 区間幅の最適化をする.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 auto square(const kcv::basic_interval<T, Fenv>& x) noexcept -> kcv::basic_interval<T, Fenv> {
     return x * x;
 }
 
 /// @brief 数が0であるかを検証する.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 bool is_zero(const kcv::basic_interval<T, Fenv>& x) noexcept {
     return x == 0;
 }
 
 /// @brief 数が正であるかを検証する.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 bool is_positive(const kcv::basic_interval<T, Fenv>& x) noexcept {
     return x.upper() > 0;
 }
 
 /// @brief 数が負であるかを検証する.
-template <std::floating_point T, typename Fenv>
+template <std::floating_point T, kcv::floating_environment Fenv>
 bool is_negative(const kcv::basic_interval<T, Fenv>& x) noexcept {
     return x.lower() < 0;
 }
 
-/// @brief intervalにする.
-template <typename T>
-auto make_interval(const T& x) noexcept -> interval {
-    if constexpr (std::same_as<T, interval::base_type>) {
-        return interval{x};
-    } else if constexpr (std::same_as<T, number>) {
-        return interval{x.lower(), x.upper()};
-    } else {
-        static_assert(false);
-    }
-}
-
 }  // namespace kcv
 
-#endif  // KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_INTERVAL_HPP_INCLUDED
+#endif  // KCVERIFY_EXTENSIONS_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED

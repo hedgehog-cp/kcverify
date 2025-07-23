@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_OPTIONAL_HPP_INCLUDED
-#define KCVERIFY_OPTIONAL_HPP_INCLUDED
+#ifndef KCVERIFY_EXTENSIONS_OPTIONAL_HPP_INCLUDED
+#define KCVERIFY_EXTENSIONS_OPTIONAL_HPP_INCLUDED
 
 /**
  * @file optional.hpp
@@ -52,4 +52,4 @@ constexpr bool std::ranges::enable_view<kcv::optional<T>> = true;
 static_assert(std::ranges::range<kcv::optional<std::monostate>>);
 static_assert(std::ranges::view<kcv::optional<std::monostate>>);
 
-#endif  // KCVERIFY_OPTIONAL_HPP_INCLUDED
+#endif  // KCVERIFY_EXTENSIONS_OPTIONAL_HPP_INCLUDED

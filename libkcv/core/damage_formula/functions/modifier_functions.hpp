@@ -6,7 +6,7 @@
 
 // kcv
 #include "core/damage_formula/functions/composable.hpp"
-#include "core/damage_formula/functions/interval.hpp"
+#include "extensions/interval.hpp"
 
 namespace kcv {
 

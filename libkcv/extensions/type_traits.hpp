@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_TYPE_TRAITS_HPP_INCLUDED
-#define KCVERIFY_TYPE_TRAITS_HPP_INCLUDED
+#ifndef KCVERIFY_EXTENSIONS_TYPE_TRAITS_HPP_INCLUDED
+#define KCVERIFY_EXTENSIONS_TYPE_TRAITS_HPP_INCLUDED
 
 /// @note 将来の標準に提案されていないため, std_alt配下に配置しない.
 
@@ -35,4 +35,4 @@ inline constexpr bool is_expected_v<std::expected<T, E>> = true;
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_TYPE_TRAITS_HPP_INCLUDED
+#endif  // KCVERIFY_EXTENSIONS_TYPE_TRAITS_HPP_INCLUDED

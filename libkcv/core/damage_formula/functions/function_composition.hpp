@@ -11,7 +11,7 @@
 
 // kcv
 #include "core/damage_formula/functions/composable.hpp"
-#include "type_traits.hpp"
+#include "extensions/type_traits.hpp"
 
 namespace kcv {
 

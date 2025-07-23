@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED
-#define KCVERIFY_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED
+#ifndef KCVERIFY_MODELS_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED
+#define KCVERIFY_MODELS_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED
 
 #include <cstddef>
 #include <tuple>
@@ -44,4 +44,4 @@ using api_type = std::tuple<int, int, category, icon, int>;
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED
+#endif  // KCVERIFY_MODELS_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED

@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_INPLACE_VECTOR_HPP_INCLUDED
-#define KCVERIFY_INPLACE_VECTOR_HPP_INCLUDED
+#ifndef KCVERIFY_EXTENSIONS_INPLACE_VECTOR_HPP_INCLUDED
+#define KCVERIFY_EXTENSIONS_INPLACE_VECTOR_HPP_INCLUDED
 
 #include <cstddef>
 #include <iterator>
@@ -137,6 +137,7 @@ struct inplace_vector final {
         }
 
         this->storage_[this->size_] = v;
+        this->size_++;
     }
 
     constexpr void push_back(value_type&& v) {
@@ -145,6 +146,7 @@ struct inplace_vector final {
         }
 
         this->storage_[this->size_] = std::move(v);
+        this->size_++;
     }
 
     // constexpr void resize(size_type);
@@ -154,13 +156,10 @@ struct inplace_vector final {
     // constexpr void fill(const T&);
     // constexpr void swap(inplace_vector&) noexcept(noexcept(swap(declval<T&>(), declval<T&>())));
 
-    // private:
+    size_type size_ = 0;
     value_type storage_[C];
-
-    // private:
-    size_type size_;
 };
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_INPLACE_VECTOR_HPP_INCLUDED
+#endif  // KCVERIFY_EXTENSIONS_INPLACE_VECTOR_HPP_INCLUDED

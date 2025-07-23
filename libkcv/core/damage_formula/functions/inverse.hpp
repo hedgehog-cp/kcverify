@@ -1,16 +1,17 @@
 #ifndef KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_INVERSE_HPP_INCLUDED
 #define KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_INVERSE_HPP_INCLUDED
 
+// std
 #include <cstddef>
 #include <optional>
 #include <tuple>
 #include <utility>
 
+// kcv
 #include "core/damage_formula/functions/function_composition.hpp"
-#include "core/damage_formula/functions/interval.hpp"
 #include "core/damage_formula/functions/modifier_functions.hpp"
-#include "function_composition.hpp"
-#include "type_traits.hpp"
+#include "extensions/interval.hpp"
+#include "extensions/type_traits.hpp"
 
 namespace kcv {
 

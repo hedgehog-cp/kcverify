@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_STDFLOAT_HPP_INCLUDED
-#define KCVERIFY_STDFLOAT_HPP_INCLUDED
+#ifndef KCVERIFY_EXTENSIONS_STDFLOAT_HPP_INCLUDED
+#define KCVERIFY_EXTENSIONS_STDFLOAT_HPP_INCLUDED
 
 #include <climits>
 #include <limits>
@@ -23,4 +23,4 @@ static_assert(sizeof(float32_t) * CHAR_BIT == 32);
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_STDFLOAT_HPP_INCLUDED
+#endif  // KCVERIFY_EXTENSIONS_STDFLOAT_HPP_INCLUDED

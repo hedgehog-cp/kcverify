@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_KCSAPI_TYPES_API_KYOUKA_HPP_INCLUDED
-#define KCVERIFY_KCSAPI_TYPES_API_KYOUKA_HPP_INCLUDED
+#ifndef KCVERIFY_MODELS_KCSAPI_TYPES_API_KYOUKA_HPP_INCLUDED
+#define KCVERIFY_MODELS_KCSAPI_TYPES_API_KYOUKA_HPP_INCLUDED
 
 #include <cstddef>
 #include <tuple>
@@ -49,4 +49,4 @@ static_assert(std::tuple_size_v<api_kyouka> == 7);
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_KCSAPI_TYPES_API_KYOUKA_HPP_INCLUDED
+#endif  // KCVERIFY_MODELS_KCSAPI_TYPES_API_KYOUKA_HPP_INCLUDED

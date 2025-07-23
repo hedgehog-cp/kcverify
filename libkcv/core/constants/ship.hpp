@@ -11,7 +11,7 @@
 #include <utility>
 
 // kcv
-#include "inplace_vector.hpp"
+#include "extensions/inplace_vector.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 

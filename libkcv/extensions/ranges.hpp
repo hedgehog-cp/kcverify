@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_RANGES_HPP_INCLUDED
-#define KCVERIFY_RANGES_HPP_INCLUDED
+#ifndef KCVERIFY_EXTENSIONS_RANGES_HPP_INCLUDED
+#define KCVERIFY_EXTENSIONS_RANGES_HPP_INCLUDED
 
 #include <range/v3/view/concat.hpp>
 
@@ -17,4 +17,4 @@ namespace views = ranges::views;
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_RANGES_HPP_INCLUDED
+#endif  // KCVERIFY_EXTENSIONS_RANGES_HPP_INCLUDED

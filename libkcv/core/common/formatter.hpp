@@ -3,23 +3,10 @@
 
 // std
 #include <format>
-#include <optional>
 
 // kcv
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
-
-template <typename T>
-struct std::formatter<std::optional<T>> : std::formatter<T> {
-    template <typename FormatContext>
-    constexpr auto format(const std::optional<T>& opt, FormatContext& ctx) const {
-        if (opt.has_value()) {
-            return std::formatter<T>::format(*opt, ctx);
-        } else {
-            return std::format_to(ctx.out(), "(null)");
-        }
-    }
-};
 
 template <>
 struct std::formatter<kcv::eoen::serialization::fit_bonus::fit_bonus_value> {

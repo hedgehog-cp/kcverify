@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_KCSAPI_TYPES_API_DECK_PORT_HPP_INCLUDED
-#define KCVERIFY_KCSAPI_TYPES_API_DECK_PORT_HPP_INCLUDED
+#ifndef KCVERIFY_MODELS_KCSAPI_TYPES_API_DECK_PORT_HPP_INCLUDED
+#define KCVERIFY_MODELS_KCSAPI_TYPES_API_DECK_PORT_HPP_INCLUDED
 
 #include <cstdint>
 #include <string>
@@ -40,4 +40,4 @@ using api_deck_port = std::vector<api_deck_port_value_t>;
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_KCSAPI_TYPES_API_DECK_PORT_HPP_INCLUDED
+#endif  // KCVERIFY_MODELS_KCSAPI_TYPES_API_DECK_PORT_HPP_INCLUDED

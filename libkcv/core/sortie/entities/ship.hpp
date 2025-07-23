@@ -7,13 +7,13 @@
 
 // kcv
 #include "core/sortie/entities/slot.hpp"
+#include "extensions/optional.hpp"
+#include "extensions/ranges.hpp"
 #include "models/eoen/database/sortie/sortie_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/enum/nationality.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
-#include "optional.hpp"
-#include "ranges.hpp"
 
 namespace kcv {
 namespace sortie {

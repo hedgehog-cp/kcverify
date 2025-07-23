@@ -6,11 +6,10 @@
 #include <random>
 
 // kcv
-#include "core/common/formatter.hpp"
 #include "core/damage_formula/functions/function_composition.hpp"
-#include "core/damage_formula/functions/interval.hpp"
-#include "core/damage_formula/functions/interval_formatter.hpp"
 #include "core/damage_formula/functions/modifier_functions.hpp"
+#include "extensions/formatter.hpp"
+#include "extensions/interval.hpp"
 
 int main() {
     auto seed_gen  = std::random_device{};
