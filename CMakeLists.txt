@@ -6,7 +6,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-std=c++2b)
 add_compile_options(-Wall -Wextra --pedantic-errors)
-add_compile_options(-O0)
+add_compile_options(-O0 -g)
+link_libraries(-lstdc++exp)
 # add_compile_options(-O2 -march=native)
 
 add_compile_options(-fsanitize=undefined)

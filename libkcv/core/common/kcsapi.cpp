@@ -4,10 +4,10 @@
 #include <algorithm>
 #include <format>
 #include <ranges>
-#include <stdexcept>
 #include <utility>
 
 // kcv
+#include "extensions/exception.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/enum/nationality.hpp"
@@ -21,9 +21,8 @@ auto kcv::binary_search(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsa
         return *itr;
     }
 
-    /// @todo 専用の例外型を使用する.
     const auto msg = std::format("ship id not found. [ship id = {}].", std::to_underlying(id));
-    throw std::invalid_argument{msg};
+    throw kcv::exception{std::move(msg)};
 }
 
 auto kcv::binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
@@ -35,9 +34,8 @@ auto kcv::binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, k
         return *itr;
     }
 
-    /// @todo 専用の例外型を使用する.
     const auto msg = std::format("equipment id not found. [equipment id = {}].", std::to_underlying(id));
-    throw std::invalid_argument{msg};
+    throw kcv::exception{std::move(msg)};
 }
 
 auto kcv::base_id(const kcv::kcsapi::api_mst_ship& api_mst_ship, const kcv::kcsapi::api_mst_ship::value_type& mst)
@@ -49,9 +47,8 @@ auto kcv::base_id(const kcv::kcsapi::api_mst_ship& api_mst_ship, const kcv::kcsa
         }
     }
 
-    /// @todo 専用の例外型を使用する.
     const auto msg = std::format("base id not found in api_mst_ship. [id = {}]", std::to_underlying(mst.api_id));
-    throw std::invalid_argument{msg};
+    throw kcv::exception{std::move(msg)};
 }
 
 auto kcv::nationality(const kcv::kcsapi::api_mst_ship::value_type& mst) noexcept -> kcv::kcsapi::nationality {

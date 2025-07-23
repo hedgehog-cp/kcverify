@@ -3,6 +3,7 @@
 // std
 #include <filesystem>
 #include <string>
+#include <utility>
 
 // GCCの場合, 警告が発されるのでこれを抑制する.
 // https://github.com/stephenberry/glaze/issues/1561
@@ -20,6 +21,7 @@
 
 // kcv
 #include "core/common/system.hpp"
+#include "extensions/exception.hpp"
 #include "models/eoen/database/kancolle_api/api_files.hpp"
 #include "models/eoen/database/sortie/sortie_air_base.hpp"
 #include "models/eoen/database/sortie/sortie_air_base_squadron.hpp"
@@ -344,7 +346,7 @@ void kcv::read_json(auto& dst, const std::string& buffer) {
             "{}",
             glz::format_error(error, buffer), buffer
         );
-        kcv::exit_with_error(msg);
+        throw kcv::exception{std::move(msg)};
     }
 }
 
@@ -357,7 +359,7 @@ void kcv::read_json(auto& dst, const std::filesystem::path& fname) {
         // https://onihusube.hatenablog.com/#P2319R0-Prevent-path-presentation-problems
         // [[deprecated("P2319: std::filesystemm::string")]]
         const auto msg = std::format("could not read file. [file = {}].\n{}", fname.string(), ec.message());
-        kcv::exit_with_error(msg);
+        throw kcv::exception{std::move(msg)};
     }
 
     auto buffer = std::string{};
