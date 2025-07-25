@@ -11,8 +11,8 @@ namespace {
 
 /// @brief 述語関数を満たす装備を搭載しているかを検証する.
 bool is_equipped_with_if(
-    const kcv::sortie::ship& ship,                                                    //
-    const std::predicate<const kcv::kcsapi::api_mst_slotitem::value_type&> auto pred  //
+    const kcv::sortie::ship& ship,
+    const std::predicate<const kcv::kcsapi::api_mst_slotitem::value_type&> auto pred
 ) noexcept {
     // any_of
     for (const auto& slot : ship.slots()) {

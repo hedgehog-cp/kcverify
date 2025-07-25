@@ -24,7 +24,7 @@ struct std::formatter<std::optional<T>> : std::formatter<T> {
 template <>
 struct std::formatter<kcv::exception, char> {
     constexpr auto parse(std::format_parse_context& ctx) -> decltype(ctx.begin()) {
-        return ctx.begin();  // 形式指定なし
+        return ctx.begin();
     }
 
     template <typename FormatContext>

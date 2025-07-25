@@ -25,8 +25,6 @@ class equipment final {
         };
     }
 
-    // clang-format off
-
     constexpr equipment(
         const kcv::kcsapi::api_mst_slotitem_value_t& mst,
         std::int32_t level,
@@ -35,8 +33,6 @@ class equipment final {
         : mst_{mst}
         , level_{level}
         , aircraft_level_{aircraft_level} {}
-
-    // clang-format on
 
     constexpr auto mst() const noexcept -> const kcv::kcsapi::api_mst_slotitem_value_t& {
         return this->mst_;

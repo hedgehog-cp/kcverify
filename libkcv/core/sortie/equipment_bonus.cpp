@@ -24,8 +24,8 @@ namespace {
 
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
 auto extract_fit_equipments(
-    const kcv::sortie::ship& ship,                                  //
-    const std::optional<std::vector<kcv::kcsapi::category>>& types  //
+    const kcv::sortie::ship& ship,
+    const std::optional<std::vector<kcv::kcsapi::category>>& types
 ) -> std::vector<std::reference_wrapper<const kcv::sortie::equipment>> {
     auto fit_equipments = std::vector<std::reference_wrapper<const kcv::sortie::equipment>>{};
     for (const auto& slot : ship.slots()) {
@@ -41,8 +41,8 @@ auto extract_fit_equipments(
 
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
 auto extract_fit_equipments(
-    const kcv::sortie::ship& ship,                                    //
-    const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids  //
+    const kcv::sortie::ship& ship,
+    const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids
 ) -> std::vector<std::reference_wrapper<const kcv::sortie::equipment>> {
     auto fit_equipments = std::vector<std::reference_wrapper<const kcv::sortie::equipment>>{};
     for (const auto& slot : ship.slots()) {
@@ -58,8 +58,8 @@ auto extract_fit_equipments(
 
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
 auto extract_fit_equipments(
-    const kcv::sortie::ship& ship,                                   //
-    const std::optional<std::vector<kcv::kcsapi::category>>& types,  //
+    const kcv::sortie::ship& ship,
+    const std::optional<std::vector<kcv::kcsapi::category>>& types,
     const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids
 ) -> std::vector<std::reference_wrapper<const kcv::sortie::equipment>> {
     if (types.has_value() xor ids.has_value()) [[likely]] {
@@ -77,10 +77,7 @@ auto extract_fit_equipments(
 
 /// @brief 指定された艦船の条件を全て満たしているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
-bool matches_ship(
-    const kcv::sortie::ship& ship,                                   //
-    const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data  //
-) {
+bool matches_ship(const kcv::sortie::ship& ship, const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data) {
     if (data.original_id.has_value() and not std::ranges::contains(*data.original_id, ship.base_id())) {
         return false;
     }
@@ -107,8 +104,8 @@ bool matches_ship(
 /// @brief 指定された装備の条件を満たしているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
 bool matches_requires_id(
-    const kcv::sortie::ship& ship,                                   //
-    const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data  //
+    const kcv::sortie::ship& ship,
+    const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data
 ) {
     if (not data.requires_id.has_value()) {
         return true;
@@ -130,8 +127,8 @@ bool matches_requires_id(
 /// @brief 指定された装備の条件を満たしているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
 bool matches_requires_type(
-    const kcv::sortie::ship& ship,                                   //
-    const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data  //
+    const kcv::sortie::ship& ship,
+    const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data
 ) {
     if (not data.requires_type.has_value()) {
         return true;
@@ -154,17 +151,14 @@ bool matches_requires_type(
 /// @brief 指定された条件を全て満たしているかを検証する.
 /// 満たしていないならば, ボーナス付与なし. 次のボーナスへ.
 /// もとより指定されていなければ, 無条件として通過する.
-bool matches_data(
-    const kcv::sortie::ship& ship,                                   //
-    const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data  //
-) {
+bool matches_data(const kcv::sortie::ship& ship, const kcv::eoen::serialization::fit_bonus::fit_bonus_data& data) {
     return matches_ship(ship, data) and matches_requires_id(ship, data) and matches_requires_type(ship, data);
 }
 
 /// @brief 指定した改修値以上の装備の個数を数え上げ, これを返す.
 int count_if(
-    const std::vector<std::reference_wrapper<const kcv::sortie::equipment>>& fit_equipments,  //
-    std::int32_t level                                                                        //
+    const std::vector<std::reference_wrapper<const kcv::sortie::equipment>>& fit_equipments,
+    std::int32_t level
 ) {
     int count = 0;
     for (const auto& e : fit_equipments) {
@@ -291,11 +285,11 @@ bool matches_requires_type(const kcv::sortie::ship& ship, const kcv::kc3kai::bon
 }
 
 bool matches_data(
-    const kcv::sortie::ship& ship,       //
-    bool has_anti_air_radar,             //
-    bool has_surface_radar,              //
-    bool has_accuracy_radar,             //
-    const kcv::kc3kai::bonus_data& data  //
+    const kcv::sortie::ship& ship,
+    bool has_anti_air_radar,
+    bool has_surface_radar,
+    bool has_accuracy_radar,
+    const kcv::kc3kai::bonus_data& data
 ) {
     if (data.requires_anti_air_radar.has_value() and not has_anti_air_radar) {
         return false;
@@ -327,8 +321,8 @@ bool matches_data(
 }  // namespace
 
 auto kcv::sortie::get_equipment_bonus(
-    const kcv::sortie::ship& ship,                                  //
-    const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list  //
+    const kcv::sortie::ship& ship,
+    const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list
 ) -> kcv::kc3kai::bonus_value {
     auto total = kcv::kc3kai::bonus_value{};
 

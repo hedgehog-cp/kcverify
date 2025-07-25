@@ -12,9 +12,10 @@
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/enum/nationality.hpp"
 
-auto kcv::binary_search(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
-    -> const kcv::kcsapi::api_mst_ship::value_type&  //
-{
+auto kcv::binary_search(
+    const kcv::kcsapi::api_mst_ship& api_mst_ship,  //
+    kcv::kcsapi::ship_id id                         //
+) -> const kcv::kcsapi::api_mst_ship::value_type& {
     using value_type = kcv::kcsapi::api_mst_ship::value_type;
     const auto itr   = std::ranges::lower_bound(api_mst_ship, id, {}, &value_type::api_id);
     if (itr != std::ranges::end(api_mst_ship) and itr->api_id == id) {
@@ -25,9 +26,10 @@ auto kcv::binary_search(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsa
     throw kcv::exception{std::move(msg)};
 }
 
-auto kcv::binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
-    -> const kcv::kcsapi::api_mst_slotitem::value_type&  //
-{
+auto kcv::binary_search(
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,  //
+    kcv::kcsapi::equipment_id id                            //
+) -> const kcv::kcsapi::api_mst_slotitem::value_type& {
     using value_type = kcv::kcsapi::api_mst_slotitem::value_type;
     const auto itr   = std::ranges::lower_bound(api_mst_slotitem, id, {}, &value_type::api_id);
     if (itr != std::ranges::end(api_mst_slotitem) and itr->api_id == id) {
@@ -38,9 +40,10 @@ auto kcv::binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, k
     throw kcv::exception{std::move(msg)};
 }
 
-auto kcv::base_id(const kcv::kcsapi::api_mst_ship& api_mst_ship, const kcv::kcsapi::api_mst_ship::value_type& mst)
-    -> kcv::kcsapi::ship_id  //
-{
+auto kcv::base_id(
+    const kcv::kcsapi::api_mst_ship& api_mst_ship,    //
+    const kcv::kcsapi::api_mst_ship::value_type& mst  //
+) -> kcv::kcsapi::ship_id {
     for (const auto& e : api_mst_ship) {
         if (e.api_yomi == mst.api_yomi and e.api_sort_id % 10 == 1) [[unlikely]] {
             return e.api_id;

@@ -24,12 +24,10 @@ class ship final {
     using eoen_type = kcv::eoen::database::sortie::sortie_ship;
 
     static auto from_eoen(
-        const eoen_type& src,                                  //
-        const kcv::kcsapi::api_mst_ship& api_mst_ship,         //
-        const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem  //
-    )                                                          //
-        -> ship                                                //
-    {
+        const eoen_type& src,
+        const kcv::kcsapi::api_mst_ship& api_mst_ship,
+        const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
+    ) -> ship {
         const auto& mst = kcv::binary_search(api_mst_ship, src.id);
         return ship{
             mst,
@@ -47,11 +45,11 @@ class ship final {
     }
 
     constexpr ship(
-        const kcv::kcsapi::api_mst_ship_value_t& mst,  //
-        kcv::kcsapi::ship_id base_id,                  //
-        kcv::kcsapi::nationality nationality,          //
-        std::vector<kcv::sortie::slot> eqslots,        //
-        std::optional<kcv::sortie::slot> exslot        //
+        const kcv::kcsapi::api_mst_ship_value_t& mst,
+        kcv::kcsapi::ship_id base_id,
+        kcv::kcsapi::nationality nationality,
+        std::vector<kcv::sortie::slot> eqslots,
+        std::optional<kcv::sortie::slot> exslot
     ) noexcept
         : mst_{mst}
         , base_id_{base_id}
