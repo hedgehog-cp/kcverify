@@ -25,15 +25,15 @@ add_link_options(-fsanitize=address)
 # add_compile_options(-fsanitize=memory)
 # add_link_options(-fsanitize=memory)
 
-# libkcv ######################################################################
+# library ######################################################################
 
-add_subdirectory(libkcv)
+add_subdirectory(library)
 
 # main #########################################################################
 
 add_executable(kcverify ./source/main.cpp)
 target_include_directories(kcverify PRIVATE include)
-target_link_libraries(kcverify PRIVATE kcv)
+target_link_libraries(kcverify PRIVATE libkcv)
 
 # test #########################################################################
 
