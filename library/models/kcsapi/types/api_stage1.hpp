@@ -2,6 +2,7 @@
 #define KCVERIFY_MODELS_KCSAPI_TYPES_API_STAGE1_HPP_INCLUDED
 
 // std
+#include <cstdint>
 #include <tuple>
 
 // kcv
@@ -17,19 +18,19 @@ struct api_stage1 final {
     air_state api_disp_seiku;
 
     /// @brief 敵軍参加機数
-    int api_e_count;
+    std::int32_t api_e_count;
 
     /// @brief 敵軍被撃墜数
-    int api_e_lostcount;
+    std::int32_t api_e_lostcount;
 
     /// @brief 自軍参加機数
-    int api_f_count;
+    std::int32_t api_f_count;
 
     /// @brief 自軍被撃墜数
-    int api_f_lostcount;
+    std::int32_t api_f_lostcount;
 
     /// @brief 触接機装備ID
-    std::tuple<equipment_id, equipment_id> api_touch_plane;
+    std::tuple<kcv::kcsapi::equipment_id, kcv::kcsapi::equipment_id> api_touch_plane;
 };
 
 }  // namespace kcsapi

@@ -12,7 +12,7 @@ namespace kcsapi {
 
 struct api_get_ship final {
     std::string api_ship_getmes;
-    ship_id api_ship_id;
+    kcv::kcsapi::ship_id api_ship_id;
     std::string api_ship_name;
     std::string api_ship_type;
 };

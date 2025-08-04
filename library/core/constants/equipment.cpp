@@ -9,7 +9,7 @@
 #include "models/kcsapi/types/enum/icon.hpp"
 
 bool kcv::is_radar(const kcv::kcsapi::api_mst_slotitem_value_t &mst) noexcept {
-    return std::get<kcsapi::idx_type::icon>(mst.api_type) == kcsapi::icon::radar;
+    return std::get<kcv::kcsapi::idx_type::icon>(mst.api_type) == kcsapi::icon::radar;
 }
 
 bool kcv::is_anti_air_radar(const kcv::kcsapi::api_mst_slotitem_value_t &mst) noexcept {

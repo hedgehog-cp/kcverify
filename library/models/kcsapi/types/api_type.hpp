@@ -1,9 +1,12 @@
 #ifndef KCVERIFY_MODELS_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED
 #define KCVERIFY_MODELS_KCSAPI_TYPES_API_TYPE_HPP_INCLUDED
 
+// std
 #include <cstddef>
+#include <cstdint>
 #include <tuple>
 
+// kcv
 #include "models/kcsapi/types/enum/category.hpp"
 #include "models/kcsapi/types/enum/icon.hpp"
 
@@ -39,7 +42,7 @@ struct idx_type final {
 using idx_type = detail::idx_type::_;
 
 /// @brief `api_mst_slotitem` の `api_type`.
-using api_type = std::tuple<int, int, category, icon, int>;
+using api_type = std::tuple<std::int32_t, std::int32_t, category, icon, std::int32_t>;
 
 }  // namespace kcsapi
 }  // namespace kcv

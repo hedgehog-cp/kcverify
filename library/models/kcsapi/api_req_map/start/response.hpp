@@ -38,7 +38,7 @@ struct response final {
     std::optional<kcv::kcsapi::api_cell_flavor> api_cell_flavor;
 
     /// @brief セルタイプ.
-    cell_type api_color_no;
+    kcv::kcsapi::cell_type api_color_no;
 
     /// @brief 敵艦隊プレビュー. 通常艦隊のとき[1], 連合艦隊のとき[2].
     kcv::kcsapi::api_e_deck_info api_e_deck_info;

@@ -1,6 +1,7 @@
 #ifndef KCVERIFY_MODELS_KCSAPI_TYPES_API_LOG_HPP_INCLUDED
 #define KCVERIFY_MODELS_KCSAPI_TYPES_API_LOG_HPP_INCLUDED
 
+#include <cstdint>
 #include <string>
 
 namespace kcv {
@@ -12,7 +13,7 @@ struct api_log final {
     std::string api_message;
 
     /// @brief 通し番号.
-    int api_no;
+    std::int32_t api_no;
 
     /// @brief
     std::string api_state;

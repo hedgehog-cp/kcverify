@@ -16,28 +16,28 @@ struct api_ndock final {
     std::string api_complete_time_str;
 
     /// @brief ドック番号.
-    int api_id;
+    std::int32_t api_id;
 
     /// @brief 消費燃料.
-    int api_item1;
+    std::int32_t api_item1;
 
     /// @brief 消費弾薬.
-    int api_item2;
+    std::int32_t api_item2;
 
     /// @brief 消費鋼材.
-    int api_item3;
+    std::int32_t api_item3;
 
     /// @brief 消費ボーキサイト.
-    int api_item4;
+    std::int32_t api_item4;
 
     /// @brief 提督ID
-    int api_member_id;
+    std::int32_t api_member_id;
 
     /// @brief 入渠中艦船ID. 空きは0.
-    int api_ship_id;
+    std::int32_t api_ship_id;
 
     /// @brief 状態. -1=ロック, 0=空き, 1=入渠中.
-    int api_state;
+    std::int32_t api_state;
 };
 
 }  // namespace kcsapi

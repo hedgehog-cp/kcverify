@@ -1,6 +1,7 @@
 #ifndef KCVERIFY_MODELS_KCSAPI_TYPES_SVDATA_HPP_INCLUDED
 #define KCVERIFY_MODELS_KCSAPI_TYPES_SVDATA_HPP_INCLUDED
 
+#include <cstdint>
 #include <string>
 
 namespace kcv {
@@ -12,7 +13,7 @@ struct svdata final {
     Response api_data;
 
     /// @brief 1
-    int api_result;
+    std::int32_t api_result;
 
     /// @brief "成功"
     std::string api_result_msg;

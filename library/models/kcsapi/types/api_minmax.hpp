@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 
 namespace kcv {
 namespace kcsapi {
@@ -21,7 +22,7 @@ using idx_minmax = detail::idx_minmax::_;
 
 /// @brief [0]: min. [1]: max.
 /// @note std::tupleにするとclangでコンパイルできない.
-using api_minmax = std::array<int, 2>;
+using api_minmax = std::array<std::int32_t, 2>;
 
 }  // namespace kcsapi
 }  // namespace kcv

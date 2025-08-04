@@ -2,6 +2,7 @@
 #define KCVERIFY_MODELS_KCSAPI_TYPES_API_CELL_DATA_HPP_INCLUDED
 
 // std
+#include <cstdint>
 #include <optional>
 #include <vector>
 
@@ -14,19 +15,19 @@ namespace kcsapi {
 /// @brief セルデータ.
 struct api_cell_data_value_t final {
     /// @brief セルタイプ. セルの状態.
-    cell_type api_color_no;
+    kcv::kcsapi::cell_type api_color_no;
 
     /// @brief 基地からの距離. 基地航空隊出撃時のみ存在.
-    std::optional<int> api_distance;
+    std::optional<std::int32_t> api_distance;
 
     /// @brief 海域セルユニークID.
-    int api_id;
+    std::int32_t api_id;
 
     /// @brief 海域セルID.
-    int api_no;
+    std::int32_t api_no;
 
     /// @brief 0=初期地点 || 未通行, 1=通行済み.
-    int api_passed;
+    std::int32_t api_passed;
 };
 
 /// @brief 当該海域の全セルデータ.

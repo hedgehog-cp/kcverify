@@ -2,6 +2,7 @@
 #define KCVERIFY_MODELS_KCSAPI_TYPES_API_KYOUKA_HPP_INCLUDED
 
 #include <cstddef>
+#include <cstdint>
 #include <tuple>
 
 namespace kcv {
@@ -42,7 +43,8 @@ struct idx_kyouka final {
 using idx_kyouka = detail::idx_kyouka::_;
 
 /// @brief [0]=火力, [1]=雷装, [2]=対空, [3]=装甲, [4]=運, [5]=耐久, [6]=対潜.
-using api_kyouka = std::tuple<int, int, int, int, int, int, int>;
+using api_kyouka
+    = std::tuple<std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t>;
 
 static_assert(std::tuple_size_v<api_kyouka> == 7);
 

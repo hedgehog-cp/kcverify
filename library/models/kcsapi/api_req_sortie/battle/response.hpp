@@ -55,7 +55,7 @@ struct response final {
     std::optional<std::int32_t> api_x_al01;
 
     /// @brief 戦闘糧食補給. 発動時のみ存在. 艦船IDの配列
-    std::optional<std::vector<ship_id>> api_combat_ration;
+    std::optional<std::vector<kcv::kcsapi::ship_id>> api_combat_ration;
 
     /// @brief 煙幕システム(2023/4/23~). 0=未使用|不発, 1,2,3=濃度. 現在, 夜戦では煙幕を展開しない.
     std::optional<std::int32_t> api_smoke_type;

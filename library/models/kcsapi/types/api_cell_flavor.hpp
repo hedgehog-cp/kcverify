@@ -1,6 +1,7 @@
 #ifndef KCVERIFY_MODELS_KCSAPI_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
 #define KCVERIFY_MODELS_KCSAPI_TYPES_API_CELL_FLAVOR_HPP_INCLUDED
 
+#include <cstdint>
 #include <string>
 
 namespace kcv {
@@ -12,7 +13,7 @@ struct api_cell_flavor final {
     std::string api_message;
 
     /// @brief 0=気のせいだった, 1=静かな海です.
-    int api_type;
+    std::int32_t api_type;
 };
 
 }  // namespace kcsapi

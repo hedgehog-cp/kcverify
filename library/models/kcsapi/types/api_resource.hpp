@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 
 namespace kcv {
 namespace kcsapi {
@@ -33,7 +34,7 @@ using idx_resource = detail::idx_resource::_;
 
 /// @brief [0]=燃料. [1]=弾薬. [2]=鋼材. [3]=ボーキサイト.
 /// @note std::tupleにするとclangでコンパイルできない.
-using api_resource = std::array<int, 4>;
+using api_resource = std::array<std::int32_t, 4>;
 
 }  // namespace kcsapi
 }  // namespace kcv
