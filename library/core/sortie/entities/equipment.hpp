@@ -5,7 +5,7 @@
 #include <cstdint>
 
 // kcv
-#include "core/common/kcsapi.hpp"
+#include "core/utility/kcsapi.hpp"
 #include "models/eoen/database/sortie/sortie_equipment.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 
@@ -19,7 +19,7 @@ class equipment final {
 
     static auto from_eoen(const eoen_type& src, const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem) -> equipment {
         return equipment{
-            kcv::binary_search(api_mst_slotitem, src.id),
+            kcv::find_mst(api_mst_slotitem, src.id),
             src.level,
             src.aircraft_level,
         };

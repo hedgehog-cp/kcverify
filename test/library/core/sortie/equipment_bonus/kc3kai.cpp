@@ -1,19 +1,54 @@
 // std
 #include <cstdlib>
 #include <filesystem>
+#include <format>
 #include <print>
 #include <ranges>
 #include <vector>
 
 // kcv
-#include "core/common/formatter.hpp"
-#include "core/common/read_json.hpp"
 #include "core/sortie/entities/ship.hpp"
 #include "core/sortie/equipment_bonus.hpp"
+#include "core/utility/read_json.hpp"
 #include "models/eoen/database/sortie/sortie_record.hpp"
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
+
+template <>
+struct std::formatter<kcv::kc3kai::bonus_value> {
+    std::formatter<std::int32_t> int32_t_formatter;
+
+    constexpr auto parse(std::format_parse_context& ctx) {
+        return int32_t_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    constexpr auto format(const kcv::kc3kai::bonus_value& bonus, FormatContext& ctx) const {
+        auto out = ctx.out();
+        out      = std::format_to(out, "houg: ");
+        out      = int32_t_formatter.format(bonus.houg, ctx);
+        out      = std::format_to(out, ", tyku: ");
+        out      = int32_t_formatter.format(bonus.tyku, ctx);
+        out      = std::format_to(out, ", kaih: ");
+        out      = int32_t_formatter.format(bonus.kaih, ctx);
+        out      = std::format_to(out, ", souk: ");
+        out      = int32_t_formatter.format(bonus.souk, ctx);
+        out      = std::format_to(out, ", houm: ");
+        out      = int32_t_formatter.format(bonus.houm, ctx);
+        out      = std::format_to(out, ", tais: ");
+        out      = int32_t_formatter.format(bonus.tais, ctx);
+        out      = std::format_to(out, ", raig: ");
+        out      = int32_t_formatter.format(bonus.raig, ctx);
+        out      = std::format_to(out, ", saku: ");
+        out      = int32_t_formatter.format(bonus.saku, ctx);
+        out      = std::format_to(out, ", leng: ");
+        out      = int32_t_formatter.format(bonus.leng, ctx);
+        out      = std::format_to(out, ", baku: ");
+        out      = int32_t_formatter.format(bonus.baku, ctx);
+        return out;
+    }
+};
 
 int main() {
     const auto api_mst_ship = []() static -> kcv::kcsapi::api_mst_ship {

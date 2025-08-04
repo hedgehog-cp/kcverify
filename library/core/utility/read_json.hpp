@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_READ_JSON_HPP_INCLUDED
-#define KCVERIFY_READ_JSON_HPP_INCLUDED
+#ifndef KCVERIFY_CORE_UTILITY_READ_JSON_HPP_INCLUDED
+#define KCVERIFY_CORE_UTILITY_READ_JSON_HPP_INCLUDED
 
 #include <filesystem>
 #include <string>
@@ -18,4 +18,4 @@ void read_json(auto& dst, const std::filesystem::path& fname);
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_READ_JSON_HPP_INCLUDED
+#endif  // KCVERIFY_CORE_UTILITY_READ_JSON_HPP_INCLUDED

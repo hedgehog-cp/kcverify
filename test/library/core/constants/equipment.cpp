@@ -5,8 +5,8 @@
 #include <filesystem>
 
 // kcv
-#include "core/common/kcsapi.hpp"
-#include "core/common/read_json.hpp"
+#include "core/utility/kcsapi.hpp"
+#include "core/utility/read_json.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 
 int main() {
@@ -21,7 +21,7 @@ int main() {
         return temp;
     }();
 
-    const auto& bogata = kcv::binary_search(api_mst_slotitem, "烈風改二戊型(一航戦/熟練)"_id);
+    const auto& bogata = kcv::find_mst(api_mst_slotitem, "烈風改二戊型(一航戦/熟練)"_id);
     if (not kcv::is_night_plane(bogata)) {
         return EXIT_FAILURE;
     }

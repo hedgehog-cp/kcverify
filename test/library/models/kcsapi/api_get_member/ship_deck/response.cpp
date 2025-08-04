@@ -4,7 +4,7 @@
 #include <filesystem>
 
 // kcv
-#include "core/common/read_json.hpp"
+#include "core/utility/read_json.hpp"
 #include "models/kcsapi/types/svdata.hpp"
 
 int main() {

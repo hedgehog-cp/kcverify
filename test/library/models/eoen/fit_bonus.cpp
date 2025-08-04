@@ -5,7 +5,7 @@
 #include <vector>
 
 // kcv
-#include "core/common/read_json.hpp"
+#include "core/utility/read_json.hpp"
 
 int main() {
     constexpr auto dir = "./test/library/models/eoen/fit_bonus/data";

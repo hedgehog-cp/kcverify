@@ -1,9 +1,8 @@
 add_library(libkcv STATIC
     ./core/constants/ship.cpp
     ./core/constants/equipment.cpp
-    ./core/common/kcsapi.cpp
-    ./core/common/read_json.cpp
-    ./core/common/system.cpp
+    ./core/utility/read_json.cpp
+    ./core/utility/kcsapi.cpp
     ./core/sortie/entities/ship.cpp
     ./core/sortie/equipment_bonus.cpp
 )

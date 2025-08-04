@@ -1,4 +1,4 @@
-#include "core/common/kcsapi.hpp"
+#include "core/utility/kcsapi.hpp"
 
 // std
 #include <algorithm>
@@ -10,48 +10,43 @@
 #include "extensions/exception.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/nationality.hpp"
+#include "models/kcsapi/types/enum/ship_id.hpp"
 
-auto kcv::binary_search(
-    const kcv::kcsapi::api_mst_ship& api_mst_ship,  //
-    kcv::kcsapi::ship_id id                         //
-) -> const kcv::kcsapi::api_mst_ship::value_type& {
+auto kcv::find_mst(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
+    -> const kcv::kcsapi::api_mst_ship::value_type& {
     using value_type = kcv::kcsapi::api_mst_ship::value_type;
     const auto itr   = std::ranges::lower_bound(api_mst_ship, id, {}, &value_type::api_id);
-    if (itr != std::ranges::end(api_mst_ship) and itr->api_id == id) {
-        return *itr;
+
+    if (itr == std::ranges::end(api_mst_ship) or itr->api_id != id) {
+        throw kcv::exception{std::format("ship id not found. [ship id = {}].", std::to_underlying(id))};
     }
 
-    const auto msg = std::format("ship id not found. [ship id = {}].", std::to_underlying(id));
-    throw kcv::exception{std::move(msg)};
+    return *itr;
 }
 
-auto kcv::binary_search(
-    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,  //
-    kcv::kcsapi::equipment_id id                            //
-) -> const kcv::kcsapi::api_mst_slotitem::value_type& {
+auto kcv::find_mst(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
+    -> const kcv::kcsapi::api_mst_slotitem::value_type& {
     using value_type = kcv::kcsapi::api_mst_slotitem::value_type;
     const auto itr   = std::ranges::lower_bound(api_mst_slotitem, id, {}, &value_type::api_id);
-    if (itr != std::ranges::end(api_mst_slotitem) and itr->api_id == id) {
-        return *itr;
+
+    if (itr == std::ranges::end(api_mst_slotitem) or itr->api_id != id) {
+        throw kcv::exception{std::format("equipment id not found. [equipment id = {}].", std::to_underlying(id))};
     }
 
-    const auto msg = std::format("equipment id not found. [equipment id = {}].", std::to_underlying(id));
-    throw kcv::exception{std::move(msg)};
+    return *itr;
 }
 
-auto kcv::base_id(
-    const kcv::kcsapi::api_mst_ship& api_mst_ship,    //
-    const kcv::kcsapi::api_mst_ship::value_type& mst  //
-) -> kcv::kcsapi::ship_id {
+auto kcv::base_id(const kcv::kcsapi::api_mst_ship& api_mst_ship, const kcv::kcsapi::api_mst_ship::value_type& mst)
+    -> kcv::kcsapi::ship_id {
     for (const auto& e : api_mst_ship) {
         if (e.api_yomi == mst.api_yomi and e.api_sort_id % 10 == 1) [[unlikely]] {
             return e.api_id;
         }
     }
 
-    const auto msg = std::format("base id not found in api_mst_ship. [id = {}]", std::to_underlying(mst.api_id));
-    throw kcv::exception{std::move(msg)};
+    throw kcv::exception{std::format("base id not found in api_mst_ship. [id = {}]", std::to_underlying(mst.api_id))};
 }
 
 auto kcv::nationality(const kcv::kcsapi::api_mst_ship::value_type& mst) noexcept -> kcv::kcsapi::nationality {

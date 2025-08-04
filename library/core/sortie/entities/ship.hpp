@@ -28,7 +28,7 @@ class ship final {
         const kcv::kcsapi::api_mst_ship& api_mst_ship,
         const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
     ) -> ship {
-        const auto& mst = kcv::binary_search(api_mst_ship, src.id);
+        const auto& mst = kcv::find_mst(api_mst_ship, src.id);
         return ship{
             mst,
             kcv::base_id(api_mst_ship, mst),

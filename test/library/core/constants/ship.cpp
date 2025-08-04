@@ -5,8 +5,8 @@
 #include <filesystem>
 
 // kcv
-#include "core/common/kcsapi.hpp"
-#include "core/common/read_json.hpp"
+#include "core/utility/kcsapi.hpp"
+#include "core/utility/read_json.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 
 int main() {
@@ -21,7 +21,7 @@ int main() {
         return temp;
     }();
 
-    const auto& maruyu = kcv::binary_search(api_mst_ship, "まるゆ"_id);
+    const auto& maruyu = kcv::find_mst(api_mst_ship, "まるゆ"_id);
     if (not kcv::is_submarine(maruyu)) {
         return EXIT_FAILURE;
     }

@@ -1,7 +1,6 @@
-#ifndef KCVERIFY_CORE_COMMON_KCSAPI_HPP_INCLUDED
-#define KCVERIFY_CORE_COMMON_KCSAPI_HPP_INCLUDED
+#ifndef KCVERIFY_CORE_UTILITY_KCSAPI_HPP_INCLUDED
+#define KCVERIFY_CORE_UTILITY_KCSAPI_HPP_INCLUDED
 
-// kcv
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/enum/equipment_id.hpp"
@@ -10,18 +9,18 @@
 
 namespace kcv {
 
-/// @brief 艦船IDに一致する艦船マスタを二分探索で取得する. 存在しなければ例外を送出する.
+/// @brief 艦船IDに一致する艦船マスタを二分探索で取得する.
 /// @param api_mst_ship 艦船マスタ.
 /// @param id 艦船ID.
 /// @return 艦船IDに一致する艦船マスタ.
-auto binary_search(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
+auto find_mst(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
     -> const kcv::kcsapi::api_mst_ship::value_type&;
 
-/// @brief 装備IDに一致する装備マスタを二分探索で取得する. 存在しなければ例外を送出する.
+/// @brief 装備IDに一致する装備マスタを二分探索で取得する.
 /// @param api_mst_ship 装備マスタ.
 /// @param id 装備ID.
 /// @return 装備IDに一致する装備マスタ.
-auto binary_search(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
+auto find_mst(const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem, kcv::kcsapi::equipment_id id)
     -> const kcv::kcsapi::api_mst_slotitem::value_type&;
 
 /// @brief 艦娘の未改造IDを取得する. 存在しなければ例外を送出する.
@@ -38,4 +37,4 @@ auto nationality(const kcv::kcsapi::api_mst_ship::value_type& mst) noexcept -> k
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_CORE_COMMON_KCSAPI_HPP_INCLUDED
+#endif  // KCVERIFY_CORE_UTILITY_KCSAPI_HPP_INCLUDED

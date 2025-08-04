@@ -1,26 +1,14 @@
-#include "core/common/read_json.hpp"
+#include "core/utility/read_json.hpp"
 
 // std
 #include <filesystem>
 #include <string>
 #include <utility>
 
-// GCCの場合, 警告が発されるのでこれを抑制する.
-// https://github.com/stephenberry/glaze/issues/1561
-#if defined(__GNUC__) && !defined(__clang__)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-
 // glz
 #include <glaze/json.hpp>
 
-#if defined(__GNUC__) && !defined(__clang__)
-    #pragma GCC diagnostic pop
-#endif
-
 // kcv
-#include "core/common/system.hpp"
 #include "extensions/exception.hpp"
 #include "models/eoen/database/kancolle_api/api_files.hpp"
 #include "models/eoen/database/sortie/sortie_air_base.hpp"
@@ -336,6 +324,17 @@ struct glz::meta<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
     );
 };
 
+namespace {
+
+bool readable(const std::filesystem::path& fname, std::error_code& ec) noexcept {
+    const auto perms = std::filesystem::status(fname, ec).permissions();
+    return (perms & std::filesystem::perms::owner_read) != std::filesystem::perms::none
+        && (perms & std::filesystem::perms::group_read) != std::filesystem::perms::none
+        && (perms & std::filesystem::perms::others_read) != std::filesystem::perms::none;
+}
+
+}  // namespace
+
 void kcv::read_json(auto& dst, const std::string& buffer) {
     const auto error = glz::read_json(dst, buffer);
 
@@ -354,7 +353,7 @@ void kcv::read_json(auto& dst, const std::filesystem::path& fname) {
     auto ec          = std::error_code{};
     const auto fsize = std::filesystem::file_size(fname, ec);
 
-    if (fsize == static_cast<std::uintmax_t>(-1) or not kcv::is_readable(fname, ec)) {
+    if (fsize == static_cast<std::uintmax_t>(-1) or not readable(fname, ec)) {
         // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2319r0.html
         // https://onihusube.hatenablog.com/#P2319R0-Prevent-path-presentation-problems
         // [[deprecated("P2319: std::filesystemm::string")]]
