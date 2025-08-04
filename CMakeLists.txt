@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-std=c++2b)
 add_compile_options(-Wall -Wextra --pedantic-errors)
-add_compile_options(-O0)
+add_compile_options(-O0 -g3)
 # add_compile_options(-O2 -march=native)
 
 add_compile_options(-fsanitize=undefined)
@@ -24,15 +24,19 @@ add_link_options(-fsanitize=address)
 # add_compile_options(-fsanitize=memory)
 # add_link_options(-fsanitize=memory)
 
-# libkcv ######################################################################
+# tools ########################################################################
 
-add_subdirectory(libkcv)
+add_subdirectory(tools)
+
+# library ######################################################################
+
+add_subdirectory(library)
 
 # main #########################################################################
 
 add_executable(kcverify ./source/main.cpp)
-target_include_directories(kcverify PRIVATE include)
-target_link_libraries(kcverify PRIVATE kcv)
+target_link_libraries(kcverify PRIVATE libkcv -lstdc++exp)
+add_dependencies(kcverify libkcv_tools)
 
 # test #########################################################################
 

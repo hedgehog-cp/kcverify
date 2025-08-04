@@ -4,9 +4,10 @@
 !/assets
 !/document/asset
 !/include
-!/libkcv
+!/library
 !/source
 !/test
+!/tools
 
 !.clang-format
 !.clangd
