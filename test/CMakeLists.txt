@@ -1,3 +1,11 @@
+add_executable(test_extensions_inplace_vector ./library/extensions/inplace_vector.cpp)
+target_link_libraries(test_extensions_inplace_vector PRIVATE libkcv -lstdc++exp)
+add_test(NAME extensions_inplace_vector COMMAND test_extensions_inplace_vector WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_executable(test_extensions_interval ./library/extensions/interval.cpp)
+target_link_libraries(test_extensions_interval PRIVATE libkcv -lstdc++exp)
+add_test(NAME extensions_interval COMMAND test_extensions_interval WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_executable(test_core_constants_equipment ./library/core/constants/equipment.cpp)
 target_link_libraries(test_core_constants_equipment PRIVATE libkcv -lstdc++exp)
 add_test(NAME core_constants_equipment COMMAND test_core_constants_equipment WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
