@@ -5,49 +5,65 @@
 #include <source_location>
 #include <stacktrace>
 #include <string>
-#include <utility>
 
 namespace kcv {
 
-/// @brief source_locationとstacktraceつきの例外型.
+/// @brief kcvライブラリの例外基底型. 背景情報をもつ.
 /// @note GCCでは-lstdc++expをリンクすること.
 class exception : public std::exception {
    public:
-    exception(std::string what, std::source_location loc = std::source_location::current())
-        : what_{std::move(what)}
-        , loc_{std::move(loc)}
-        , trace_{std::stacktrace::current(1)} {}
+    explicit exception(
+        std::string msg          = "kcv::exception",
+        std::source_location loc = std::source_location::current(),
+        std::stacktrace trace    = std::stacktrace::current(1)
+    )
+        : what_{std::move(msg)}
+        , loc_{loc}
+        , trace_{trace} {}
 
-    constexpr auto what() const noexcept -> const char* override final {
-        return this->what_.c_str();
+    exception(const exception&)            = default;
+    exception& operator=(const exception&) = default;
+    exception(exception&&)                 = default;
+    exception& operator=(exception&&)      = default;
+    ~exception() noexcept override         = default;
+
+    auto what() const noexcept -> const char* override {
+        return what_.c_str();
     }
 
-    constexpr auto source_location() const noexcept -> const std::source_location& {
-        return this->loc_;
+    auto stacktrace() const noexcept -> const std::stacktrace& {
+        return trace_;
     }
 
-    constexpr auto stacktrace() const noexcept -> const std::stacktrace& {
-        return this->trace_;
+    auto source_location() const noexcept -> const std::source_location& {
+        return loc_;
     }
-
-   protected:
-    /// @note kcv::exceptionを継承する場合は, std::stacktrace構築のため, このコンストラクタを呼び出すこと.
-    /// @example
-    /// class example_exception : public kcv::exception {
-    ///    public:
-    ///     example_exception(std::string what, std::source_location loc = std::source_location::current())
-    ///         : kcv::exception{std::move(what), std::move(loc), std::stacktrace::current(1)} {}
-    /// };
-    exception(std::string what, std::source_location loc, std::stacktrace trace)
-        : what_{std::move(what)}
-        , loc_{std::move(loc)}
-        , trace_{std::move(trace)} {}
 
    private:
     std::string what_;
     std::source_location loc_;
     std::stacktrace trace_;
 };
+
+/// @brief 補足した標準例外に対して補足箇所からの背景情報を付与する, この意図を表すために用いる.
+/// @example
+/// try {
+///     throw_exception_maybe();
+/// } catch (const kcv::exception&) {
+///     throw;
+/// } catch (const std::exception&) {
+///     std::throw_with_nested(kcv::make_exception_with_context());
+/// }
+inline auto make_exception_with_context(
+    std::string msg          = "kcv::exception",
+    std::source_location loc = std::source_location::current(),
+    std::stacktrace trace    = std::stacktrace::current(1)
+) -> kcv::exception {
+    return kcv::exception{std::move(msg), loc, trace};
+}
+
+/// @brief 例外を`stream`に書き出す.
+void print_exception(std::FILE* stream, const std::exception& e);
 
 }  // namespace kcv
 
