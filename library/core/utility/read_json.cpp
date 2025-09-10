@@ -324,8 +324,7 @@ struct glz::meta<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
     );
 };
 
-template <typename T>
-void kcv::read_json(T& dst, const std::string& buffer) try {
+void kcv::read_json(auto& dst, const std::string& buffer) try {
     const auto error = glz::read_json(dst, buffer);
     if (error) {
         throw kcv::exception{glz::format_error(error, buffer)};
@@ -336,8 +335,7 @@ void kcv::read_json(T& dst, const std::string& buffer) try {
     std::throw_with_nested(kcv::make_exception_with_context("could not parse buffer."));
 }
 
-template <typename T>
-void kcv::read_json(T& dst, const std::filesystem::path& fname) try {
+void kcv::read_json(auto& dst, const std::filesystem::path& fname) try {
     auto buffer = std::string{};
     buffer.resize_and_overwrite(
         std::filesystem::file_size(fname),

@@ -8,7 +8,6 @@
 
 // kcv
 #include "core/battlelog/slot.hpp"
-#include "extensions/optional.hpp"
 #include "extensions/ranges.hpp"
 #include "models/eoen/database/sortie/sortie_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
@@ -74,11 +73,11 @@ class ship final {
         return this->eqslots_;
     }
 
-    auto exslot() const noexcept -> const kcv::optional<kcv::slot>& {
+    auto exslot() const noexcept -> const std::optional<kcv::slot>& {
         return this->exslot_;
     }
 
-    auto slots() const noexcept -> const std::ranges::random_access_range auto& {
+    auto slots() const noexcept -> const kcv::ranges::slots_view<kcv::slot>& {
         return this->slots_;
     }
 
@@ -96,10 +95,10 @@ class ship final {
     std::vector<kcv::slot> eqslots_;
 
     /// @brief 増設スロット.
-    kcv::optional<kcv::slot> exslot_;
+    std::optional<kcv::slot> exslot_;
 
     /// @brief 装備スロット.
-    decltype(kcv::ranges::views::concat(eqslots_, exslot_)) slots_;
+    kcv::ranges::slots_view<kcv::slot> slots_;
 };
 
 bool has_equipment_if(
