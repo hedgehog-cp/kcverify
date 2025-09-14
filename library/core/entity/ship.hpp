@@ -1,17 +1,13 @@
-#ifndef KCVERIFY_CORE_BATTLELOG_SHIP_HPP_INCLUDED
-#define KCVERIFY_CORE_BATTLELOG_SHIP_HPP_INCLUDED
+#ifndef KCVERIFY_CORE_ENTITY_SHIP_HPP_INCLUDED
+#define KCVERIFY_CORE_ENTITY_SHIP_HPP_INCLUDED
 
 // std
-#include <concepts>
-#include <ranges>
 #include <vector>
 
 // kcv
-#include "core/battlelog/slot.hpp"
+#include "core/entity/slot.hpp"
 #include "extensions/ranges.hpp"
-#include "models/eoen/database/sortie/sortie_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
-#include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/enum/nationality.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 
@@ -20,29 +16,6 @@ namespace kcv {
 /// @brief 艦船.
 class ship final {
    public:
-    using eoen_type = kcv::eoen::database::sortie::sortie_ship;
-
-    static auto from_eoen(
-        const eoen_type& src,
-        const kcv::kcsapi::api_mst_ship& api_mst_ship,
-        const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
-    ) -> ship {
-        const auto& mst = kcv::find_mst(api_mst_ship, src.id);
-        return ship{
-            mst,
-            kcv::base_id(api_mst_ship, mst),
-            kcv::nationality(mst),
-            src.equipment_slots  //
-                | std::ranges::views::transform([&api_mst_slotitem](const auto& e) {
-                      return kcv::slot::from_eoen(e, api_mst_slotitem);
-                  })
-                | std::ranges::to<std::vector>(),
-            src.expansion_slot.transform([&api_mst_slotitem](const auto& e) {
-                return kcv::slot::from_eoen(e, api_mst_slotitem);
-            }),
-        };
-    }
-
     ship(
         const kcv::kcsapi::api_mst_ship_value_t& mst,
         kcv::kcsapi::ship_id base_id,
@@ -101,20 +74,6 @@ class ship final {
     kcv::ranges::slots_view<kcv::slot> slots_;
 };
 
-bool has_equipment_if(
-    const auto& slots,
-    const std::predicate<const kcv::kcsapi::api_mst_slotitem_value_t&> auto& pred
-) {
-    for (const auto& slot : slots) {
-        if (const auto& e = slot.equipment(); e.has_value()) {
-            if (pred(e->mst())) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 }  // namespace kcv
 
-#endif  // KCVERIFY_CORE_BATTLELOG_SHIP_HPP_INCLUDED
+#endif  // KCVERIFY_CORE_ENTITY_SHIP_HPP_INCLUDED

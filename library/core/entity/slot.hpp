@@ -1,32 +1,18 @@
-#ifndef KCVERIFY_CORE_BATTLELOG_SLOT_HPP_INCLUDED
-#define KCVERIFY_CORE_BATTLELOG_SLOT_HPP_INCLUDED
+#ifndef KCVERIFY_CORE_ENTITY_SLOT_HPP_INCLUDED
+#define KCVERIFY_CORE_ENTITY_SLOT_HPP_INCLUDED
 
 // std
 #include <cstdint>
 #include <optional>
 
 // kcv
-#include "core/battlelog/equipment.hpp"
-#include "models/eoen/database/sortie/sortie_equipment_slot.hpp"
-#include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "core/entity/equipment.hpp"
 
 namespace kcv {
 
 /// @brief スロット.
 class slot final {
    public:
-    using eoen_type = kcv::eoen::database::sortie::sortie_equipment_slot;
-
-    static auto from_eoen(const eoen_type& src, const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem) -> slot {
-        return slot{
-            src.aircraft_current,
-            src.aircraft_max,
-            src.equipment.transform([&api_mst_slotitem](const auto& e) {
-                return kcv::equipment::from_eoen(e, api_mst_slotitem);
-            }),
-        };
-    }
-
     slot(std::int32_t current, std::int32_t max, std::optional<kcv::equipment> equipment)
         : aircraft_current_{current}
         , aircraft_max_{max}
@@ -57,4 +43,4 @@ class slot final {
 
 }  // namespace kcv
 
-#endif  // KCVERIFY_CORE_BATTLELOG_SLOT_HPP_INCLUDED
+#endif  // KCVERIFY_CORE_ENTITY_SLOT_HPP_INCLUDED

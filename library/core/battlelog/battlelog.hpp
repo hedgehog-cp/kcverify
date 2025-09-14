@@ -5,7 +5,7 @@
 #include <cstdint>
 
 // kcv
-#include "core/battlelog/ship.hpp"
+#include "core/entity/ship.hpp"
 
 namespace kcv {
 

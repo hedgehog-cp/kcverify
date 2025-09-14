@@ -7,8 +7,9 @@
 #include <vector>
 
 // kcv
-#include "core/sortie/entities/ship.hpp"
-#include "core/sortie/equipment_bonus.hpp"
+#include "core/battlelog/equipment_bonus.hpp"
+#include "core/entity/adapter/from_eoen.hpp"
+#include "core/entity/ship.hpp"
 #include "core/utility/read_json.hpp"
 #include "models/eoen/database/sortie/sortie_record.hpp"
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
@@ -69,7 +70,7 @@ int main() {
         return temp;
     }();
 
-    for (const auto& dir : std::filesystem::directory_iterator{"./test/library/core/sortie/equipment_bonus/data"}) {
+    for (const auto& dir : std::filesystem::directory_iterator{"./test/library/core/battlelog/equipment_bonus/data"}) {
         const auto sortie_record = [](const auto& fname) static {
             auto temp = std::vector<kcv::eoen::database::sortie::sortie_record>{};
             kcv::read_json(temp, fname);
@@ -88,8 +89,8 @@ int main() {
         }
 
         for (const auto& [eoen_ship, bonus] : std::ranges::views::zip(ships, expected)) {
-            const auto sortie_ship     = kcv::sortie::ship::from_eoen(eoen_ship, api_mst_ship, api_mst_slotitem);
-            const auto equipment_bonus = kcv::sortie::get_equipment_bonus(sortie_ship, bonus_list);
+            const auto sortie_ship     = kcv::ship_from_eoen(eoen_ship, api_mst_ship, api_mst_slotitem);
+            const auto equipment_bonus = kcv::total_equipment_bonus(sortie_ship, bonus_list);
             if (equipment_bonus != bonus) {
                 std::println("{}", sortie_ship.mst().api_name);
                 std::println("calculated: {:>2}", equipment_bonus);

@@ -8,9 +8,9 @@
 #include <vector>
 
 // kcv
-#include "core/battlelog/equipment.hpp"
-#include "core/battlelog/ship.hpp"
 #include "core/constants/equipment.hpp"
+#include "core/entity/equipment.hpp"
+#include "core/entity/ship.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
@@ -157,17 +157,31 @@ int count_if(const std::vector<std::reference_wrapper<const kcv::equipment>>& fi
     return count;
 }
 
+bool has_equipment_if(
+    const auto& slots,
+    const std::predicate<const kcv::kcsapi::api_mst_slotitem_value_t&> auto& pred
+) {
+    for (const auto& slot : slots) {
+        if (const auto& e = slot.equipment(); e.has_value()) {
+            if (pred(e->mst())) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 }  // namespace
 
-auto kcv::get_equipment_bonus(
+auto kcv::total_equipment_bonus(
     const kcv::ship& ship,
     const std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& bonus_list
 ) -> kcv::eoen::serialization::fit_bonus::fit_bonus_value {
     auto total = kcv::eoen::serialization::fit_bonus::fit_bonus_value{};
 
-    const bool has_anti_air_radar = kcv::has_equipment_if(ship.slots(), kcv::is_anti_air_radar);
-    const bool has_surface_radar  = kcv::has_equipment_if(ship.slots(), kcv::is_surface_radar);
-    const bool has_accuracy_radar = kcv::has_equipment_if(ship.slots(), kcv::is_accuracy_radar);
+    const bool has_anti_air_radar = has_equipment_if(ship.slots(), kcv::is_anti_air_radar);
+    const bool has_surface_radar  = has_equipment_if(ship.slots(), kcv::is_surface_radar);
+    const bool has_accuracy_radar = has_equipment_if(ship.slots(), kcv::is_accuracy_radar);
 
     for (const auto& [types, ids, bonuses] : bonus_list) {
         const auto fit_equipments = extract_fit_equipments(ship, types, ids);
@@ -308,13 +322,13 @@ bool matches_data(
 
 }  // namespace
 
-auto kcv::get_equipment_bonus(const kcv::ship& ship, const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list)
+auto kcv::total_equipment_bonus(const kcv::ship& ship, const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list)
     -> kcv::kc3kai::bonus_value {
     auto total = kcv::kc3kai::bonus_value{};
 
-    const bool has_anti_air_radar = kcv::has_equipment_if(ship.slots(), kcv::is_anti_air_radar);
-    const bool has_surface_radar  = kcv::has_equipment_if(ship.slots(), kcv::is_surface_radar);
-    const bool has_accuracy_radar = kcv::has_equipment_if(ship.slots(), kcv::is_accuracy_radar);
+    const bool has_anti_air_radar = has_equipment_if(ship.slots(), kcv::is_anti_air_radar);
+    const bool has_surface_radar  = has_equipment_if(ship.slots(), kcv::is_surface_radar);
+    const bool has_accuracy_radar = has_equipment_if(ship.slots(), kcv::is_accuracy_radar);
 
     for (const auto& [types, ids, bonuses] : bonus_list) {
         const auto fit_equipments = extract_fit_equipments(ship, types, ids);

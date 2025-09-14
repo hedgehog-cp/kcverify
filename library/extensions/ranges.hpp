@@ -57,14 +57,14 @@ class slots_view final : public std::ranges::view_interface<slots_view<T>> {
         }
 
         friend constexpr auto operator+(const iterator& itr, difference_type n) noexcept -> iterator {
-            auto temp = itr;
-            temp.index_ == temp.index_ + n;
+            auto temp   = itr;
+            temp.index_ = temp.index_ + n;
             return temp;
         }
 
         friend constexpr auto operator+(difference_type n, const iterator& itr) noexcept -> iterator {
-            auto temp = itr;
-            temp.index_ == n + temp.index_;
+            auto temp   = itr;
+            temp.index_ = n + temp.index_;
             return temp;
         }
 
@@ -85,8 +85,8 @@ class slots_view final : public std::ranges::view_interface<slots_view<T>> {
         }
 
         friend constexpr auto operator-(const iterator& itr, difference_type n) noexcept -> iterator {
-            auto temp = itr;
-            temp.index_ == temp.index_ - n;
+            auto temp   = itr;
+            temp.index_ = temp.index_ - n;
             return temp;
         }
 
@@ -131,8 +131,7 @@ class slots_view final : public std::ranges::view_interface<slots_view<T>> {
             return lhs.view_ != rhs.view_ or lhs.index_ != rhs.index_;
         }
 
-        friend constexpr auto operator<=>(const const_iterator&, const const_iterator&) noexcept -> std::strong_ordering
-                                                                                                    = default;
+        friend constexpr auto operator<=>(const const_iterator&, const const_iterator&) noexcept = default;
 
         friend constexpr auto operator++(const_iterator& itr) noexcept -> const_iterator& {
             ++itr.index_;
@@ -151,14 +150,14 @@ class slots_view final : public std::ranges::view_interface<slots_view<T>> {
         }
 
         friend constexpr auto operator+(const const_iterator& itr, difference_type n) noexcept -> const_iterator {
-            auto temp = itr;
-            temp.index_ == temp.index_ + n;
+            auto temp   = itr;
+            temp.index_ = temp.index_ + n;
             return temp;
         }
 
         friend constexpr auto operator+(difference_type n, const const_iterator& itr) noexcept -> const_iterator {
-            auto temp = itr;
-            temp.index_ == n + temp.index_;
+            auto temp   = itr;
+            temp.index_ = n + temp.index_;
             return temp;
         }
 
@@ -179,8 +178,8 @@ class slots_view final : public std::ranges::view_interface<slots_view<T>> {
         }
 
         friend constexpr auto operator-(const const_iterator& itr, difference_type n) noexcept -> const_iterator {
-            auto temp = itr;
-            temp.index_ == temp.index_ - n;
+            auto temp   = itr;
+            temp.index_ = temp.index_ - n;
             return temp;
         }
 
