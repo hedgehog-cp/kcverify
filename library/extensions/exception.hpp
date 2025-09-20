@@ -8,7 +8,7 @@
 
 namespace kcv {
 
-/// @brief kcvライブラリの例外基底型. 背景情報をもつ.
+/// @brief kcvライブラリの背景情報をもつ例外基底型.
 /// @note GCCでは-lstdc++expをリンクすること.
 class exception : public std::exception {
    public:
@@ -46,7 +46,8 @@ class exception : public std::exception {
 };
 
 /// @brief 補足した標準例外に対して補足箇所からの背景情報を付与する, この意図を表すために用いる.
-/// @example
+/// @details 使用例:
+/// @code
 /// try {
 ///     throw_exception_maybe();
 /// } catch (const kcv::exception&) {
@@ -54,6 +55,7 @@ class exception : public std::exception {
 /// } catch (const std::exception&) {
 ///     std::throw_with_nested(kcv::make_exception_with_context());
 /// }
+/// @endcode
 inline auto make_exception_with_context(
     std::string msg          = "kcv::exception",
     std::source_location loc = std::source_location::current(),

@@ -11,7 +11,8 @@ namespace kcv {
 /// @tparam T 要素型.
 /// @tparam N キャパシティ.
 template <typename T, std::size_t N>
-struct inplace_vector final {
+class inplace_vector final {
+   public:
     using value_type      = T;
     using size_type       = std::size_t;
     using reference       = T&;

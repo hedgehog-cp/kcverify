@@ -40,7 +40,7 @@ int main() {
         const auto result = kcv::inverse(x, kcv::make_interval(y) + kcv::interval{-1, 1}, f);
 
         []<std::size_t... I>(const auto& tuple, std::index_sequence<I...>) {
-            const auto print = kcv::overload{
+            const auto print = kcv::overloaded{
                 [](const auto&) { std::println("---"); },
                 [](const std::optional<kcv::inverse_result<kcv::liner_fn>>& v) {
                     std::println("a ∊ {}; b ∊ {}", v->a, v->b);

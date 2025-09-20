@@ -2,6 +2,7 @@
 
 // std
 #include <algorithm>
+#include <concepts>
 #include <functional>
 #include <optional>
 #include <stdexcept>
@@ -11,6 +12,8 @@
 #include "core/constants/equipment.hpp"
 #include "core/entity/equipment.hpp"
 #include "core/entity/ship.hpp"
+#include "core/entity/slot.hpp"
+#include "extensions/ranges.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
@@ -18,8 +21,6 @@
 #include "models/kcsapi/types/api_type.hpp"
 #include "models/kcsapi/types/enum/category.hpp"
 #include "models/kcsapi/types/enum/equipment_id.hpp"
-
-// MARK: eoen
 
 namespace {
 
@@ -69,8 +70,75 @@ auto extract_fit_equipments(
         }
     }
 
-    throw std::invalid_argument{"unexpected `bonus_list`"};
+    throw std::invalid_argument{"unexpected `fit_bonuses`."};
 }
+
+/// @brief 指定した改修値以上の装備の個数を数え上げ, これを返す.
+int count_if(const std::vector<std::reference_wrapper<const kcv::equipment>>& fit_equipments, std::int32_t level) {
+    int count = 0;
+    for (const auto& e : fit_equipments) {
+        if (e.get().level() >= level) {
+            count++;
+        }
+    }
+    return count;
+}
+
+/// @brief 条件を満たす装備を搭載しているかを検証する.
+/// 増設スロットを含まない装備スロットを対象に呼び出したい場合が存在するため, `slots`を引数にとる.
+/// @param slots 装備スロット.
+/// @param pred 装備マスタを引数にとる単項述語関数.
+/// @todo この関数を大域に移動する.
+bool contains_matching_equipment(
+    const kcv::ranges::range_of<kcv::slot> auto& slots,
+    const std::predicate<const kcv::kcsapi::api_mst_slotitem_value_t&> auto& pred
+) {
+    for (const auto& slot : slots) {
+        if (const auto& e = slot.equipment(); e.has_value()) {
+            if (pred(e->mst())) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template <typename T>
+auto operator+=(T& lhs, const T& rhs) noexcept -> T& {
+    lhs.houg += rhs.houg;
+    lhs.tyku += rhs.tyku;
+    lhs.kaih += rhs.kaih;
+    lhs.souk += rhs.souk;
+    lhs.houm += rhs.houm;
+    lhs.tais += rhs.tais;
+    lhs.raig += rhs.raig;
+    lhs.saku += rhs.saku;
+    lhs.leng += rhs.leng;
+    lhs.baku += rhs.baku;
+    return lhs;
+}
+
+template <typename T>
+auto operator*(const T& lhs, int rhs) noexcept -> T {
+    return T{
+        .houg = lhs.houg * rhs,
+        .tyku = lhs.tyku * rhs,
+        .kaih = lhs.kaih * rhs,
+        .souk = lhs.souk * rhs,
+        .houm = lhs.houm * rhs,
+        .tais = lhs.tais * rhs,
+        .raig = lhs.raig * rhs,
+        .saku = lhs.saku * rhs,
+        .leng = lhs.leng * rhs,
+        .baku = lhs.baku * rhs,
+    };
+}
+
+}  // namespace
+
+// MARK: eoen
+
+namespace {
 
 /// @brief 指定された艦船の条件を全て満たしているかを検証する.
 /// もとより指定されていなければ, 無条件として通過する.
@@ -146,44 +214,19 @@ bool matches_data(const kcv::ship& ship, const kcv::eoen::serialization::fit_bon
     return matches_ship(ship, data) and matches_requires_id(ship, data) and matches_requires_type(ship, data);
 }
 
-/// @brief 指定した改修値以上の装備の個数を数え上げ, これを返す.
-int count_if(const std::vector<std::reference_wrapper<const kcv::equipment>>& fit_equipments, std::int32_t level) {
-    int count = 0;
-    for (const auto& e : fit_equipments) {
-        if (e.get().level() >= level) {
-            count++;
-        }
-    }
-    return count;
-}
-
-bool has_equipment_if(
-    const auto& slots,
-    const std::predicate<const kcv::kcsapi::api_mst_slotitem_value_t&> auto& pred
-) {
-    for (const auto& slot : slots) {
-        if (const auto& e = slot.equipment(); e.has_value()) {
-            if (pred(e->mst())) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 }  // namespace
 
 auto kcv::total_equipment_bonus(
     const kcv::ship& ship,
-    const std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& bonus_list
+    const std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& fit_bonuses
 ) -> kcv::eoen::serialization::fit_bonus::fit_bonus_value {
     auto total = kcv::eoen::serialization::fit_bonus::fit_bonus_value{};
 
-    const bool has_anti_air_radar = has_equipment_if(ship.slots(), kcv::is_anti_air_radar);
-    const bool has_surface_radar  = has_equipment_if(ship.slots(), kcv::is_surface_radar);
-    const bool has_accuracy_radar = has_equipment_if(ship.slots(), kcv::is_accuracy_radar);
+    const bool has_anti_air_radar = contains_matching_equipment(ship.slots(), kcv::is_anti_air_radar);
+    const bool has_surface_radar  = contains_matching_equipment(ship.slots(), kcv::is_surface_radar);
+    const bool has_accuracy_radar = contains_matching_equipment(ship.slots(), kcv::is_accuracy_radar);
 
-    for (const auto& [types, ids, bonuses] : bonus_list) {
+    for (const auto& [types, ids, bonuses] : fit_bonuses) {
         const auto fit_equipments = extract_fit_equipments(ship, types, ids);
         if (fit_equipments.empty()) {
             continue;
@@ -226,6 +269,8 @@ auto kcv::total_equipment_bonus(
 
 namespace {
 
+/// @brief 指定された艦船の条件を全て満たしているかを検証する.
+/// もとより指定されていなければ, 無条件として通過する.
 bool matches_ship(const kcv::ship& ship, const kcv::kc3kai::bonus_data& data) {
     if (data.ship_base.has_value() and not std::ranges::contains(*data.ship_base, ship.base_id())) {
         return false;
@@ -250,6 +295,8 @@ bool matches_ship(const kcv::ship& ship, const kcv::kc3kai::bonus_data& data) {
     return true;
 }
 
+/// @brief 指定された装備の条件を満たしているかを検証する.
+/// もとより指定されていなければ, 無条件として通過する.
 bool matches_requires_id(const kcv::ship& ship, const kcv::kc3kai::bonus_data& data) {
     if (not data.requires_id.has_value()) {
         return true;
@@ -268,6 +315,8 @@ bool matches_requires_id(const kcv::ship& ship, const kcv::kc3kai::bonus_data& d
     return count >= data.requires_id_num.value_or(1);
 }
 
+/// @brief 指定された装備の条件を満たしているかを検証する.
+/// もとより指定されていなければ, 無条件として通過する.
 bool matches_requires_type(const kcv::ship& ship, const kcv::kc3kai::bonus_data& data) {
     if (not data.requires_type.has_value()) {
         return true;
@@ -286,6 +335,9 @@ bool matches_requires_type(const kcv::ship& ship, const kcv::kc3kai::bonus_data&
     return count >= data.requires_type_num.value_or(1);
 }
 
+/// @brief 指定された条件を全て満たしているかを検証する.
+/// 満たしていないならば, ボーナス付与なし. 次のボーナスへ.
+/// もとより指定されていなければ, 無条件として通過する.
 bool matches_data(
     const kcv::ship& ship,
     bool has_anti_air_radar,
@@ -322,15 +374,15 @@ bool matches_data(
 
 }  // namespace
 
-auto kcv::total_equipment_bonus(const kcv::ship& ship, const std::vector<kcv::kc3kai::mst_slotitem_bonus>& bonus_list)
+auto kcv::total_equipment_bonus(const kcv::ship& ship, const std::vector<kcv::kc3kai::mst_slotitem_bonus>& fit_bonuses)
     -> kcv::kc3kai::bonus_value {
     auto total = kcv::kc3kai::bonus_value{};
 
-    const bool has_anti_air_radar = has_equipment_if(ship.slots(), kcv::is_anti_air_radar);
-    const bool has_surface_radar  = has_equipment_if(ship.slots(), kcv::is_surface_radar);
-    const bool has_accuracy_radar = has_equipment_if(ship.slots(), kcv::is_accuracy_radar);
+    const bool has_anti_air_radar = contains_matching_equipment(ship.slots(), kcv::is_anti_air_radar);
+    const bool has_surface_radar  = contains_matching_equipment(ship.slots(), kcv::is_surface_radar);
+    const bool has_accuracy_radar = contains_matching_equipment(ship.slots(), kcv::is_accuracy_radar);
 
-    for (const auto& [types, ids, bonuses] : bonus_list) {
+    for (const auto& [types, ids, bonuses] : fit_bonuses) {
         const auto fit_equipments = extract_fit_equipments(ship, types, ids);
         if (fit_equipments.empty()) {
             continue;

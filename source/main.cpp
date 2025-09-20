@@ -1,9 +1,11 @@
+// std
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <print>
 #include <vector>
 
+// kcv
 #include "core/battlelog/generate_battlelog.hpp"
 #include "core/utility/read_json.hpp"
 #include "extensions/exception.hpp"
@@ -47,10 +49,7 @@ int main() try {
         }
     }
 
-} catch (const kcv::exception& e) {
-    std::println("{}", e);
-    return EXIT_FAILURE;
 } catch (const std::exception& e) {
-    std::println("{}", e.what());
+    kcv::print_exception(stderr, e);
     return EXIT_FAILURE;
 }

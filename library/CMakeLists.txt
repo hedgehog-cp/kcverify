@@ -7,7 +7,6 @@ add_library(libkcv STATIC
 
     ./core/battlelog/equipment_bonus.cpp
     ./core/battlelog/generate_battlelog.cpp
-    ./core/battlelog/sortie_api.cpp
 
     ./core/entity/adapter/from_eoen.cpp
 

@@ -2,8 +2,6 @@
 #define KCVERIFY_MODELS_KC3KAI_MST_SLOTITEM_BONUS_HPP_INCLUDED
 
 // std
-#include <compare>
-#include <concepts>
 #include <cstdint>
 #include <optional>
 #include <vector>
@@ -51,45 +49,6 @@ struct bonus_value final {
 
     /// @brief 爆装.
     std::int32_t baku = 0;
-
-   private:
-    using this_type = bonus_value;
-
-    friend constexpr auto operator<=>(const this_type& lhs, const this_type& rhs) -> std::strong_ordering = default;
-
-    friend constexpr auto operator+=(this_type& lhs, const this_type& rhs) -> this_type& {
-        lhs.houg += rhs.houg;
-        lhs.tyku += rhs.tyku;
-        lhs.kaih += rhs.kaih;
-        lhs.souk += rhs.souk;
-        lhs.houm += rhs.houm;
-        lhs.tais += rhs.tais;
-        lhs.raig += rhs.raig;
-        lhs.saku += rhs.saku;
-        lhs.leng += rhs.leng;
-        lhs.baku += rhs.baku;
-        return lhs;
-    }
-
-    friend constexpr auto operator+(const this_type& lhs, const this_type& rhs) -> this_type {
-        auto temp = lhs;
-        return temp += rhs;
-    }
-
-    friend constexpr auto operator*(const this_type& lhs, std::integral auto rhs) -> this_type {
-        return this_type{
-            .houg = lhs.houg * rhs,
-            .tyku = lhs.tyku * rhs,
-            .kaih = lhs.kaih * rhs,
-            .souk = lhs.souk * rhs,
-            .houm = lhs.houm * rhs,
-            .tais = lhs.tais * rhs,
-            .raig = lhs.raig * rhs,
-            .saku = lhs.saku * rhs,
-            .leng = lhs.leng * rhs,
-            .baku = lhs.baku * rhs,
-        };
-    }
 };
 
 /// @brief 装備ボーナスデータ.

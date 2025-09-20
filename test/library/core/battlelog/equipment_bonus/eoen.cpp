@@ -53,6 +53,26 @@ struct std::formatter<kcv::eoen::serialization::fit_bonus::fit_bonus_value> {
     }
 };
 
+namespace {
+
+bool operator==(
+    const kcv::eoen::serialization::fit_bonus::fit_bonus_value& lhs,
+    const kcv::eoen::serialization::fit_bonus::fit_bonus_value& rhs
+) noexcept {
+    return lhs.houg == rhs.houg   //
+       and lhs.tyku == rhs.tyku   //
+       and lhs.kaih == rhs.kaih   //
+       and lhs.souk == rhs.souk   //
+       and lhs.houm == rhs.houm   //
+       and lhs.tais == rhs.tais   //
+       and lhs.raig == rhs.raig   //
+       and lhs.saku == rhs.saku   //
+       and lhs.leng == rhs.leng   //
+       and lhs.baku == rhs.baku;  //
+}
+
+}  // namespace
+
 int main() {
     const auto api_mst_ship = []() static -> kcv::kcsapi::api_mst_ship {
         auto temp = kcv::kcsapi::api_mst_ship{};

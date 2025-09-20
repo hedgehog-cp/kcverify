@@ -1,16 +1,25 @@
 #ifndef KCVERIFY_EXTENSIONS_RANGES_HPP_INCLUDED
 #define KCVERIFY_EXTENSIONS_RANGES_HPP_INCLUDED
 
+// std
 #include <compare>
 #include <cstddef>
 #include <iterator>
 #include <limits>
 #include <optional>
 #include <ranges>
+#include <tuple>
 #include <vector>
+
+// kcv
+#include "extensions/meta.hpp"
 
 namespace kcv {
 namespace ranges {
+
+/// @brief 型Rが範囲であり, その要素型がTである.
+template <typename R, typename T>
+concept range_of = std::ranges::range<R> and std::same_as<std::ranges::range_value_t<R>, T>;
 
 /// @brief 装備スロットの範囲結合に特殊化したconcat_view.
 /// 非constのメンバ変数に対して使うことを想定しているため, 非constの左辺値参照型を引数にとって構築する.
@@ -271,6 +280,19 @@ struct concat_fn final {
 
 /// @brief concatのCPO.
 inline constexpr auto concat = concat_fn{};
+
+/// @fn zip_members
+/// @brief 集成体のメンバすべてをstd::ranges::views::zipする.
+/// @details for文(1)とfor文(2)とが等価. @code
+/// struct aggregate_t { std::vector<int> vec1, vec2, vec3; } a{};
+/// for (const auto& [v1, v2, v3] : std::ranges::views::zip(a.vec1, a.vec2, a.vec3)) {}  // (1)
+/// for (const auto& [v1, v2, v3] : kcv::ranges::views::zip_members(a)) {}               // (2)
+/// @endcode
+inline constexpr auto zip_members = [](const auto& aggregate) static {
+    return std::apply(
+        [](const auto&... members) static { return std::views::zip(members...); }, kcv::meta::to_tuple(aggregate)
+    );
+};
 
 }  // namespace views
 }  // namespace ranges

@@ -18,6 +18,7 @@ namespace kcv {
 /// @param api_mst_slotitem 装備マスタ.
 /// @param fit_bopnuses 74式EN固有の装備ボーナスオブジェクト.
 /// @return battlelog.
+/// @see ElectronicObserver/Window/Tools/SortieRecordViewer/DataExport/DataExportHelper.cs
 auto generate_battlelog(
     const kcv::kcsapi::api_mst_ship& api_mst_ship,
     const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
