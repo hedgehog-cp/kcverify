@@ -4,9 +4,7 @@
 // std
 #include <cstdint>
 #include <optional>
-#include <string>
 #include <tuple>
-#include <variant>
 #include <vector>
 
 // kcv
@@ -23,9 +21,11 @@
 #include "models/kcsapi/types/api_support_info.hpp"
 #include "models/kcsapi/types/enum/detection_type.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
+#include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/formation.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "models/kcsapi/types/enum/support_type.hpp"
+#include "models/kcsapi/types/number.hpp"
 
 namespace kcv {
 namespace kcsapi {
@@ -33,6 +33,7 @@ namespace api_req_sortie {
 namespace battle {
 
 /// @brief api_req_sortie/battle.json
+/// 昼戦.
 struct response final {
     std::optional<std::int32_t> api_atoll_cell;
 
@@ -61,13 +62,13 @@ struct response final {
     std::optional<std::int32_t> api_smoke_type;
 
     /// @brief 敵軍の装備スロット. [艦船数][5]. 空きスロットには-1.
-    std::vector<std::array<std::int32_t, 5>> api_eSlot;
+    std::vector<std::array<kcv::kcsapi::equipment_id, 5>> api_eSlot;
 
     /// @brief 敵軍の最大耐久. [艦船数].
-    std::vector<std::variant<std::int32_t, std::string>> api_e_maxhps;
+    std::vector<kcv::kcsapi::number> api_e_maxhps;
 
     /// @brief 敵軍の現在耐久. [艦船数].
-    std::vector<std::variant<std::int32_t, std::string>> api_e_nowhps;
+    std::vector<kcv::kcsapi::number> api_e_nowhps;
 
     /// @brief 自軍の基礎ステータス. [艦船数][4]. [][0]=火力, [][1]=雷装, [][2]=対空, [][3]=装甲.
     std::vector<std::tuple<std::int32_t, std::int32_t, std::int32_t, std::int32_t>> api_fParam;

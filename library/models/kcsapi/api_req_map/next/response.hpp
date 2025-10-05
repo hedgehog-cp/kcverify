@@ -23,6 +23,7 @@ namespace api_req_map {
 namespace next {
 
 /// @brief api_req_map/next.json
+/// 進撃.
 struct response final {
     /// @brief 次が航空偵察マスのときのみ存在.
     kcv::kcsapi::api_airsearch api_airsearch;

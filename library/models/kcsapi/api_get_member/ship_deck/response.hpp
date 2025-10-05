@@ -14,8 +14,12 @@ namespace api_get_member {
 namespace ship_deck {
 
 /// @brief api_get_member/ship_deck.json
+/// 進撃中.
 struct response final {
+    /// @brief 艦隊データ.
     std::vector<kcv::kcsapi::api_deck_data_value_t> api_deck_data;
+
+    /// @brief 艦船データ.
     std::vector<kcv::kcsapi::api_ship_data_value_t> api_ship_data;
 };
 

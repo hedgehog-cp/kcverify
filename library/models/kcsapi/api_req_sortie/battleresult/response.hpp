@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <variant>
 #include <vector>
 
 // kcv
@@ -15,6 +14,8 @@
 #include "models/kcsapi/types/api_get_ship.hpp"
 #include "models/kcsapi/types/api_get_useitem.hpp"
 #include "models/kcsapi/types/api_landing_hp.hpp"
+#include "models/kcsapi/types/enum/ship_id.hpp"
+#include "models/kcsapi/types/number.hpp"
 
 namespace kcv {
 namespace kcsapi {
@@ -22,6 +23,7 @@ namespace api_req_sortie {
 namespace battleresult {
 
 /// @brief api_req_sortie/battleresult.json
+/// 通常艦隊 戦闘結果.
 struct response final {
     /// @brief 敵艦撃沈数
     std::int32_t api_dests;
@@ -51,10 +53,10 @@ struct response final {
     std::optional<std::vector<kcv::kcsapi::api_get_eventitem>> api_get_eventitem;
 
     /// @brief EO海域攻略時: 獲得戦果(文字列). それ以外は0(数値).
-    std::variant<std::int32_t, std::string> api_get_exmap_rate;
+    kcv::kcsapi::number api_get_exmap_rate;
 
     /// @brief EO海域攻略時: 取得アイテムID(文字列). "57"=勲章. それ以外は0(数値).
-    std::variant<std::int32_t, std::string> api_get_exmap_useitem_id;
+    kcv::kcsapi::number api_get_exmap_useitem_id;
 
     /// @brief 獲得提督経験値
     std::int32_t api_get_exp;
@@ -99,7 +101,7 @@ struct response final {
     std::int32_t api_mvp;
 
     /// @brief 次に出撃可能になった海域ID[]. 海域解放時のみ存在. 通常海域は数値、イベント海域は文字列.
-    std::optional<std::vector<std::variant<std::int32_t, std::string>>> api_next_map_ids;
+    std::optional<std::vector<kcv::kcsapi::number>> api_next_map_ids;
 
     /// @brief 難易度
     std::int32_t api_quest_level;
@@ -108,7 +110,7 @@ struct response final {
     std::string api_quest_name;
 
     /// @brief 敵艦船ID. [艦船数].
-    std::vector<std::int32_t> api_ship_id;
+    std::vector<kcv::kcsapi::ship_id> api_ship_id;
 
     /// @brief 勝利ランク.
     std::string api_win_rank;

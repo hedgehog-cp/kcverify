@@ -1,5 +1,5 @@
-#ifndef KCVERIFY_MODELS_KCSAPI_API_REQ_BATTLE_MIDNIGHT_BATTLE_RESPONSE_HPP_INCLUDED
-#define KCVERIFY_MODELS_KCSAPI_API_REQ_BATTLE_MIDNIGHT_BATTLE_RESPONSE_HPP_INCLUDED
+#ifndef KCVERIFY_MODELS_KCSAPI_API_REQ_BATTLE_MIDNIGHT_SP_MIDNIGHT_RESPONSE_HPP_INCLUDED
+#define KCVERIFY_MODELS_KCSAPI_API_REQ_BATTLE_MIDNIGHT_SP_MIDNIGHT_RESPONSE_HPP_INCLUDED
 
 // std
 #include <array>
@@ -12,18 +12,20 @@
 #include "models/kcsapi/types/api_friendly_battle.hpp"
 #include "models/kcsapi/types/api_friendly_info.hpp"
 #include "models/kcsapi/types/api_hougeki.hpp"
+#include "models/kcsapi/types/api_support_info.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
 #include "models/kcsapi/types/enum/formation.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
+#include "models/kcsapi/types/enum/support_type.hpp"
 #include "models/kcsapi/types/number.hpp"
 
 namespace kcv {
 namespace kcsapi {
 namespace api_req_battle_midnight {
-namespace battle {
+namespace sp_midnight {
 
-/// @brief api_req_battle_midnight/battle.json
-/// 通常艦隊夜戦.
+/// @brief api_req_battle_midnight/sp_midnight.json
+/// 通常艦隊開幕夜戦
 struct response final {
     /// @brief 環礁マスフラグ.
     std::optional<std::int32_t> api_atoll_cell;
@@ -40,6 +42,9 @@ struct response final {
     /// @brief 敵軍の基礎ステータス. [艦船数][4]. [][0]=火力, [][1]=雷装, [][2]=対空, [][3]=装甲.
     std::vector<std::tuple<std::int32_t, std::int32_t, std::int32_t, std::int32_t>> api_eParam;
 
+    /// @brief 退避艦インデックス. [退避艦数]. 1基点.
+    std::optional<std::vector<std::int32_t>> api_escape_idx;
+
     /// @brief 敵軍の装備スロット. [艦船数][5]. 空きスロットには-1.
     std::vector<std::array<std::int32_t, 5>> api_eSlot;
 
@@ -48,9 +53,6 @@ struct response final {
 
     /// @brief 敵軍の現在耐久. [艦船数].
     std::vector<kcv::kcsapi::number> api_e_nowhps;
-
-    /// @brief 退避艦インデックス. [退避艦数]. 1基点.
-    std::optional<std::vector<std::int32_t>> api_escape_idx;
 
     /// @brief 友軍艦隊攻撃. 発動時のみ存在.
     std::optional<kcv::kcsapi::api_friendly_battle> api_friendly_battle;
@@ -76,14 +78,20 @@ struct response final {
     /// @brief 夜間砲雷撃戦.
     std::optional<kcv::kcsapi::api_hougeki> api_hougeki;
 
-    /// @brief 煙幕システム(2023/4/23~). 0=未使用|不発, 1,2,3=濃度. 現在, 夜戦では煙幕を展開しない.
-    std::optional<std::int32_t> api_smoke_type;
+    /// @brief 支援艦隊フラグ. 0=なし, 1=空撃, 2=砲撃, 3=雷撃, 4=対潜.
+    kcv::kcsapi::support_type api_n_support_flag;
+
+    /// @brief 支援艦隊情報. api_support_flag==0のときnull.
+    std::optional<kcv::kcsapi::api_support_info> api_n_support_info;
 
     /// @brief 敵艦船ID. [艦船数].
     std::vector<kcv::kcsapi::ship_id> api_ship_ke;
 
     /// @brief 敵艦船Lv. [艦船数].
     std::vector<std::int32_t> api_ship_lv;
+
+    /// @brief 煙幕システム(2023/4/23~). 0=未使用|不発, 1,2,3=濃度. 現在, 夜戦では煙幕を展開しない.
+    std::optional<std::int32_t> api_smoke_type;
 
     /// @brief 夜間触接機ID. [2]. [0]=自軍, [1]=敵軍. 触接しなければ-1.
     std::tuple<kcv::kcsapi::number, kcv::kcsapi::number> api_touch_plane;
@@ -92,9 +100,9 @@ struct response final {
     std::optional<std::int32_t> api_x_al01;
 };
 
-}  // namespace battle
+}  // namespace sp_midnight
 }  // namespace api_req_battle_midnight
 }  // namespace kcsapi
 }  // namespace kcv
 
-#endif  // KCVERIFY_MODELS_KCSAPI_API_REQ_BATTLE_MIDNIGHT_BATTLE_RESPONSE_HPP_INCLUDED
+#endif  // KCVERIFY_MODELS_KCSAPI_API_REQ_BATTLE_MIDNIGHT_SP_MIDNIGHT_RESPONSE_HPP_INCLUDED

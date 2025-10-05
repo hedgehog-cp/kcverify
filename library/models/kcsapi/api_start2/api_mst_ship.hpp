@@ -19,6 +19,7 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief `api_start2/getData` の `api_mst_ship` の要素型.
+/// 艦船マスタ.
 struct api_mst_ship_value_t final {
     std::optional<std::int32_t> api_afterbull;
     std::optional<std::int32_t> api_afterfuel;
@@ -46,10 +47,10 @@ struct api_mst_ship_value_t final {
     std::optional<kcv::kcsapi::api_minmax> api_souk;
     kcv::kcsapi::stype api_stype;
     std::optional<kcv::kcsapi::api_minmax> api_taik;
+    std::optional<kcv::kcsapi::api_minmax> api_tais;
     std::optional<kcv::kcsapi::api_minmax> api_tyku;
     std::optional<std::int32_t> api_voicef;
     std::string api_yomi;
-    std::optional<kcv::kcsapi::api_minmax> api_tais;
 };
 
 /// @note コンテナを `std::vector` から `std::flat_map` への破壊的変更を検討.
