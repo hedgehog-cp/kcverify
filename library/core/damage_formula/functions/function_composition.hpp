@@ -8,14 +8,15 @@
 
 // kcv
 #include "core/damage_formula/functions/composable.hpp"
-#include "extensions/utility.hpp"
+#include "extensions/functional.hpp"
+
 namespace kcv {
 
 /// @brief 合成関数.
 template <kcv::composable... Funcs>
 class function_composition final {
     /// @brief 合成関数を左畳み込みで適用する, その実装詳細.
-    /// 関数の引数xを後ろにとりたいが, 可変長引数の都合のため関数より先に与える.
+    /// 関数の引数xを後ろにとりたいが, 可変長引数の都合のため関数より先に受け取る.
     struct apply_fn final {
         /// @brief 合成関数を適用する.
         template <typename T, typename... Fs>

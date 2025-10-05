@@ -64,8 +64,11 @@ inline auto make_exception_with_context(
     return kcv::exception{std::move(msg), loc, trace};
 }
 
-/// @brief 例外を`stream`に書き出す.
+/// @brief 例外を`stream`に書き出す. 書き出される文字列は着色される.
 void print_exception(std::FILE* stream, const std::exception& e);
+
+/// @brief 例外を`stream`に書き出す.
+void print_exception(std::ostream& stream, const std::exception& e);
 
 }  // namespace kcv
 
