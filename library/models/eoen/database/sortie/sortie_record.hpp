@@ -26,10 +26,10 @@ struct sortie_record final {
     /// @brief 74式ENの何某かの管理用Version.
     std::int32_t version;
 
-    /// @brief 海域. #5-3-Pに対する5.
+    /// @brief 大域の海域ID. #5-3-Pに対する5.
     std::int32_t world;
 
-    /// @brief 海域. #5-3-Pに対する3.
+    /// @brief 海域ID. #5-3-Pに対する3.
     std::int32_t map;
 
     /// @brief この出撃中に送受信したAPI
