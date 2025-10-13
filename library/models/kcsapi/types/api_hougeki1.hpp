@@ -30,7 +30,7 @@ struct api_hougeki1 final {
     /// @brief 与ダメージ. [][攻撃回数]. 単発CIでは[ダメージ, -1, -1]. かばいのとき, (ダメージ += 0.1).
     std::vector<std::vector<double>> api_damage;
 
-    /// @brief 防御艦のインデックス. [][攻撃対象数]. 0基点. 単発CIでは[防御艦, -1, -1].
+    /// @brief 防御艦のインデックス. [][攻撃回数]. 0基点. 単発CIでは[防御艦, -1, -1].
     std::vector<std::vector<std::int32_t>> api_df_list;
 
     /// @brief 表示装備ID. [][装備数].

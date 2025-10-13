@@ -7,7 +7,9 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief 装備ID.
-enum class equipment_id : std::int32_t {};
+enum class equipment_id : std::int32_t {
+    invalid = -1,
+};
 
 }  // namespace kcsapi
 }  // namespace kcv
