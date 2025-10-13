@@ -22,6 +22,7 @@ namespace api_port {
 namespace port {
 
 /// @brief api_port/port.json
+/// 母港.
 struct response final {
     /// @brief 艦隊司令部情報.
     kcv::kcsapi::api_basic api_basic;
@@ -51,14 +52,14 @@ struct response final {
     /// @brief 入渠ドック.
     std::vector<kcv::kcsapi::api_ndock> api_ndock;
 
-    /// @brief 母港BGMのID.
-    std::int32_t api_p_bgm_id;
-
     /// @brief 最大受領可能任務数.
     std::int32_t api_parallel_quest_count;
 
     /// @brief 基地航空隊関連データ. 要素があるときのみ存在(メンバも然り).
     std::optional<kcv::kcsapi::api_plane_info> api_plane_info;
+
+    /// @brief 母港BGMのID.
+    std::int32_t api_p_bgm_id;
 
     /// @brief 所属艦船情報.
     std::vector<kcv::kcsapi::api_ship> api_ship;

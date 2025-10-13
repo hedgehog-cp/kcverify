@@ -16,11 +16,14 @@ namespace kcv {
 namespace kcsapi {
 
 /// @brief `api_start2/getData` の `api_mst_slotitem` の要素型.
+/// 装備マスタ.
 struct api_mst_slotitem_value_t final {
     std::int32_t api_atap;
     std::int32_t api_bakk;
     std::int32_t api_baku;
     kcv::kcsapi::api_resource api_broken;
+    std::optional<std::int32_t> api_cost;
+    std::optional<std::int32_t> api_distance;
     std::int32_t api_houg;
     std::int32_t api_houk;
     std::int32_t api_houm;
@@ -43,8 +46,6 @@ struct api_mst_slotitem_value_t final {
     kcv::kcsapi::api_type api_type;
     std::string api_usebull;
     std::optional<std::int32_t> api_version;
-    std::optional<std::int32_t> api_cost;
-    std::optional<std::int32_t> api_distance;
 };
 
 using api_mst_slotitem = std::vector<api_mst_slotitem_value_t>;

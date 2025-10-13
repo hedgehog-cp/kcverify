@@ -4,20 +4,19 @@
 // std
 #include <cstdint>
 #include <optional>
-#include <string>
-#include <variant>
 #include <vector>
 
 // kcv
 #include "models/kcsapi/types/enum/day_attack_kind.hpp"
 #include "models/kcsapi/types/enum/fleet_flag.hpp"
+#include "models/kcsapi/types/number.hpp"
 
 namespace kcv {
 namespace kcsapi {
 
 struct api_hougeki1 final {
     /// @brief 行動陣営フラグ. 0=自軍, 1=敵軍.
-    std::vector<fleet_flag> api_at_eflag;
+    std::vector<kcv::kcsapi::fleet_flag> api_at_eflag;
 
     /// @brief 攻撃艦のインデックス. 0基点.
     std::vector<std::int32_t> api_at_list;
@@ -31,11 +30,11 @@ struct api_hougeki1 final {
     /// @brief 与ダメージ. [][攻撃回数]. 単発CIでは[ダメージ, -1, -1]. かばいのとき, (ダメージ += 0.1).
     std::vector<std::vector<double>> api_damage;
 
-    /// @brief 防御艦のインデックス. [][攻撃対象数]. 0基点. 単発CIでは[防御艦, -1, -1].
+    /// @brief 防御艦のインデックス. [][攻撃回数]. 0基点. 単発CIでは[防御艦, -1, -1].
     std::vector<std::vector<std::int32_t>> api_df_list;
 
     /// @brief 表示装備ID. [][装備数].
-    std::optional<std::vector<std::vector<std::variant<std::int32_t, std::string>>>> api_si_list;
+    std::optional<std::vector<std::vector<kcv::kcsapi::number>>> api_si_list;
 };
 
 }  // namespace kcsapi

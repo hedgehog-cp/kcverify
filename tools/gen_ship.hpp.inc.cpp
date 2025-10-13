@@ -46,8 +46,7 @@ int main() {
     }
 
     if (not std::ranges::is_sorted(data, {}, &kcv::tools::api_mst_ship::value_type::api_id)) {
-        std::println(stderr, "error: api_mst_ship.json is not sorted.");
-        return EXIT_FAILURE;
+        std::ranges::sort(data, {}, &kcv::tools::api_mst_ship::value_type::api_id);
     }
 
     auto ofs = std::ofstream{dst_fname};

@@ -31,20 +31,20 @@ struct api_stage3 final {
     std::vector<std::optional<std::int32_t>> api_e_sp_list;
 
     /// @brief 自軍被爆撃フラグ.
-    std::vector<std::optional<std::int32_t>> api_fbak_flag;
+    std::optional<std::vector<std::optional<std::int32_t>>> api_fbak_flag;
 
     /// @brief 自軍被cLiticalフラグ.
-    std::vector<kcv::kcsapi::air_hit_type> api_fcl_flag;
+    std::optional<std::vector<kcv::kcsapi::air_hit_type>> api_fcl_flag;
 
     /// @brief 自軍被ダメージ.
-    std::vector<double> api_fdam;
+    std::optional<std::vector<double>> api_fdam;
 
     /// @brief 自軍被雷撃フラグ.
-    std::vector<std::int32_t> api_frai_flag;
+    std::optional<std::vector<std::int32_t>> api_frai_flag;
 
     // ?
     // 味方喰らった特殊攻撃種類[]. null/[0]=なし, [1]=反跳爆撃. 同時に fbak_flag も立つ.
-    std::vector<std::optional<std::int32_t>> api_f_sp_list;
+    std::optional<std::vector<std::optional<std::int32_t>>> api_f_sp_list;
 };
 
 }  // namespace kcsapi

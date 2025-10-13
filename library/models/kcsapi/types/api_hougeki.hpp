@@ -4,12 +4,11 @@
 // std
 #include <cstdint>
 #include <optional>
-#include <string>
-#include <variant>
 #include <vector>
 
 // kcv
 #include "models/kcsapi/types/enum/night_attack_kind.hpp"
+#include "models/kcsapi/types/number.hpp"
 
 namespace kcv {
 namespace kcsapi {
@@ -36,7 +35,7 @@ struct api_hougeki final {
     std::optional<std::vector<std::int32_t>> api_n_mother_list;
 
     /// @brief 表示装備ID. [][装備数].
-    std::optional<std::vector<std::vector<std::variant<std::int32_t, std::string>>>> api_si_list;
+    std::optional<std::vector<std::vector<kcv::kcsapi::number>>> api_si_list;
 
     /// @brief 攻撃種別. 所謂カットインやタッチ.
     std::optional<std::vector<kcv::kcsapi::night_attack_kind>> api_sp_list;

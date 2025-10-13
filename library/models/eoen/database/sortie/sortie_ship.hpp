@@ -2,13 +2,13 @@
 #define KCVERIFY_MODELS_EOEN_DATABASE_SORTIE_SORTIE_SHIP_HPP_INCLUDED
 
 // std
-#include <array>
 #include <cstdint>
 #include <optional>
 #include <vector>
 
 // kcv
 #include "models/eoen/database/sortie/sortie_equipment_slot.hpp"
+#include "models/kcsapi/types/api_kyouka.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "models/kcsapi/types/enum/sp_effect_item.hpp"
 
@@ -35,7 +35,7 @@ struct sortie_ship final {
     std::int32_t condition;
 
     /// @brief 近代化改修. 0=火力, 1=雷装, 2=対空, 3=装甲, 4=運, 5=耐久, 6=対潜.
-    std::array<std::int32_t, 7> kyouka;
+    kcv::kcsapi::api_kyouka kyouka;
 
     /// @brief 搭載燃料.
     std::int32_t fuel;

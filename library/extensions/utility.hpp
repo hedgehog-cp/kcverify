@@ -4,12 +4,12 @@
 namespace kcv {
 
 template <typename... Ts>
-struct overload : public Ts... {
+struct overloaded : public Ts... {
     using Ts::operator()...;
 };
 
 template <typename... Ts>
-overload(Ts...) -> overload<Ts...>;
+overloaded(Ts...) -> overloaded<Ts...>;
 
 }  // namespace kcv
 

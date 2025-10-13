@@ -26,9 +26,15 @@
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_get_member/ship_deck/response.hpp"
 #include "models/kcsapi/api_req_battle_midnight/battle/response.hpp"
+#include "models/kcsapi/api_req_battle_midnight/sp_midnight/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/battleresult/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/ec_battle/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/ec_midnight_battle/response.hpp"
 #include "models/kcsapi/api_req_map/next/response.hpp"
 #include "models/kcsapi/api_req_map/start/request.hpp"
 #include "models/kcsapi/api_req_map/start/response.hpp"
+#include "models/kcsapi/api_req_map/start_air_base/request.hpp"
+#include "models/kcsapi/api_req_map/start_air_base/response.hpp"
 #include "models/kcsapi/api_req_sortie/battle/response.hpp"
 #include "models/kcsapi/api_req_sortie/battleresult/response.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
@@ -324,50 +330,35 @@ struct glz::meta<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
     );
 };
 
-namespace {
-
-bool readable(const std::filesystem::path& fname, std::error_code& ec) noexcept {
-    const auto perms = std::filesystem::status(fname, ec).permissions();
-    return (perms & std::filesystem::perms::owner_read) != std::filesystem::perms::none
-        && (perms & std::filesystem::perms::group_read) != std::filesystem::perms::none
-        && (perms & std::filesystem::perms::others_read) != std::filesystem::perms::none;
-}
-
-}  // namespace
-
-void kcv::read_json(auto& dst, const std::string& buffer) {
+void kcv::read_json(auto& dst, const std::string& buffer) try {
     const auto error = glz::read_json(dst, buffer);
-
     if (error) {
-        const auto msg = std::format(
-            "could not read buffer. [buffer = see below].\n"
-            "{}\n"
-            "{}",
-            glz::format_error(error, buffer), buffer
-        );
-        throw kcv::exception{std::move(msg)};
+        throw kcv::exception{glz::format_error(error, buffer)};
     }
+} catch (const kcv::exception& e) {
+    throw;
+} catch (const std::exception& e) {
+    std::throw_with_nested(kcv::make_exception_with_context("could not parse buffer."));
 }
 
-void kcv::read_json(auto& dst, const std::filesystem::path& fname) {
-    auto ec          = std::error_code{};
-    const auto fsize = std::filesystem::file_size(fname, ec);
-
-    if (fsize == static_cast<std::uintmax_t>(-1) or not readable(fname, ec)) {
-        // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2319r0.html
-        // https://onihusube.hatenablog.com/#P2319R0-Prevent-path-presentation-problems
-        // [[deprecated("P2319: std::filesystemm::string")]]
-        const auto msg = std::format("could not read file. [file = {}].\n{}", fname.string(), ec.message());
-        throw kcv::exception{std::move(msg)};
-    }
-
+void kcv::read_json(auto& dst, const std::filesystem::path& fname) try {
     auto buffer = std::string{};
-    buffer.resize_and_overwrite(fsize, [&fname](char* data, std::size_t size) -> std::size_t {
-        std::ifstream{fname}.read(data, size);
-        return size;
-    });
-
-    kcv::read_json(dst, buffer);
+    buffer.resize_and_overwrite(
+        std::filesystem::file_size(fname),
+        [&fname](char* data, std::size_t size) -> std::size_t {
+            std::ifstream{fname}.read(data, size);
+            return size;
+        }
+    );
+    kcv::read_json(dst, std::as_const(buffer));
+} catch (const kcv::exception& e) {
+    throw;
+} catch (const std::exception& e) {
+    // https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2319r0.html
+    // https://onihusube.hatenablog.com/#P2319R0-Prevent-path-presentation-problems
+    // [[deprecated("P2319: std::filesystemm::string")]]
+    const auto msg = std::format("could not read file. [file = {}].", fname.string());
+    std::throw_with_nested(kcv::make_exception_with_context(std::move(msg)));
 }
 
 // clang-format off
@@ -394,6 +385,15 @@ template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_get_member::sh
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>&, const std::filesystem::path&);
 
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battleresult::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battleresult::response>&, const std::filesystem::path&);
+
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>&, const std::filesystem::path&);
 
@@ -402,6 +402,15 @@ template void kcv::read_json(kcv::kcsapi::api_req_map::start::request&, const st
 
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::sp_midnight::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::sp_midnight::response>&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kcsapi::api_req_map::start_air_base::request&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::api_req_map::start_air_base::request&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start_air_base::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start_air_base::response>&, const std::filesystem::path&);
 
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>&, const std::filesystem::path&);

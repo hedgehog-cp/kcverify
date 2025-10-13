@@ -3,40 +3,20 @@
 
 // std
 #include <cstddef>
-#include <functional>
-#include <optional>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 
 // kcv
 #include "core/damage_formula/functions/composable.hpp"
-#include "extensions/type_traits.hpp"
+#include "extensions/functional.hpp"
 
 namespace kcv {
-
-struct invoke_fn final {
-    template <typename F, typename... T>
-    static constexpr auto operator()(F&& f, T&&... x) noexcept(std::is_nothrow_invocable_v<F, T...>) {
-        return std::invoke(std::forward<F>(f), std::forward<T>(x)...);
-    }
-
-    template <typename F, typename T>
-    static constexpr auto operator()(const F& f, const std::optional<T>& x) {
-        if constexpr (kcv::is_optional_v<std::invoke_result_t<F, T>>) {
-            return x.and_then(f);
-        } else {
-            return x.transform(f);
-        }
-    }
-
-} inline constexpr invoke{};
 
 /// @brief 合成関数.
 template <kcv::composable... Funcs>
 class function_composition final {
     /// @brief 合成関数を左畳み込みで適用する, その実装詳細.
-    /// 関数の引数xを後ろにとりたいが, 可変長引数の都合のため関数より先に与える.
+    /// 関数の引数xを後ろにとりたいが, 可変長引数の都合のため関数より先に受け取る.
     struct apply_fn final {
         /// @brief 合成関数を適用する.
         template <typename T, typename... Fs>
@@ -110,7 +90,7 @@ class function_composition final {
         return this->inverse(this->fs_);
     }
 
-    /// @brief 合成関数された関数を返す.
+    /// @brief 合成された関数を返す.
     constexpr auto decompose() const noexcept -> const std::tuple<Funcs...>& {
         return this->fs_;
     }
