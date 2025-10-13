@@ -59,6 +59,7 @@ auto kcv::ship_from_eoen(
         src.expansion_slot.transform([&api_mst_slotitem](const auto& e) -> kcv::slot {
             return kcv::slot_from_eoen(e, api_mst_slotitem);
         }),
+        src.hp,
     };
 }
 

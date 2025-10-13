@@ -6,6 +6,7 @@
 #include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/nationality.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
+#include "models/kcsapi/types/number.hpp"
 
 namespace kcv {
 
@@ -34,6 +35,12 @@ auto base_id(const kcv::kcsapi::api_mst_ship& api_mst_ship, const kcv::kcsapi::a
 /// @param mst 艦船マスタ.
 /// @return 国籍.
 auto nationality(const kcv::kcsapi::api_mst_ship::value_type& mst) noexcept -> kcv::kcsapi::nationality;
+
+/// @brief 数値にする.
+auto to_integer(const kcv::kcsapi::number& v) noexcept -> std::optional<std::int32_t>;
+
+/// @brief 装備IDにする.
+auto to_equipment_id(const kcv::kcsapi::number& v) noexcept -> kcv::kcsapi::equipment_id;
 
 }  // namespace kcv
 

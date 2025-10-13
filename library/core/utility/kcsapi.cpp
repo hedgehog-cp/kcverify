@@ -2,7 +2,9 @@
 
 // std
 #include <algorithm>
+#include <charconv>
 #include <format>
+#include <optional>
 #include <ranges>
 #include <utility>
 
@@ -13,6 +15,7 @@
 #include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/nationality.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
+#include "models/kcsapi/types/number.hpp"
 
 auto kcv::find_mst(const kcv::kcsapi::api_mst_ship& api_mst_ship, kcv::kcsapi::ship_id id)
     -> const kcv::kcsapi::api_mst_ship::value_type& {
@@ -65,4 +68,39 @@ auto kcv::nationality(const kcv::kcsapi::api_mst_ship::value_type& mst) noexcept
     if (sort_id < 38000) return kcv::kcsapi::nationality::dutch;
     if (sort_id < 39000) return kcv::kcsapi::nationality::australian;
     return kcv::kcsapi::nationality::unknown;
+}
+
+auto kcv::to_integer(const kcv::kcsapi::number& v) noexcept -> std::optional<std::int32_t> {
+    struct visitor final {
+        static constexpr auto operator()(std::int32_t i) noexcept -> std::optional<std::int32_t> {
+            return std::make_optional<std::int32_t>(i);
+        }
+
+        static constexpr auto operator()(const std::string& s) noexcept -> std::optional<std::int32_t> {
+            if (std::int32_t i; std::from_chars(s.data(), s.data() + s.size(), i).ec == std::errc{}) [[likely]] {
+                return std::make_optional<std::int32_t>(i);
+            }
+            return std::nullopt;
+        }
+    };
+
+    return std::visit(visitor{}, v);
+}
+
+/// @brief 装備IDにする.
+auto kcv::to_equipment_id(const kcv::kcsapi::number& v) noexcept -> kcv::kcsapi::equipment_id {
+    struct visitor final {
+        static constexpr auto operator()(std::int32_t i) noexcept -> kcv::kcsapi::equipment_id {
+            return kcv::kcsapi::equipment_id{i};
+        }
+
+        static constexpr auto operator()(const std::string& s) noexcept -> kcv::kcsapi::equipment_id {
+            if (std::int32_t i; std::from_chars(s.data(), s.data() + s.size(), i).ec == std::errc{}) [[likely]] {
+                return kcv::kcsapi::equipment_id{i};
+            }
+            return kcv::kcsapi::equipment_id::invalid;
+        }
+    };
+
+    return std::visit(visitor{}, v);
 }

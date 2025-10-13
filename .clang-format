@@ -32,3 +32,5 @@ AllowShortFunctionsOnASingleLine: Empty
 SpaceBeforeParens: Custom
 SpaceBeforeParensOptions:
     AfterRequiresInClause: true
+
+ReflowComments: false

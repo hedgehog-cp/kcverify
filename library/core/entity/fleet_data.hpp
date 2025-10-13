@@ -14,6 +14,8 @@ namespace kcv {
 
 class fleet_data final {
    public:
+    fleet_data() = default;
+
     fleet_data(
         std::int32_t fleet_id,
         std::int32_t node_support_fleet_id,
@@ -45,6 +47,10 @@ class fleet_data final {
         return this->combined_flag_;
     }
 
+    auto fleets() noexcept -> std::vector<std::optional<kcv::fleet>>& {
+        return this->fleets_;
+    }
+
     auto fleets() const noexcept -> const std::vector<std::optional<kcv::fleet>>& {
         return this->fleets_;
     }
@@ -64,6 +70,7 @@ class fleet_data final {
     std::int32_t boss_support_fleet_id_;
 
     /// @see https://github.com/ElectronicObserverEN/ElectronicObserver/blob/main/ElectronicObserverTypes/FleetType.cs
+    /// single = 0, carrier = 1, surface = 2, transport = 3.
     std::int32_t combined_flag_;
 
     /// @brief 第1艦隊~第4艦隊.
