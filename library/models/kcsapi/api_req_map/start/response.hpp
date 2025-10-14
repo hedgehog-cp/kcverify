@@ -59,7 +59,7 @@ struct response final {
     std::optional<std::int32_t> api_limit_state;
 
     /// @brief 次が渦潮マスのときのみ存在
-    std::optional<kcv::kcsapi::api_happeing> api_happeing;
+    std::optional<kcv::kcsapi::api_happeing> api_happening;
 
     /// @brief 海域カテゴリID. #5-3-Pに対する5.
     std::int32_t api_maparea_id;
