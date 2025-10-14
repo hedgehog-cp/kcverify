@@ -17,10 +17,18 @@ namespace kcsapi {
 
 /// @brief 航空戦情報
 struct api_kouku final {
+    /// @brief 航空機発艦可能艦インデックス[2]. [0]=味方, [1]=敵. いなければnull. 1基点.
     std::vector<std::optional<std::vector<std::int32_t>>> api_plane_from;
+
+    /// @brief 空対空戦闘.
     std::optional<kcv::kcsapi::api_stage1> api_stage1;
+
+    /// @brief 艦対空戦闘.
     std::optional<kcv::kcsapi::api_stage2> api_stage2;
+
+    /// @brief ：航空攻撃. [味方の艦船数] or [敵の艦船数].
     std::optional<kcv::kcsapi::api_stage3> api_stage3;
+
     std::optional<kcv::kcsapi::api_stage3_combined> api_stage3_combined;
 };
 

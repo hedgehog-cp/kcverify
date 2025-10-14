@@ -2,6 +2,7 @@
 
 // std
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <utility>
 
@@ -37,6 +38,7 @@
 #include "models/kcsapi/api_req_map/start_air_base/response.hpp"
 #include "models/kcsapi/api_req_sortie/battle/response.hpp"
 #include "models/kcsapi/api_req_sortie/battleresult/response.hpp"
+#include "models/kcsapi/api_req_sortie/ld_airbattle/response.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/svdata.hpp"
@@ -333,6 +335,7 @@ struct glz::meta<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
 void kcv::read_json(auto& dst, const std::string& buffer) try {
     const auto error = glz::read_json(dst, buffer);
     if (error) {
+        std::ofstream{"execlog.json"} << buffer << std::endl;
         throw kcv::exception{glz::format_error(error, buffer)};
     }
 } catch (const kcv::exception& e) {
@@ -396,6 +399,9 @@ template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_b
 
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::ld_airbattle::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::ld_airbattle::response>&, const std::filesystem::path&);
 
 template void kcv::read_json(kcv::kcsapi::api_req_map::start::request&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::api_req_map::start::request&, const std::filesystem::path&);
