@@ -83,9 +83,16 @@ struct response final {
     /// @brief イベントの輸送作戦時のみ存在.
     std::optional<kcv::kcsapi::api_landing_hp> api_landing_hp;
 
+    /// @brief ('16秋イベ)ギミック解除フラグ. 1=解除(段階によって1以外の場合もある). それ以外の場合存在しない.
     std::optional<std::int32_t> api_m1;
+
+    /// @brief ('19夏イベ)ギミック解除フラグ. 1=解除(〃). それ以外の場合存在しない.
     std::optional<std::int32_t> api_m2;
+
+    /// @brief ('22冬イベ)基地航空隊の位置ギミックフラグ. EventMapUtil.getCellOpenOptionによるとapi_m1も一緒に基地位置を決めるっぽい?
     std::optional<std::int32_t> api_m10;
+
+    /// @brief '18初秋イベ海域攻略完了メッセージ画像のパス(の一部). zshjdpzahswjbytw, jexxexrraiahjydb, kfwtcxpasnhtbrfp など.
     std::optional<std::string> api_m_suffix;
 
     /// @brief 航空偵察作戦報酬獲得フラグ. 0=なし, 1=獲得.

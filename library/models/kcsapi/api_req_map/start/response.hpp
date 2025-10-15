@@ -4,6 +4,7 @@
 // std
 #include <cstdint>
 #include <optional>
+#include <variant>
 
 // kcv
 #include "models/kcsapi/types/api_airsearch.hpp"
@@ -12,6 +13,7 @@
 #include "models/kcsapi/types/api_e_deck_info.hpp"
 #include "models/kcsapi/types/api_eventmap.hpp"
 #include "models/kcsapi/types/api_happening.hpp"
+#include "models/kcsapi/types/api_itemget.hpp"
 #include "models/kcsapi/types/api_select_route.hpp"
 #include "models/kcsapi/types/enum/cell_type.hpp"
 
@@ -54,6 +56,9 @@ struct response final {
 
     /// @brief スタート地点のセルID.
     std::int32_t api_from_no;
+
+    /// @brief 海域突破報酬一覧[]. 海域突破時に最終セルが非戦闘系イベント(輸送セルなど)だった場合存在.
+    std::optional<std::variant<kcv::kcsapi::api_itemget, std::vector<kcv::kcsapi::api_itemget>>> api_itemget;
 
     /// @brief 煙幕使用制限. 1=使用不可.
     std::optional<std::int32_t> api_limit_state;
