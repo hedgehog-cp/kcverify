@@ -29,6 +29,7 @@
 #include "models/kcsapi/api_req_map/start_air_base/response.hpp"
 #include "models/kcsapi/api_req_sortie/battle/response.hpp"
 #include "models/kcsapi/api_req_sortie/battleresult/response.hpp"
+#include "models/kcsapi/api_req_sortie/ld_airbattle/response.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 
@@ -74,6 +75,9 @@ void parse_api_file(kcv::sortie_api& dst, const kcv::eoen::database::kancolle_ap
         kcv::read_json(dst.emplace<T>(), content);
     } else if (name == "api_req_map/next"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+    } else if (name == "api_req_sortie/ld_airbattle"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::ld_airbattle::response>;
         kcv::read_json(dst.emplace<T>(), content);
     } else if (name == "api_req_combined_battle/ec_battle"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>;

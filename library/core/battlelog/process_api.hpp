@@ -22,6 +22,7 @@
 #include "models/kcsapi/api_req_map/start_air_base/response.hpp"
 #include "models/kcsapi/api_req_sortie/battle/response.hpp"
 #include "models/kcsapi/api_req_sortie/battleresult/response.hpp"
+#include "models/kcsapi/api_req_sortie/ld_airbattle/response.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/svdata.hpp"
@@ -41,6 +42,7 @@ using sortie_api = std::variant<
     kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>,
     kcv::kcsapi::svdata<kcv::kcsapi::api_get_member::ship_deck::response>,
     kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>,
+    kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::ld_airbattle::response>,
     kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>,
     kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>,
     kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battleresult::response>>;
@@ -168,6 +170,17 @@ void process_api(
     std::vector<kcv::battlelog>& battlelogs,
     kcv::battlelog& current,
     const kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>& svdata,
+    const kcv::kcsapi::api_mst_ship& api_mst_ship,
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
+    const std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& fit_bonuses,
+    bool& error
+);
+
+/// @brief 出撃APIのvisitor関数の一つ.
+void process_api(
+    std::vector<kcv::battlelog>& battlelogs,
+    kcv::battlelog& current,
+    const kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::ld_airbattle::response>& svdata,
     const kcv::kcsapi::api_mst_ship& api_mst_ship,
     const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
     const std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& fit_bonuses,

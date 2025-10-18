@@ -3,9 +3,8 @@
 // std
 #include <algorithm>
 #include <concepts>
-#include <functional>
+#include <memory>
 #include <optional>
-#include <stdexcept>
 #include <vector>
 
 // kcv
@@ -13,7 +12,8 @@
 #include "core/entity/equipment.hpp"
 #include "core/entity/ship.hpp"
 #include "core/entity/slot.hpp"
-#include "extensions/ranges.hpp"
+#include "extensions/exception.hpp"
+#include "extensions/inplace_vector.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
@@ -22,62 +22,72 @@
 #include "models/kcsapi/types/enum/category.hpp"
 #include "models/kcsapi/types/enum/equipment_id.hpp"
 
+// MARK: 共通
+
 namespace {
 
+/// @brief 最大スロットサイズ = 装備スロット|5 + 増設スロット|1.
+constexpr auto max_slot_size = 5uz + 1uz;
+
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
-auto extract_fit_equipments(const kcv::ship& ship, const std::optional<std::vector<kcv::kcsapi::category>>& types)
-    -> std::vector<std::reference_wrapper<const kcv::equipment>> {
-    auto fit_equipments = std::vector<std::reference_wrapper<const kcv::equipment>>{};
+void append_fit_equipments(
+    kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments,
+    const kcv::ship& ship,
+    const std::optional<std::vector<kcv::kcsapi::category>>& types
+) {
     for (const auto& slot : ship.slots()) {
         if (const auto& e = slot.equipment(); e.has_value()) {
-            const auto& type = std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type);
+            const auto type = std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type);
             if (std::ranges::contains(*types, type)) {
-                fit_equipments.push_back(*e);
+                fit_equipments.push_back(std::to_address(e));
             }
         }
     }
-    return fit_equipments;
 }
 
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
-auto extract_fit_equipments(const kcv::ship& ship, const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids)
-    -> std::vector<std::reference_wrapper<const kcv::equipment>> {
-    auto fit_equipments = std::vector<std::reference_wrapper<const kcv::equipment>>{};
+void append_fit_equipments(
+    kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments,
+    const kcv::ship& ship,
+    const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids
+) {
     for (const auto& slot : ship.slots()) {
         if (const auto& e = slot.equipment(); e.has_value()) {
-            const auto& id = e->mst().api_id;
+            const auto id = e->mst().api_id;
             if (std::ranges::contains(*ids, id)) {
-                fit_equipments.push_back(*e);
+                fit_equipments.push_back(std::to_address(e));
             }
         }
     }
-    return fit_equipments;
 }
 
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
-auto extract_fit_equipments(
+void append_fit_equipments(
+    kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments,
     const kcv::ship& ship,
     const std::optional<std::vector<kcv::kcsapi::category>>& types,
     const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids
-) -> std::vector<std::reference_wrapper<const kcv::equipment>> {
+) {
     if (types.has_value() xor ids.has_value()) [[likely]] {
         if (types.has_value()) {
-            return extract_fit_equipments(ship, types);
+            append_fit_equipments(fit_equipments, ship, types);
+            return;
         }
 
         if (ids.has_value()) {
-            return extract_fit_equipments(ship, ids);
+            append_fit_equipments(fit_equipments, ship, ids);
+            return;
         }
     }
 
-    throw std::invalid_argument{"unexpected `fit_bonuses`."};
+    throw kcv::exception{"unexpected `fit_bonuses`."};
 }
 
 /// @brief 指定した改修値以上の装備の個数を数え上げ, これを返す.
-int count_if(const std::vector<std::reference_wrapper<const kcv::equipment>>& fit_equipments, std::int32_t level) {
+int count_if(const kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments, std::int32_t level) {
     int count = 0;
     for (const auto& e : fit_equipments) {
-        if (e.get().level() >= level) {
+        if (e->level() >= level) {
             count++;
         }
     }
@@ -103,6 +113,8 @@ bool contains_matching_equipment(
     return false;
 }
 
+/// @brief 装備ボーナス型に対して各メンバごとの複合代入演算子を提供する.
+/// @tparam T 装備ボーナス型.
 template <typename T>
 auto operator+=(T& lhs, const T& rhs) noexcept -> T& {
     lhs.houg += rhs.houg;
@@ -118,8 +130,10 @@ auto operator+=(T& lhs, const T& rhs) noexcept -> T& {
     return lhs;
 }
 
+/// @brief 装備ボーナス型に対して各メンバごとの乗算演算子を提供する.
+/// @tparam T 装備ボーナス型.
 template <typename T>
-auto operator*(const T& lhs, int rhs) noexcept -> T {
+auto operator*(const T& lhs, std::integral auto rhs) noexcept -> T {
     return T{
         .houg = lhs.houg * rhs,
         .tyku = lhs.tyku * rhs,
@@ -197,7 +211,7 @@ bool matches_requires_type(const kcv::ship& ship, const kcv::eoen::serialization
     int count = 0;
     for (const auto& slot : ship.slots()) {
         if (const auto& e = slot.equipment(); e.has_value()) {
-            const auto& type = std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type);
+            const auto type = std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type);
             if (std::ranges::contains(*data.requires_type, type)) {
                 count++;
             }
@@ -227,7 +241,8 @@ auto kcv::total_equipment_bonus(
     const bool has_accuracy_radar = contains_matching_equipment(ship.slots(), kcv::is_accuracy_radar);
 
     for (const auto& [types, ids, bonuses] : fit_bonuses) {
-        const auto fit_equipments = extract_fit_equipments(ship, types, ids);
+        auto fit_equipments = kcv::inplace_vector<const kcv::equipment*, max_slot_size>{};
+        append_fit_equipments(fit_equipments, ship, types, ids);
         if (fit_equipments.empty()) {
             continue;
         }
@@ -238,6 +253,7 @@ auto kcv::total_equipment_bonus(
             }
 
             if (data.bonus.has_value()) {
+                // 改修値指定による個数指定または個数指定があるならばそれに従い, なければ比例.
                 const int num = data.level.has_value() ? count_if(fit_equipments, *data.level) : fit_equipments.size();
                 if (data.num.has_value()) {
                     if (num >= *data.num) {
@@ -302,10 +318,11 @@ bool matches_requires_id(const kcv::ship& ship, const kcv::kc3kai::bonus_data& d
         return true;
     }
 
+    // count_if
     int count = 0;
     for (const auto& slot : ship.slots()) {
         if (const auto& e = slot.equipment(); e.has_value()) {
-            const auto& id = e->mst().api_id;
+            const auto id = e->mst().api_id;
             if (std::ranges::contains(*data.requires_id, id) and e->level() >= data.requires_id_level) {
                 count++;
             }
@@ -322,10 +339,11 @@ bool matches_requires_type(const kcv::ship& ship, const kcv::kc3kai::bonus_data&
         return true;
     }
 
+    // count_if
     int count = 0;
     for (const auto& slot : ship.slots()) {
         if (const auto& e = slot.equipment(); e.has_value()) {
-            const auto& type = std::get<kcv::kcsapi::category>(e->mst().api_type);
+            const auto type = std::get<kcv::kcsapi::category>(e->mst().api_type);
             if (std::ranges::contains(*data.requires_type, type)) {
                 count++;
             }
@@ -383,7 +401,8 @@ auto kcv::total_equipment_bonus(const kcv::ship& ship, const std::vector<kcv::kc
     const bool has_accuracy_radar = contains_matching_equipment(ship.slots(), kcv::is_accuracy_radar);
 
     for (const auto& [types, ids, bonuses] : fit_bonuses) {
-        const auto fit_equipments = extract_fit_equipments(ship, types, ids);
+        auto fit_equipments = kcv::inplace_vector<const kcv::equipment*, max_slot_size>{};
+        append_fit_equipments(fit_equipments, ship, types, ids);
         if (fit_equipments.empty()) {
             continue;
         }
@@ -393,6 +412,7 @@ auto kcv::total_equipment_bonus(const kcv::ship& ship, const std::vector<kcv::kc
                 continue;
             }
 
+            // 改修値指定による個数指定または個数指定があるならばそれに従い, なければ比例.
             const int num = data.level.has_value() ? count_if(fit_equipments, *data.level) : fit_equipments.size();
             if (data.num.has_value()) {
                 if (num >= *data.num) {

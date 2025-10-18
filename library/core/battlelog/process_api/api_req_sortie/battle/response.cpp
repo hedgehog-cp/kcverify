@@ -123,8 +123,8 @@ void update(
             data.api_stage3->api_edam,                                 //
             current.abyssal_fleet_data.fleets().at(0).value().ships()  //
         );
-        for (auto&& [dam, ship] : abyssal) {
-            ship.hp(ship.hp() - kcv::unprotected_damage(dam));
+        for (auto&& [dam, defender] : abyssal) {
+            defender.hp(defender.hp() - kcv::unprotected_damage(dam));
         }
     }
 
@@ -134,13 +134,34 @@ void update(
 }
 
 /// @brief 噴式強襲のデータをもって戦闘ログを更新する.
-/// 型未実装.
 void update(
     std::vector<kcv::battlelog>& battlelogs,
     kcv::battlelog& current,
     const kcv::kcsapi::api_injection_kouku& data
 ) {
-    //
+    if (data.api_stage3.has_value()) {
+        if (data.api_stage3->api_fdam.has_value()) {
+            const auto girls = std::ranges::views::zip(
+                *data.api_stage3->api_fdam,                                                                    //
+                current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()  //
+            );
+
+            for (const auto& [dam, defender] : girls) {
+                defender.hp(defender.hp() - kcv::unprotected_damage(dam));
+            }
+        }
+
+        {
+            const auto abyssal = std::ranges::views::zip(
+                data.api_stage3->api_edam,                          //
+                current.abyssal_fleet_data.fleets().at(0)->ships()  //
+            );
+
+            for (const auto& [dam, defender] : abyssal) {
+                defender.hp(defender.hp() - kcv::unprotected_damage(dam));
+            }
+        }
+    }
 }
 
 /// @brief 基地航空隊攻撃のデータをもって戦闘ログを更新する.
@@ -157,8 +178,8 @@ void update(
                     current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1)->ships()  //
                 );
 
-                for (const auto& [dam, ship] : girls) {
-                    ship.hp(ship.hp() - kcv::unprotected_damage(dam));
+                for (const auto& [dam, defender] : girls) {
+                    defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                 }
             }
 
@@ -168,8 +189,8 @@ void update(
                     current.abyssal_fleet_data.fleets().at(0)->ships()  //
                 );
 
-                for (const auto& [dam, ship] : abyssal) {
-                    ship.hp(ship.hp() - kcv::unprotected_damage(dam));
+                for (const auto& [dam, defender] : abyssal) {
+                    defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                 }
             }
         }
@@ -189,8 +210,8 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
                 current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()  //
             );
 
-            for (const auto& [dam, ship] : girls) {
-                ship.hp(ship.hp() - kcv::unprotected_damage(dam));
+            for (const auto& [dam, defender] : girls) {
+                defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
 
@@ -200,8 +221,8 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
                 current.abyssal_fleet_data.fleets().at(0)->ships()  //
             );
 
-            for (const auto& [dam, ship] : abyssal) {
-                ship.hp(ship.hp() - kcv::unprotected_damage(dam));
+            for (const auto& [dam, defender] : abyssal) {
+                defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
     }
@@ -215,7 +236,49 @@ void update(
     kcv::kcsapi::support_type flag,
     const kcv::kcsapi::api_support_info& info
 ) {
-    //
+    if (flag == kcv::kcsapi::support_type::aerial or flag == kcv::kcsapi::support_type::anti_submarine) {
+        if (info.api_support_airatack.has_value()) {
+            const auto& data = *info.api_support_airatack;
+
+            if (data.api_stage3.has_value()) {
+                if (data.api_stage3->api_fdam.has_value()) {
+                    const auto girls = std::ranges::views::zip(
+                        *data.api_stage3->api_fdam,
+                        current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()
+                    );
+
+                    for (const auto& [dam, defender] : girls) {
+                        defender.hp(defender.hp() - kcv::unprotected_damage(dam));
+                    }
+                }
+
+                {
+                    const auto abyssal = std::ranges::views::zip(
+                        data.api_stage3->api_edam,                                 //
+                        current.abyssal_fleet_data.fleets().at(0).value().ships()  //
+                    );
+
+                    for (const auto& [dam, defender] : abyssal) {
+                        defender.hp(defender.hp() - kcv::unprotected_damage(dam));
+                    }
+                }
+            }
+        }
+    }
+    if (flag == kcv::kcsapi::support_type::shelling or flag == kcv::kcsapi::support_type::torpedo) {
+        if (info.api_support_hourai.has_value()) {
+            const auto& data = *info.api_support_hourai;
+
+            // 7隻存在しない場合に境界外アクセスしないようにするため.
+            const std::ranges::random_access_range auto zip = std::ranges::views::zip(
+                data.api_damage,                                           //
+                current.abyssal_fleet_data.fleets().at(0).value().ships()  //
+            );
+            for (const auto& [damage, defender] : zip) {
+                defender.hp(defender.hp() - kcv::unprotected_damage(damage));
+            }
+        }
+    }
 }
 
 /// @brief 先制対潜攻撃をもって戦闘ログを更新する.

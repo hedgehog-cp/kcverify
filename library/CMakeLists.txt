@@ -18,6 +18,7 @@ add_library(libkcv STATIC
     ./core/battlelog/process_api/api_req_map/start_air_base/response.cpp
     ./core/battlelog/process_api/api_req_sortie/battle/response.cpp
     ./core/battlelog/process_api/api_req_sortie/battleresult/response.cpp
+    ./core/battlelog/process_api/api_req_sortie/ld_airbattle/response.cpp
     ./core/battlelog/equipment_bonus.cpp
     ./core/battlelog/generate_battlelog.cpp
 
