@@ -57,9 +57,7 @@ void initialize_abyssal_fleet_data(
     const kcv::kcsapi::api_mst_ship& api_mst_ship,
     const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
 ) {
-    auto ships = std::vector<kcv::ship>{};
-
-    const std::ranges::random_access_range auto zip_enemy_ships = std::ranges::views::zip(
+    const std::ranges::random_access_range auto zip = std::ranges::views::zip(
         data.api_ship_ke,   //
         data.api_ship_lv,   //
         data.api_e_maxhps,  //
@@ -67,47 +65,39 @@ void initialize_abyssal_fleet_data(
         data.api_eParam,    //
         data.api_eSlot      //
     );
-    ships.reserve(zip_enemy_ships.size());
-    for (const auto& [ship_ke, ship_lv, maxhp, nowhp, param, slot] : zip_enemy_ships) {
-        const auto& mst    = kcv::find_mst(api_mst_ship, ship_ke);
-        const auto base_id = kcv::kcsapi::ship_id{};
-        const auto exslot  = std::nullopt;
-        const auto slots   = slot  //
-                         | std::ranges::views::transform([&](const auto& id) -> std::optional<kcv::equipment> {
-                               if (id == kcv::kcsapi::equipment_id::invalid) {
-                                   return std::nullopt;
-                               }
-                               const auto& mst           = kcv::find_mst(api_mst_slotitem, id);
-                               const auto level          = 0;
-                               const auto aircraft_level = 0;
-                               return kcv::equipment{mst, level, aircraft_level};
-                           })
-                         | std::ranges::views::transform([](const auto& equipment) -> kcv::slot {
-                               const auto current = 0;
-                               const auto max     = 0;
-                               return kcv::slot{current, max, std::move(equipment)};
-                           })
-                         | std::ranges::to<std::vector>();
-        const auto hp = kcv::to_integer(nowhp).value();
 
-        /// TODO: maxhp, paramを使う.
-        ships.emplace_back(mst, base_id, kcv::kcsapi::nationality::abyssal, std::move(slots), exslot, hp);
+    auto ships = std::vector<kcv::ship>{};
+    ships.reserve(ships.size());
+    for (const auto& [ship_ke, ship_lv, maxhp, nowhp, param, slot] : zip) {
+        const auto& mst        = kcv::find_mst(api_mst_ship, ship_ke);
+        const auto base_id     = kcv::kcsapi::ship_id{};
+        const auto nationality = kcv::kcsapi::nationality::abyssal;
+
+        /// FIXME: 深海棲艦の搭載数は基本的に不明なため, 0で初期化している.
+        auto slots = std::vector<kcv::slot>{};
+        slots.reserve(slot.size());
+        for (const auto id : slot) {
+            auto equipment = id == kcv::kcsapi::equipment_id::invalid
+                               ? std::nullopt
+                               : std::make_optional<kcv::equipment>(kcv::find_mst(api_mst_slotitem, id), 0, 0);
+            slots.emplace_back(0, 0, std::move(equipment));
+        }
+
+        const auto exslot = std::nullopt;
+        const auto hp     = kcv::to_integer(nowhp).value();
+
+        ships.emplace_back(mst, base_id, nationality, std::move(slots), exslot, ship_lv, hp);
     }
 
-    // battleresultに敵艦隊名が存在するため, ここでは設定できない.
-    const auto deck_name = kcv::uninitialized_enemy_fleet_name_tag;
-    const auto fleets    = std::vector<std::optional<kcv::fleet>>{
-        std::make_optional<kcv::fleet>(deck_name, std::move(ships)),
-    };
-
-    const auto fleet_id              = 1;                             // 第1艦隊
-    const auto node_support_fleet_id = 0;                             // 道中支援なし
-    const auto boss_support_fleet_id = 0;                             // 決戦支援なし
-    const auto combined_flag         = 0;                             // 通常艦隊
-    const auto air_base              = std::vector<kcv::air_base>{};  // 基地航空隊なし
-
     current.abyssal_fleet_data = kcv::fleet_data{
-        fleet_id, node_support_fleet_id, boss_support_fleet_id, combined_flag, std::move(fleets), std::move(air_base),
+        1,  // 第1艦隊
+        0,  // 道中支援なし
+        0,  // 決戦支援なし
+        0,  // 通常艦隊
+        std::vector{
+            std::make_optional<kcv::fleet>(kcv::uninitialized_enemy_fleet_name_tag, std::move(ships)),
+        },
+        {},  // 基地航空隊なし
     };
 }
 
@@ -119,11 +109,11 @@ void update(
     const kcv::kcsapi::api_air_base_injection& data
 ) {
     if (data.api_stage3.has_value()) {
-        const auto abyssal = std::ranges::views::zip(
+        const auto girls_attack = std::ranges::views::zip(
             data.api_stage3->api_edam,                                 //
             current.abyssal_fleet_data.fleets().at(0).value().ships()  //
         );
-        for (auto&& [dam, defender] : abyssal) {
+        for (const auto& [dam, defender] : girls_attack) {
             defender.hp(defender.hp() - kcv::unprotected_damage(dam));
         }
     }
@@ -141,23 +131,21 @@ void update(
 ) {
     if (data.api_stage3.has_value()) {
         if (data.api_stage3->api_fdam.has_value()) {
-            const auto girls = std::ranges::views::zip(
+            const auto abyssal_attack = std::ranges::views::zip(
                 *data.api_stage3->api_fdam,                                                                    //
                 current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()  //
             );
-
-            for (const auto& [dam, defender] : girls) {
+            for (const auto& [dam, defender] : abyssal_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
 
         {
-            const auto abyssal = std::ranges::views::zip(
+            const auto girls_attack = std::ranges::views::zip(
                 data.api_stage3->api_edam,                          //
                 current.abyssal_fleet_data.fleets().at(0)->ships()  //
             );
-
-            for (const auto& [dam, defender] : abyssal) {
+            for (const auto& [dam, defender] : girls_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
@@ -173,23 +161,21 @@ void update(
     for (const auto& datum : data) {
         if (datum.api_stage3.has_value()) {
             if (datum.api_stage3->api_fdam.has_value()) {
-                const auto girls = std::ranges::views::zip(
+                const auto abyssal_attack = std::ranges::views::zip(
                     *datum.api_stage3->api_fdam,                                                            //
                     current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1)->ships()  //
                 );
-
-                for (const auto& [dam, defender] : girls) {
+                for (const auto& [dam, defender] : abyssal_attack) {
                     defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                 }
             }
 
             {
-                const auto abyssal = std::ranges::views::zip(
+                const auto girls_attack = std::ranges::views::zip(
                     datum.api_stage3->api_edam,                         //
                     current.abyssal_fleet_data.fleets().at(0)->ships()  //
                 );
-
-                for (const auto& [dam, defender] : abyssal) {
+                for (const auto& [dam, defender] : girls_attack) {
                     defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                 }
             }
@@ -205,23 +191,21 @@ void update(
 void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, const kcv::kcsapi::api_kouku& data) {
     if (data.api_stage3.has_value()) {
         if (data.api_stage3->api_fdam.has_value()) {
-            const auto girls = std::ranges::views::zip(
+            const auto abyssal_attack = std::ranges::views::zip(
                 *data.api_stage3->api_fdam,                                                                    //
                 current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()  //
             );
-
-            for (const auto& [dam, defender] : girls) {
+            for (const auto& [dam, defender] : abyssal_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
 
         {
-            const auto abyssal = std::ranges::views::zip(
+            const auto girls_attack = std::ranges::views::zip(
                 data.api_stage3->api_edam,                          //
                 current.abyssal_fleet_data.fleets().at(0)->ships()  //
             );
-
-            for (const auto& [dam, defender] : abyssal) {
+            for (const auto& [dam, defender] : girls_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
@@ -229,7 +213,6 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
 }
 
 /// @brief 支援艦隊攻撃をもって戦闘ログを更新する.
-/// 型未実装.
 void update(
     std::vector<kcv::battlelog>& battlelogs,
     kcv::battlelog& current,
@@ -242,23 +225,21 @@ void update(
 
             if (data.api_stage3.has_value()) {
                 if (data.api_stage3->api_fdam.has_value()) {
-                    const auto girls = std::ranges::views::zip(
+                    const auto abyssal_attack = std::ranges::views::zip(
                         *data.api_stage3->api_fdam,
                         current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()
                     );
-
-                    for (const auto& [dam, defender] : girls) {
+                    for (const auto& [dam, defender] : abyssal_attack) {
                         defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                     }
                 }
 
                 {
-                    const auto abyssal = std::ranges::views::zip(
+                    const auto girls_attack = std::ranges::views::zip(
                         data.api_stage3->api_edam,                                 //
                         current.abyssal_fleet_data.fleets().at(0).value().ships()  //
                     );
-
-                    for (const auto& [dam, defender] : abyssal) {
+                    for (const auto& [dam, defender] : girls_attack) {
                         defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                     }
                 }
