@@ -13,6 +13,7 @@
 #include "models/kcsapi/types/api_friendly_info.hpp"
 #include "models/kcsapi/types/api_hougeki.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
+#include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/formation.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "models/kcsapi/types/number.hpp"
@@ -41,7 +42,7 @@ struct response final {
     std::vector<std::tuple<std::int32_t, std::int32_t, std::int32_t, std::int32_t>> api_eParam;
 
     /// @brief 敵軍の装備スロット. [艦船数][5]. 空きスロットには-1.
-    std::vector<std::array<std::int32_t, 5>> api_eSlot;
+    std::vector<std::array<kcv::kcsapi::equipment_id, 5>> api_eSlot;
 
     /// @brief 敵軍の最大耐久. [艦船数].
     std::vector<kcv::kcsapi::number> api_e_maxhps;
