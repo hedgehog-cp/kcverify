@@ -4,9 +4,11 @@
 // std
 #include <cstdint>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 // kcv
+#include "models/kcsapi/types/api_map_squadron_plane.hpp"
 #include "models/kcsapi/types/api_squadron_plane.hpp"
 #include "models/kcsapi/types/api_stage1.hpp"
 #include "models/kcsapi/types/api_stage2.hpp"
@@ -18,14 +20,32 @@ namespace kcsapi {
 
 /// @brief 基地航空隊攻撃.
 struct api_air_base_attack_value_t final {
+    /// @brief 航空隊ID.
     std::int32_t api_base_id;
-    std::vector<std::optional<std::vector<std::int32_t>>> api_plane_from;
+
+    /// @brief 航空機発艦可能艦インデックス. [2][]. [0]=味方, [1]=敵. なければ null. 味方は常に null ?.
+    std::tuple<std::optional<std::vector<std::int32_t>>, std::optional<std::vector<std::int32_t>>> api_plane_from;
+
+    /// @brief 参加機リスト. 防空状態の基地が存在しない場合 null.
+    std::optional<kcv::kcsapi::api_map_squadron_plane> api_map_squadron_plane;
+
+    /// @brief 参加中隊情報. [参加中隊数].
     std::vector<kcv::kcsapi::api_squadoron_plane> api_squadron_plane;
+
+    /// @brief @brief 航空戦st.1.
     std::optional<kcv::kcsapi::api_stage1> api_stage1;
+
+    /// @brief 航空戦st.2.
     std::optional<kcv::kcsapi::api_stage2> api_stage2;
+
+    /// @brief 航空戦st.3.
     std::optional<kcv::kcsapi::api_stage3> api_stage3;
+
+    /// @brief 航空戦st.3. 対随伴艦.
     std::optional<kcv::kcsapi::api_stage3_combined> api_stage3_combined;
-    std::vector<std::int32_t> api_stage_flag;
+
+    /// @brief 航空戦フラグ. [3].
+    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
 };
 
 /// @brief 基地航空隊攻撃. [攻撃回数].

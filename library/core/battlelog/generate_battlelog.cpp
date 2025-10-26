@@ -19,9 +19,11 @@
 #include "models/kcsapi/api_get_member/ship_deck/response.hpp"
 #include "models/kcsapi/api_req_battle_midnight/battle/response.hpp"
 #include "models/kcsapi/api_req_battle_midnight/sp_midnight/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/battle_water/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/battleresult/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/ec_battle/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/ec_midnight_battle/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/midnight_battle/response.hpp"
 #include "models/kcsapi/api_req_map/next/response.hpp"
 #include "models/kcsapi/api_req_map/start/request.hpp"
 #include "models/kcsapi/api_req_map/start/response.hpp"
@@ -46,61 +48,118 @@ void parse_api_file(kcv::sortie_api& dst, const kcv::eoen::database::kancolle_ap
 
     using std::literals::string_view_literals::operator""sv;
     using file_type = kcv::eoen::database::kancolle_api::api_file_type;
+
+    if (name == "api_get_member/ship_deck"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_get_member::ship_deck::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_battle_midnight/battle"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_battle_midnight/sp_midnight"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::sp_midnight::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_combined_battle/battle_water"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battle_water::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_combined_battle/battleresult"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battleresult::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_combined_battle/ec_battle"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_combined_battle/ec_midnight_battle"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_combined_battle/midnight_battle"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::midnight_battle::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_map/next"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
     if (name == "api_req_map/start"sv and type == file_type::request) {
         using T = kcv::kcsapi::api_req_map::start::request;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_map/start"sv and type == file_type::response) {
+        return;
+    }
+
+    if (name == "api_req_map/start"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start::response>;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_battle_midnight/sp_midnight"sv and type == file_type::response) {
-        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::sp_midnight::response>;
-        kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_map/start_air_base"sv and type == file_type::request) {
+        return;
+    }
+
+    if (name == "api_req_map/start_air_base"sv and type == file_type::request) {
         using T = kcv::kcsapi::api_req_map::start_air_base::request;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_map/start_air_base"sv and type == file_type::response) {
+        return;
+    }
+
+    if (name == "api_req_map/start_air_base"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::start_air_base::response>;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_sortie/battle"sv and type == file_type::response) {
+        return;
+    }
+
+    if (name == "api_req_sortie/battle"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battle::response>;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_battle_midnight/battle"sv and type == file_type::response) {
-        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_battle_midnight::battle::response>;
-        kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_sortie/battleresult"sv and type == file_type::response) {
+        return;
+    }
+
+    if (name == "api_req_sortie/battleresult"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::battleresult::response>;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_get_member/ship_deck"sv and type == file_type::response) {
-        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_get_member::ship_deck::response>;
+        return;
+    }
+
+    if (name == "api_req_sortie/goback_port"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::goback_port::response>;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_map/next"sv and type == file_type::response) {
-        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>;
-        kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_sortie/ld_airbattle"sv and type == file_type::response) {
+        return;
+    }
+
+    if (name == "api_req_sortie/ld_airbattle"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_sortie::ld_airbattle::response>;
         kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_combined_battle/ec_battle"sv and type == file_type::response) {
-        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>;
-        kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_combined_battle/ec_midnight_battle"sv and type == file_type::response) {
-        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>;
-        kcv::read_json(dst.emplace<T>(), content);
-    } else if (name == "api_req_combined_battle/battleresult"sv and type == file_type::response) {
-        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battleresult::response>;
-        kcv::read_json(dst.emplace<T>(), content);
-    } else {
-        std::ofstream{"execlog.json"} << content << std::endl;
-
-        throw kcv::exception{
-            std::format(
-                "api file parsing error. "
-                "[id = {}, api_file_type = {}, name = {}, time_stamp = {}, version = {}, sortie_record_id = {}]\n"
-                "see [execlog.json]",
-                src.id, std::to_underlying(src.api_file_type), src.name, src.time_stamp, src.version,
-                src.sortie_record_id
-            ),
-        };
+        return;
     }
+
+    std::ofstream{"execlog.json"} << content << std::endl;
+    throw kcv::exception{
+        std::format(
+            "failed to parse api file."
+            "[id = {}, api_file_type = {}, name = {}, time_stamp = {}, version = {}, sortie_record_id = {}], "
+            "see execlog.json.",
+            src.id, std::to_underlying(src.api_file_type), src.name, src.time_stamp, src.version, src.sortie_record_id
+        ),
+    };
 }
 
 }  // namespace

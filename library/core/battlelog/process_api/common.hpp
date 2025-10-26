@@ -29,7 +29,13 @@ inline bool is_protected(double damage) noexcept {
     return damage != unprotected_damage(damage);
 }
 
-inline constexpr auto uninitialized_enemy_fleet_name_tag = "uninit";
+/// @brief 深海棲艦の艦隊名が未初期化であることを表す.
+/// battleresultを解析するまで艦隊名が不明なため, 未初期化タグで初期化する.
+inline constexpr auto uninitialized_enemy_fleet_name_tag = "enemy";
+
+/// @brief 友軍艦隊の艦隊名が未初期化であることを表す.
+/// 艦隊名が不明なため.
+inline constexpr auto uninitialized_friend_fleet_name_tag = "friend";
 
 }  // namespace kcv
 

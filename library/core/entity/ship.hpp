@@ -24,6 +24,7 @@ class ship final {
         kcv::kcsapi::nationality nationality,
         std::vector<kcv::slot> eqslots,
         std::optional<kcv::slot> exslot,
+        std::int32_t level,
         std::int32_t hp
     )
         : mst_{mst}
@@ -32,6 +33,7 @@ class ship final {
         , eqslots_{eqslots}
         , exslot_{exslot}
         , slots_{kcv::ranges::views::concat(this->eqslots_, this->exslot_)}
+        , level_{level}
         , hp_{hp} {}
 
     auto mst() const noexcept -> const kcv::kcsapi::api_mst_ship_value_t& {
@@ -66,6 +68,14 @@ class ship final {
         this->hp_ = v;
     }
 
+    auto level() const noexcept -> std::int32_t {
+        return this->level_;
+    }
+
+    void level(std::int32_t v) noexcept {
+        this->level_ = v;
+    }
+
    private:
     /// @brief 艦船マスタ.
     const kcv::kcsapi::api_mst_ship_value_t& mst_;
@@ -85,8 +95,8 @@ class ship final {
     /// @brief 装備スロット.
     kcv::ranges::slots_view<kcv::slot> slots_;
 
-    // /// @brief レベル.
-    // std::int32_t level_;
+    /// @brief レベル.
+    std::int32_t level_;
 
     // /// @brief 疲労度.
     // std::int32_t condition_;

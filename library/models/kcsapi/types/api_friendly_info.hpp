@@ -7,6 +7,7 @@
 #include <vector>
 
 // kcv
+#include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 
 namespace kcv {
@@ -18,7 +19,7 @@ struct api_friendly_info {
     std::int32_t api_production_type;
 
     /// @brief 友軍の艦船ID. [艦船数].
-    std::vector<ship_id> api_ship_id;
+    std::vector<kcv::kcsapi::ship_id> api_ship_id;
 
     /// @brief 友軍のLv. [艦船数].
     std::vector<std::int32_t> api_ship_lv;
@@ -30,10 +31,10 @@ struct api_friendly_info {
     std::vector<std::int32_t> api_maxhps;
 
     /// @brief 友軍の装備スロット. [艦船数][5]. 空きロットのとき-1.
-    std::vector<std::vector<std::int32_t>> api_Slot;
+    std::vector<std::vector<kcv::kcsapi::equipment_id>> api_Slot;
 
     /// @brief 友軍の装備(拡張スロット). [艦船数].
-    std::vector<std::int32_t> api_slot_ex;
+    std::vector<kcv::kcsapi::equipment_id> api_slot_ex;
 
     /// @brief 友軍の基礎ステータス. [艦船数][4]. [][0]=火力, [][1]=雷装, [][2]=対空, [][3]=装甲.
     std::vector<std::tuple<std::int32_t, std::int32_t, std::int32_t, std::int32_t>> api_Param;

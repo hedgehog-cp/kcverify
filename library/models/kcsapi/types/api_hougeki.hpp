@@ -7,6 +7,7 @@
 #include <vector>
 
 // kcv
+#include "models/kcsapi/types/enum/fleet_flag.hpp"
 #include "models/kcsapi/types/enum/night_attack_kind.hpp"
 #include "models/kcsapi/types/number.hpp"
 
@@ -17,7 +18,7 @@ namespace kcsapi {
 /// 全てのメンバの有効値の1次元目の配列サイズは, 攻撃回数.
 struct api_hougeki final {
     /// @brief 行動陣営フラグ. 0=自軍, 1=敵軍.
-    std::optional<std::vector<std::int32_t>> api_at_eflag;
+    std::optional<std::vector<kcv::kcsapi::fleet_flag>> api_at_eflag;
 
     /// @brief 攻撃艦のインデックス. 0基点.
     std::optional<std::vector<std::int32_t>> api_at_list;

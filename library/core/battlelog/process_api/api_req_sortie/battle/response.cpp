@@ -57,9 +57,7 @@ void initialize_abyssal_fleet_data(
     const kcv::kcsapi::api_mst_ship& api_mst_ship,
     const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
 ) {
-    auto ships = std::vector<kcv::ship>{};
-
-    const std::ranges::random_access_range auto zip_enemy_ships = std::ranges::views::zip(
+    const std::ranges::random_access_range auto zip = std::ranges::views::zip(
         data.api_ship_ke,   //
         data.api_ship_lv,   //
         data.api_e_maxhps,  //
@@ -67,47 +65,39 @@ void initialize_abyssal_fleet_data(
         data.api_eParam,    //
         data.api_eSlot      //
     );
-    ships.reserve(zip_enemy_ships.size());
-    for (const auto& [ship_ke, ship_lv, maxhp, nowhp, param, slot] : zip_enemy_ships) {
-        const auto& mst    = kcv::find_mst(api_mst_ship, ship_ke);
-        const auto base_id = kcv::kcsapi::ship_id{};
-        const auto exslot  = std::nullopt;
-        const auto slots   = slot  //
-                         | std::ranges::views::transform([&](const auto& id) -> std::optional<kcv::equipment> {
-                               if (id == kcv::kcsapi::equipment_id::invalid) {
-                                   return std::nullopt;
-                               }
-                               const auto& mst           = kcv::find_mst(api_mst_slotitem, id);
-                               const auto level          = 0;
-                               const auto aircraft_level = 0;
-                               return kcv::equipment{mst, level, aircraft_level};
-                           })
-                         | std::ranges::views::transform([](const auto& equipment) -> kcv::slot {
-                               const auto current = 0;
-                               const auto max     = 0;
-                               return kcv::slot{current, max, std::move(equipment)};
-                           })
-                         | std::ranges::to<std::vector>();
-        const auto hp = kcv::to_integer(nowhp).value();
 
-        /// TODO: maxhp, paramを使う.
-        ships.emplace_back(mst, base_id, kcv::kcsapi::nationality::abyssal, std::move(slots), exslot, hp);
+    auto ships = std::vector<kcv::ship>{};
+    ships.reserve(ships.size());
+    for (const auto& [ship_ke, ship_lv, maxhp, nowhp, param, slot] : zip) {
+        const auto& mst        = kcv::find_mst(api_mst_ship, ship_ke);
+        const auto base_id     = kcv::kcsapi::ship_id{};
+        const auto nationality = kcv::kcsapi::nationality::abyssal;
+
+        /// FIXME: 深海棲艦の搭載数は基本的に不明なため, 0で初期化している.
+        auto slots = std::vector<kcv::slot>{};
+        slots.reserve(slot.size());
+        for (const auto id : slot) {
+            auto equipment = id == kcv::kcsapi::equipment_id::invalid
+                               ? std::nullopt
+                               : std::make_optional<kcv::equipment>(kcv::find_mst(api_mst_slotitem, id), 0, 0);
+            slots.emplace_back(0, 0, std::move(equipment));
+        }
+
+        const auto exslot = std::nullopt;
+        const auto hp     = kcv::to_integer(nowhp).value();
+
+        ships.emplace_back(mst, base_id, nationality, std::move(slots), exslot, ship_lv, hp);
     }
 
-    // battleresultに敵艦隊名が存在するため, ここでは設定できない.
-    const auto deck_name = kcv::uninitialized_enemy_fleet_name_tag;
-    const auto fleets    = std::vector<std::optional<kcv::fleet>>{
-        std::make_optional<kcv::fleet>(deck_name, std::move(ships)),
-    };
-
-    const auto fleet_id              = 1;                             // 第1艦隊
-    const auto node_support_fleet_id = 0;                             // 道中支援なし
-    const auto boss_support_fleet_id = 0;                             // 決戦支援なし
-    const auto combined_flag         = 0;                             // 通常艦隊
-    const auto air_base              = std::vector<kcv::air_base>{};  // 基地航空隊なし
-
     current.abyssal_fleet_data = kcv::fleet_data{
-        fleet_id, node_support_fleet_id, boss_support_fleet_id, combined_flag, std::move(fleets), std::move(air_base),
+        1,  // 第1艦隊
+        0,  // 道中支援なし
+        0,  // 決戦支援なし
+        0,  // 通常艦隊
+        std::vector{
+            std::make_optional<kcv::fleet>(kcv::uninitialized_enemy_fleet_name_tag, std::move(ships)),
+        },
+        {},  // 基地航空隊なし
     };
 }
 
@@ -119,11 +109,11 @@ void update(
     const kcv::kcsapi::api_air_base_injection& data
 ) {
     if (data.api_stage3.has_value()) {
-        const auto abyssal = std::ranges::views::zip(
+        const auto girls_attack = std::ranges::views::zip(
             data.api_stage3->api_edam,                                 //
             current.abyssal_fleet_data.fleets().at(0).value().ships()  //
         );
-        for (auto&& [dam, defender] : abyssal) {
+        for (const auto& [dam, defender] : girls_attack) {
             defender.hp(defender.hp() - kcv::unprotected_damage(dam));
         }
     }
@@ -141,23 +131,21 @@ void update(
 ) {
     if (data.api_stage3.has_value()) {
         if (data.api_stage3->api_fdam.has_value()) {
-            const auto girls = std::ranges::views::zip(
+            const auto abyssal_attack = std::ranges::views::zip(
                 *data.api_stage3->api_fdam,                                                                    //
                 current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()  //
             );
-
-            for (const auto& [dam, defender] : girls) {
+            for (const auto& [dam, defender] : abyssal_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
 
         {
-            const auto abyssal = std::ranges::views::zip(
+            const auto girls_attack = std::ranges::views::zip(
                 data.api_stage3->api_edam,                          //
                 current.abyssal_fleet_data.fleets().at(0)->ships()  //
             );
-
-            for (const auto& [dam, defender] : abyssal) {
+            for (const auto& [dam, defender] : girls_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
@@ -173,23 +161,21 @@ void update(
     for (const auto& datum : data) {
         if (datum.api_stage3.has_value()) {
             if (datum.api_stage3->api_fdam.has_value()) {
-                const auto girls = std::ranges::views::zip(
-                    *datum.api_stage3->api_fdam,                                                            //
-                    current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1)->ships()  //
+                const auto abyssal_attack = std::ranges::views::zip(
+                    *datum.api_stage3->api_fdam,
+                    current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()
                 );
-
-                for (const auto& [dam, defender] : girls) {
+                for (const auto& [dam, defender] : abyssal_attack) {
                     defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                 }
             }
 
             {
-                const auto abyssal = std::ranges::views::zip(
+                const auto girls_attack = std::ranges::views::zip(
                     datum.api_stage3->api_edam,                         //
                     current.abyssal_fleet_data.fleets().at(0)->ships()  //
                 );
-
-                for (const auto& [dam, defender] : abyssal) {
+                for (const auto& [dam, defender] : girls_attack) {
                     defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                 }
             }
@@ -205,23 +191,21 @@ void update(
 void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, const kcv::kcsapi::api_kouku& data) {
     if (data.api_stage3.has_value()) {
         if (data.api_stage3->api_fdam.has_value()) {
-            const auto girls = std::ranges::views::zip(
+            const auto abyssal_attack = std::ranges::views::zip(
                 *data.api_stage3->api_fdam,                                                                    //
                 current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()  //
             );
-
-            for (const auto& [dam, defender] : girls) {
+            for (const auto& [dam, defender] : abyssal_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
 
         {
-            const auto abyssal = std::ranges::views::zip(
+            const auto girls_attack = std::ranges::views::zip(
                 data.api_stage3->api_edam,                          //
                 current.abyssal_fleet_data.fleets().at(0)->ships()  //
             );
-
-            for (const auto& [dam, defender] : abyssal) {
+            for (const auto& [dam, defender] : girls_attack) {
                 defender.hp(defender.hp() - kcv::unprotected_damage(dam));
             }
         }
@@ -229,7 +213,6 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
 }
 
 /// @brief 支援艦隊攻撃をもって戦闘ログを更新する.
-/// 型未実装.
 void update(
     std::vector<kcv::battlelog>& battlelogs,
     kcv::battlelog& current,
@@ -242,23 +225,21 @@ void update(
 
             if (data.api_stage3.has_value()) {
                 if (data.api_stage3->api_fdam.has_value()) {
-                    const auto girls = std::ranges::views::zip(
+                    const auto abyssal_attack = std::ranges::views::zip(
                         *data.api_stage3->api_fdam,
                         current.girls_fleet_data.fleets().at(current.girls_fleet_data.fleet_id() - 1).value().ships()
                     );
-
-                    for (const auto& [dam, defender] : girls) {
+                    for (const auto& [dam, defender] : abyssal_attack) {
                         defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                     }
                 }
 
                 {
-                    const auto abyssal = std::ranges::views::zip(
+                    const auto girls_attack = std::ranges::views::zip(
                         data.api_stage3->api_edam,                                 //
                         current.abyssal_fleet_data.fleets().at(0).value().ships()  //
                     );
-
-                    for (const auto& [dam, defender] : abyssal) {
+                    for (const auto& [dam, defender] : girls_attack) {
                         defender.hp(defender.hp() - kcv::unprotected_damage(dam));
                     }
                 }
@@ -304,30 +285,32 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
                                       | std::ranges::views::transform(&kcv::to_equipment_id)
                                       | std::ranges::to<std::vector>();
         for (const auto& [cl, dam, df] : attack) {
-            battlelogs.push_back(kcv::battlelog{
-                .world              = current.world,
-                .map                = current.map,
-                .cell               = current.cell,
-                .x_al01             = current.x_al01,
-                .balloon_cell       = current.balloon_cell,
-                .atoll_cell         = current.atoll_cell,
-                .girls_fleet_data   = current.girls_fleet_data,
-                .abyssal_fleet_data = current.abyssal_fleet_data,
-                .girls_formation    = current.girls_formation,
-                .abyssal_formation  = current.abyssal_formation,
-                .engagement         = current.engagement,
-                .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
-                .attacker_side      = at_eflag,
-                .attacker_fleet     = attacker_fleet,
-                .attacker_ship      = static_cast<std::size_t>(at_list),
-                .defender_fleet     = defender_fleet,
-                .defender_ship      = static_cast<std::size_t>(df),
-                .attack_kind        = at_type,
-                .display_equipments = display_equipments,
-                .clitical           = cl,
-                .is_protected       = kcv::is_protected(dam),
-                .damage             = kcv::unprotected_damage(dam),
-            });
+            battlelogs.push_back(
+                kcv::battlelog{
+                    .world              = current.world,
+                    .map                = current.map,
+                    .cell               = current.cell,
+                    .x_al01             = current.x_al01,
+                    .balloon_cell       = current.balloon_cell,
+                    .atoll_cell         = current.atoll_cell,
+                    .girls_fleet_data   = current.girls_fleet_data,
+                    .abyssal_fleet_data = current.abyssal_fleet_data,
+                    .girls_formation    = current.girls_formation,
+                    .abyssal_formation  = current.abyssal_formation,
+                    .engagement         = current.engagement,
+                    .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                    .attacker_side      = at_eflag,
+                    .attacker_fleet     = attacker_fleet,
+                    .attacker_ship      = static_cast<std::size_t>(at_list),
+                    .defender_fleet     = defender_fleet,
+                    .defender_ship      = static_cast<std::size_t>(df),
+                    .attack_kind        = at_type,
+                    .display_equipments = display_equipments,
+                    .clitical           = cl,
+                    .is_protected       = kcv::is_protected(dam),
+                    .damage             = kcv::unprotected_damage(dam),
+                }
+            );
 
             auto& defender = at_eflag == kcv::kcsapi::fleet_flag::player  //
                                ? current.abyssal_fleet_data.fleets().at(defender_fleet).value().ships().at(df)
@@ -361,30 +344,32 @@ void update(
             const auto defender_fleet = 0uz;
             const auto defender_ship  = static_cast<std::size_t>(frai);
 
-            battlelogs.push_back(kcv::battlelog{
-                .world              = current.world,
-                .map                = current.map,
-                .cell               = current.cell,
-                .x_al01             = current.x_al01,
-                .balloon_cell       = current.balloon_cell,
-                .atoll_cell         = current.atoll_cell,
-                .girls_fleet_data   = current.girls_fleet_data,
-                .abyssal_fleet_data = current.abyssal_fleet_data,
-                .girls_formation    = current.girls_formation,
-                .abyssal_formation  = current.abyssal_formation,
-                .engagement         = current.engagement,
-                .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
-                .attacker_side      = kcv::kcsapi::fleet_flag::player,
-                .attacker_fleet     = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1),
-                .attacker_ship      = index,
-                .defender_fleet     = defender_fleet,
-                .defender_ship      = defender_ship,
-                .attack_kind        = kcv::kcsapi::day_attack_kind::torpedo,
-                .display_equipments = {},
-                .clitical           = fcl,
-                .is_protected       = kcv::is_protected(fydam),
-                .damage             = kcv::unprotected_damage(fydam),
-            });
+            battlelogs.push_back(
+                kcv::battlelog{
+                    .world              = current.world,
+                    .map                = current.map,
+                    .cell               = current.cell,
+                    .x_al01             = current.x_al01,
+                    .balloon_cell       = current.balloon_cell,
+                    .atoll_cell         = current.atoll_cell,
+                    .girls_fleet_data   = current.girls_fleet_data,
+                    .abyssal_fleet_data = current.abyssal_fleet_data,
+                    .girls_formation    = current.girls_formation,
+                    .abyssal_formation  = current.abyssal_formation,
+                    .engagement         = current.engagement,
+                    .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                    .attacker_side      = kcv::kcsapi::fleet_flag::player,
+                    .attacker_fleet     = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1),
+                    .attacker_ship      = index,
+                    .defender_fleet     = defender_fleet,
+                    .defender_ship      = defender_ship,
+                    .attack_kind        = kcv::kcsapi::day_attack_kind::torpedo,
+                    .display_equipments = {},
+                    .clitical           = fcl,
+                    .is_protected       = kcv::is_protected(fydam),
+                    .damage             = kcv::unprotected_damage(fydam),
+                }
+            );
 
             auto& defender = current.abyssal_fleet_data.fleets().at(defender_fleet).value().ships().at(defender_ship);
             defender.hp(defender.hp() - kcv::unprotected_damage(fydam));
@@ -411,7 +396,98 @@ void update(
             const auto defender_fleet = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1);
             const auto defender_ship  = static_cast<std::size_t>(erai);
 
-            battlelogs.push_back(kcv::battlelog{
+            battlelogs.push_back(
+                kcv::battlelog{
+                    .world              = current.world,
+                    .map                = current.map,
+                    .cell               = current.cell,
+                    .x_al01             = current.x_al01,
+                    .balloon_cell       = current.balloon_cell,
+                    .atoll_cell         = current.atoll_cell,
+                    .girls_fleet_data   = current.girls_fleet_data,
+                    .abyssal_fleet_data = current.abyssal_fleet_data,
+                    .girls_formation    = current.girls_formation,
+                    .abyssal_formation  = current.abyssal_formation,
+                    .engagement         = current.engagement,
+                    .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                    .attacker_side      = kcv::kcsapi::fleet_flag::enemy,
+                    .attacker_fleet     = 0uz,
+                    .attacker_ship      = index,
+                    .defender_fleet     = defender_fleet,
+                    .defender_ship      = defender_ship,
+                    .attack_kind        = kcv::kcsapi::day_attack_kind::torpedo,
+                    .display_equipments = {},
+                    .clitical           = ecl,
+                    .is_protected       = kcv::is_protected(eydam),
+                    .damage             = kcv::unprotected_damage(eydam),
+                }
+            );
+
+            auto& defender = current.girls_fleet_data.fleets().at(defender_fleet).value().ships().at(defender_ship);
+            defender.hp(defender.hp() - kcv::unprotected_damage(eydam));
+        }
+    }
+}
+
+/// @brief 雷撃戦をもって戦闘ログを更新する.
+void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, const kcv::kcsapi::api_raigeki& data) {
+    const std::ranges::random_access_range auto girls_attack = std::ranges::views::zip(
+        std::ranges::views::iota(0uz),  //
+        data.api_frai,                  //
+        data.api_fcl,                   //
+        data.api_fydam                  //
+    );
+    for (const auto& [index, frai, fcl, fydam] : girls_attack) {
+        if (frai == -1) continue;
+
+        const auto defender_fleet = 0uz;
+        const auto defender_ship  = static_cast<std::size_t>(frai);
+
+        battlelogs.push_back(
+            kcv::battlelog{
+                .world              = current.world,
+                .map                = current.map,
+                .cell               = current.cell,
+                .x_al01             = current.x_al01,
+                .balloon_cell       = current.balloon_cell,
+                .atoll_cell         = current.atoll_cell,
+                .girls_fleet_data   = current.girls_fleet_data,
+                .abyssal_fleet_data = current.abyssal_fleet_data,
+                .girls_formation    = current.girls_formation,
+                .abyssal_formation  = current.abyssal_formation,
+                .engagement         = current.engagement,
+                .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                .attacker_side      = kcv::kcsapi::fleet_flag::player,
+                .attacker_fleet     = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1),
+                .attacker_ship      = index,
+                .defender_fleet     = defender_fleet,
+                .defender_ship      = defender_ship,
+                .attack_kind        = kcv::kcsapi::day_attack_kind::torpedo,
+                .display_equipments = {},
+                .clitical           = fcl,
+                .is_protected       = kcv::is_protected(fydam),
+                .damage             = kcv::unprotected_damage(fydam),
+            }
+        );
+
+        auto& defender = current.abyssal_fleet_data.fleets().at(defender_fleet).value().ships().at(defender_ship);
+        defender.hp(defender.hp() - kcv::unprotected_damage(fydam));
+    }
+
+    const std::ranges::random_access_range auto abyssal_attack = std::ranges::views::zip(
+        std::ranges::views::iota(0uz),  //
+        data.api_erai,                  //
+        data.api_ecl,                   //
+        data.api_eydam                  //
+    );
+    for (const auto& [index, erai, ecl, eydam] : abyssal_attack) {
+        if (erai == -1) continue;
+
+        const auto defender_fleet = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1);
+        const auto defender_ship  = static_cast<std::size_t>(erai);
+
+        battlelogs.push_back(
+            kcv::battlelog{
                 .world              = current.world,
                 .map                = current.map,
                 .cell               = current.cell,
@@ -434,93 +510,8 @@ void update(
                 .clitical           = ecl,
                 .is_protected       = kcv::is_protected(eydam),
                 .damage             = kcv::unprotected_damage(eydam),
-            });
-
-            auto& defender = current.girls_fleet_data.fleets().at(defender_fleet).value().ships().at(defender_ship);
-            defender.hp(defender.hp() - kcv::unprotected_damage(eydam));
-        }
-    }
-}
-
-/// @brief 雷撃戦をもって戦闘ログを更新する.
-void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, const kcv::kcsapi::api_raigeki& data) {
-    const std::ranges::random_access_range auto girls_attack = std::ranges::views::zip(
-        std::ranges::views::iota(0uz),  //
-        data.api_frai,                  //
-        data.api_fcl,                   //
-        data.api_fydam                  //
-    );
-    for (const auto& [index, frai, fcl, fydam] : girls_attack) {
-        if (frai == -1) continue;
-
-        const auto defender_fleet = 0uz;
-        const auto defender_ship  = static_cast<std::size_t>(frai);
-
-        battlelogs.push_back(kcv::battlelog{
-            .world              = current.world,
-            .map                = current.map,
-            .cell               = current.cell,
-            .x_al01             = current.x_al01,
-            .balloon_cell       = current.balloon_cell,
-            .atoll_cell         = current.atoll_cell,
-            .girls_fleet_data   = current.girls_fleet_data,
-            .abyssal_fleet_data = current.abyssal_fleet_data,
-            .girls_formation    = current.girls_formation,
-            .abyssal_formation  = current.abyssal_formation,
-            .engagement         = current.engagement,
-            .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
-            .attacker_side      = kcv::kcsapi::fleet_flag::player,
-            .attacker_fleet     = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1),
-            .attacker_ship      = index,
-            .defender_fleet     = defender_fleet,
-            .defender_ship      = defender_ship,
-            .attack_kind        = kcv::kcsapi::day_attack_kind::torpedo,
-            .display_equipments = {},
-            .clitical           = fcl,
-            .is_protected       = kcv::is_protected(fydam),
-            .damage             = kcv::unprotected_damage(fydam),
-        });
-
-        auto& defender = current.abyssal_fleet_data.fleets().at(defender_fleet).value().ships().at(defender_ship);
-        defender.hp(defender.hp() - kcv::unprotected_damage(fydam));
-    }
-
-    const std::ranges::random_access_range auto abyssal_attack = std::ranges::views::zip(
-        std::ranges::views::iota(0uz),  //
-        data.api_erai,                  //
-        data.api_ecl,                   //
-        data.api_eydam                  //
-    );
-    for (const auto& [index, erai, ecl, eydam] : abyssal_attack) {
-        if (erai == -1) continue;
-
-        const auto defender_fleet = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1);
-        const auto defender_ship  = static_cast<std::size_t>(erai);
-
-        battlelogs.push_back(kcv::battlelog{
-            .world              = current.world,
-            .map                = current.map,
-            .cell               = current.cell,
-            .x_al01             = current.x_al01,
-            .balloon_cell       = current.balloon_cell,
-            .atoll_cell         = current.atoll_cell,
-            .girls_fleet_data   = current.girls_fleet_data,
-            .abyssal_fleet_data = current.abyssal_fleet_data,
-            .girls_formation    = current.girls_formation,
-            .abyssal_formation  = current.abyssal_formation,
-            .engagement         = current.engagement,
-            .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
-            .attacker_side      = kcv::kcsapi::fleet_flag::enemy,
-            .attacker_fleet     = 0uz,
-            .attacker_ship      = index,
-            .defender_fleet     = defender_fleet,
-            .defender_ship      = defender_ship,
-            .attack_kind        = kcv::kcsapi::day_attack_kind::torpedo,
-            .display_equipments = {},
-            .clitical           = ecl,
-            .is_protected       = kcv::is_protected(eydam),
-            .damage             = kcv::unprotected_damage(eydam),
-        });
+            }
+        );
 
         auto& defender = current.girls_fleet_data.fleets().at(defender_fleet).value().ships().at(defender_ship);
         defender.hp(defender.hp() - kcv::unprotected_damage(eydam));
