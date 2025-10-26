@@ -4,6 +4,7 @@
 // std
 #include <cstdint>
 #include <optional>
+#include <utility>
 #include <vector>
 
 // kcv
@@ -53,6 +54,10 @@ class fleet_data final {
 
     auto fleets() const noexcept -> const std::vector<std::optional<kcv::fleet>>& {
         return this->fleets_;
+    }
+
+    void fleets(std::vector<std::optional<kcv::fleet>> fleets) noexcept {
+        this->fleets_ = std::move(fleets);
     }
 
     auto air_bases() const noexcept -> const std::vector<kcv::air_base>& {

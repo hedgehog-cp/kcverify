@@ -24,6 +24,7 @@ namespace ld_airbattle {
 /// @brief api_req_sortie/ld_airbattle.json
 /// 通常艦隊 長距離空襲戦.
 struct response final {
+    /// @brief 環礁マスフラグ.
     std::optional<std::int32_t> api_atoll_cell;
 
     /// @brief 阻塞気球マスフラグ.
@@ -65,7 +66,7 @@ struct response final {
     /// @brief 航空戦情報.
     std::optional<kcv::kcsapi::api_kouku> api_kouku;
 
-    /// @brief 夜戦突入可否. 0=不 可(昼戦で敵全滅など), 1=可能.
+    /// @brief 夜戦突入可否. 0=不可(昼戦で敵全滅など), 1=可能.
     std::int32_t api_midnight_flag;
 
     /// @brief 索敵成否, [0]=自軍, [1]=敵軍. 1=成功, 2=成功(未帰還機あり), 3=未帰還 , 4=失敗, 5=発見, 6=発見できず.
@@ -80,7 +81,7 @@ struct response final {
     /// @brief 煙幕システム(2023/4/23~). 0=未 使用|不発, 1,2,3=濃度. 現在, 夜戦では煙幕を展開しない.
     std::optional<std::int32_t> api_smoke_type;
 
-    /// @brief 航空戦フラグ.
+    /// @brief 航空戦フラグ. [3].
     std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
 };
 

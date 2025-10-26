@@ -7,7 +7,7 @@
 #include "core/battlelog/battlelog.hpp"
 #include "core/battlelog/process_api/common.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
-#include "models/kcsapi/api_req_map/next/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/battle_water/response.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/svdata.hpp"
@@ -15,7 +15,7 @@
 void kcv::process_api(
     [[maybe_unused]] std::vector<kcv::battlelog>& battlelogs,
     [[maybe_unused]] kcv::battlelog& current,
-    [[maybe_unused]] const kcv::kcsapi::svdata<kcv::kcsapi::api_req_map::next::response>& svdata,
+    [[maybe_unused]] const kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battle_water::response>& svdata,
     [[maybe_unused]] const kcv::kcsapi::api_mst_ship& api_mst_ship,
     [[maybe_unused]] const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
     [[maybe_unused]] const std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& fit_bonuses,
@@ -27,6 +27,4 @@ void kcv::process_api(
     }
 
     const auto& data = svdata.api_data;
-
-    current.cell = data.api_no;
 }

@@ -5,6 +5,7 @@
 
 // kcv
 #include "core/battlelog/battlelog.hpp"
+#include "core/battlelog/process_api/common.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/kcsapi/api_req_combined_battle/battleresult/response.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
@@ -19,4 +20,11 @@ void kcv::process_api(
     [[maybe_unused]] const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
     [[maybe_unused]] const std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& fit_bonuses,
     [[maybe_unused]] bool& error
-) {}
+) {
+    if (not kcv::success(svdata)) {
+        error = true;
+        return;
+    }
+
+    const auto& data = svdata.api_data;
+}

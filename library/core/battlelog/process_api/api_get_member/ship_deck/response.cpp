@@ -12,14 +12,6 @@
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/svdata.hpp"
 
-namespace {
-
-void update_girls_fleet_data(kcv::battlelog& current, const kcv::kcsapi::api_get_member::ship_deck::response& data) {
-    //
-}
-
-}  // namespace
-
 void kcv::process_api(
     [[maybe_unused]] std::vector<kcv::battlelog>& battlelogs,
     [[maybe_unused]] kcv::battlelog& current,
@@ -34,7 +26,5 @@ void kcv::process_api(
         return;
     }
 
-    const auto& data = svdata.api_data;
-
-    update_girls_fleet_data(current, data);
+    /// TODO: ダメコンやおにぎりの消費に対応する.
 }

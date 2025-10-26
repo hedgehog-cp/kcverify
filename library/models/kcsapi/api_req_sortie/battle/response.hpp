@@ -35,6 +35,7 @@ namespace battle {
 /// @brief api_req_sortie/battle.json
 /// 昼戦.
 struct response final {
+    /// @brief 環礁マスフラグ.
     std::optional<std::int32_t> api_atoll_cell;
 
     /// @brief 基地航空隊噴式強襲.
@@ -143,7 +144,7 @@ struct response final {
     std::vector<std::int32_t> api_ship_lv;
 
     /// @brief 航空戦フラグ. [n]==0のときapi_stage{n+1}==null (航空戦力なし, 艦戦のみなど).
-    std::vector<std::int32_t> api_stage_flag;
+    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
 
     /// @brief 支援艦隊フラグ. 0=なし, 1=空撃, 2=砲撃, 3=雷撃, 4=対潜.
     kcv::kcsapi::support_type api_support_flag;

@@ -10,6 +10,7 @@
 // kcv
 #include "models/kcsapi/types/api_airsearch.hpp"
 #include "models/kcsapi/types/api_cell_flavor.hpp"
+#include "models/kcsapi/types/api_destruction_battle.hpp"
 #include "models/kcsapi/types/api_e_deck_info.hpp"
 #include "models/kcsapi/types/api_eventmap.hpp"
 #include "models/kcsapi/types/api_happening.hpp"
@@ -51,9 +52,11 @@ struct response final {
     /// 払暁戦とレーダー射撃戦は不明.
     std::optional<kcv::kcsapi::api_e_deck_info> api_e_deck_info;
 
-    // public ApiDestructionBattle? ApiDestructionBattle { get; set; }
     /// @brief 超重爆迎撃戦QTEイベントフラグ. 発生した時のみ存在.
-    // api_destruction_battle;
+    std::optional<std::int32_t> api_destruction_flag;
+
+    /// @brief 基地防空戦データ. ほぼ戦闘APIに準じる. 発生した時のみ存在. 超重爆迎撃の場合は存在しない.
+    std::optional<kcv::kcsapi::api_destruction_battle> api_destruction_battle;
 
     /// @brief イベント.
     std::int32_t api_event_id;

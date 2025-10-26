@@ -17,6 +17,7 @@
 #include "models/kcsapi/types/api_support_info.hpp"
 #include "models/kcsapi/types/enum/detection_type.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
+#include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/formation.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "models/kcsapi/types/enum/support_type.hpp"
@@ -50,13 +51,13 @@ struct response final {
     /// @brief 敵主力艦隊現在HP [13] (-1から始まる)
     std::vector<std::int32_t> api_e_maxhps;
 
-    /// @brief 敵主力艦隊現在HP [13] (-1から始まる)
+    /// @brief 敵随伴艦隊現在HP [13] (-1から始まる)
     std::vector<std::int32_t> api_e_maxhps_combined;
 
     /// @brief 敵主力艦隊現在HP [13] (-1から始まる)
     std::vector<std::int32_t> api_e_nowhps;
 
-    /// @brief 敵主力艦隊現在HP [13] (-1から始まる)
+    /// @brief 敵随伴艦隊現在HP [13] (-1から始まる)
     std::vector<std::int32_t> api_e_nowhps_combined;
 
     /// @brief 敵軍の基礎ステータス. [艦船数][4]. [][0]=火力, [][1]=雷装, [][2]=対空, [][3]=装甲.
@@ -69,10 +70,10 @@ struct response final {
     std::optional<std::vector<std::int32_t>> api_escape_idx;
 
     /// @brief 敵主力艦隊装備IDリスト [6][5]
-    std::vector<std::array<std::int32_t, 5>> api_eSlot;
+    std::vector<std::array<kcv::kcsapi::equipment_id, 5>> api_eSlot;
 
     /// @brief 敵随伴艦隊装備IDリスト [6][5]
-    std::vector<std::array<std::int32_t, 5>> api_eSlot_combined;
+    std::vector<std::array<kcv::kcsapi::equipment_id, 5>> api_eSlot_combined;
 
     /// @brief 敵ボス艦の情報とフレーバーテキスト[1]
     kcv::kcsapi::api_flavor_info api_flavor_info;

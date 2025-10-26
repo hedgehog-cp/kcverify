@@ -21,6 +21,10 @@ class fleet final {
         return this->name_;
     }
 
+    void name(std::string name) noexcept {
+        this->name_ = std::move(name);
+    }
+
     /// @todo std::spanを検討する.
     auto ships() noexcept -> std::vector<kcv::ship>& {
         return this->ships_;

@@ -8,9 +8,11 @@ add_library(libkcv STATIC
     ./core/battlelog/process_api/api_get_member/ship_deck/response.cpp
     ./core/battlelog/process_api/api_req_battle_midnight/battle/response.cpp
     ./core/battlelog/process_api/api_req_battle_midnight/sp_midnight/response.cpp
+    ./core/battlelog/process_api/api_req_combined_battle/battle_water/response.cpp
     ./core/battlelog/process_api/api_req_combined_battle/battleresult/response.cpp
     ./core/battlelog/process_api/api_req_combined_battle/ec_battle/response.cpp
     ./core/battlelog/process_api/api_req_combined_battle/ec_midnight_battle/response.cpp
+    ./core/battlelog/process_api/api_req_combined_battle/midnight_battle/response.cpp
     ./core/battlelog/process_api/api_req_map/next/response.cpp
     ./core/battlelog/process_api/api_req_map/start/request.cpp
     ./core/battlelog/process_api/api_req_map/start/response.cpp
@@ -18,6 +20,7 @@ add_library(libkcv STATIC
     ./core/battlelog/process_api/api_req_map/start_air_base/response.cpp
     ./core/battlelog/process_api/api_req_sortie/battle/response.cpp
     ./core/battlelog/process_api/api_req_sortie/battleresult/response.cpp
+    ./core/battlelog/process_api/api_req_sortie/goback_port/response.cpp
     ./core/battlelog/process_api/api_req_sortie/ld_airbattle/response.cpp
     ./core/battlelog/equipment_bonus.cpp
     ./core/battlelog/generate_battlelog.cpp
