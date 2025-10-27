@@ -19,10 +19,10 @@ struct api_eventmap final {
     std::int32_t api_dmg;
 
     /// @brief 作戦難易度. 0=未設定, 1=丁, 2=丙, 3=乙, 4=甲.
-    std::int32_t api_selected_rank;
+    std::optional<std::int32_t> api_selected_rank;
 
     /// @brief 1=未攻略, 2=攻略済み.
-    std::int32_t api_state;
+    std::optional<std::int32_t> api_state;
 };
 
 }  // namespace kcsapi

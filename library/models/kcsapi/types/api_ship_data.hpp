@@ -115,7 +115,7 @@ struct api_ship_data_value_t final {
     std::tuple<std::int32_t, std::int32_t> api_taisen;
 
     /// @brief リボンや襷付与された場合のみ存在.
-    std::vector<kcv::kcsapi::sp_effect_item> api_sp_effect_items;
+    std::optional<std::vector<kcv::kcsapi::sp_effect_item>> api_sp_effect_items;
 };
 
 }  // namespace kcsapi
