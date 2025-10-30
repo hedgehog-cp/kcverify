@@ -23,6 +23,9 @@ struct api_air_base_attack_value_t final {
     /// @brief 航空隊ID.
     std::int32_t api_base_id;
 
+    /// @brief 航空戦フラグ. [3].
+    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
+
     /// @brief 航空機発艦可能艦インデックス. [2][]. [0]=味方, [1]=敵. なければ null. 味方は常に null ?.
     std::tuple<std::optional<std::vector<std::int32_t>>, std::optional<std::vector<std::int32_t>>> api_plane_from;
 
@@ -32,7 +35,7 @@ struct api_air_base_attack_value_t final {
     /// @brief 参加中隊情報. [参加中隊数].
     std::vector<kcv::kcsapi::api_squadoron_plane> api_squadron_plane;
 
-    /// @brief @brief 航空戦st.1.
+    /// @brief 航空戦st.1.
     std::optional<kcv::kcsapi::api_stage1> api_stage1;
 
     /// @brief 航空戦st.2.
@@ -43,9 +46,6 @@ struct api_air_base_attack_value_t final {
 
     /// @brief 航空戦st.3. 対随伴艦.
     std::optional<kcv::kcsapi::api_stage3_combined> api_stage3_combined;
-
-    /// @brief 航空戦フラグ. [3].
-    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
 };
 
 /// @brief 基地航空隊攻撃. [攻撃回数].

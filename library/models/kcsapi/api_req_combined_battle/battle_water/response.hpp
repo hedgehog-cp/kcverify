@@ -87,6 +87,9 @@ struct response final {
     /// @brief 夜戦突入可否. 0=不可(昼戦で敵全滅など), 1=可能.
     std::int32_t api_midnight_flag;
 
+    /// @brief 装甲破砕フラグ.
+    std::optional<std::int32_t> api_x_al01;
+
     /// @brief 索敵成否, [0]=自軍, [1]=敵軍. 1=成功, 2=成功(未帰還機あり), 3=未帰還, 4=失敗, 5=発見, 6=発見できず.
     std::tuple<kcv::kcsapi::detection_type, kcv::kcsapi::detection_type> api_search;
 
