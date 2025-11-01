@@ -16,6 +16,7 @@
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/api_kouku.hpp"
+#include "models/kcsapi/types/api_stage_flag.hpp"
 #include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 #include "models/kcsapi/types/enum/support_type.hpp"
@@ -284,7 +285,7 @@ void kcv::process_api(
     // 機動部隊航空友軍
 
     // 航空戦 制空権の決定を含む
-    if (data.api_stage_flag.at(3 - 1) == 1) {
+    if (std::get<kcv::kcsapi::idx_stage_flag::stage3>(data.api_stage_flag) == 1 and data.api_kouku.has_value()) {
         update(battlelogs, current, *data.api_kouku);
     }
 

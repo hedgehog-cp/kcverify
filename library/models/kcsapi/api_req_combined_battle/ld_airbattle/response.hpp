@@ -9,6 +9,7 @@
 
 // kcv
 #include "models/kcsapi/types/api_kouku.hpp"
+#include "models/kcsapi/types/api_stage_flag.hpp"
 #include "models/kcsapi/types/enum/detection_type.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
 #include "models/kcsapi/types/enum/equipment_id.hpp"
@@ -93,8 +94,8 @@ struct response final {
     /// @brief 索敵成否, [0]=自軍, [1]=敵軍. 1=成功, 2=成功(未帰還機あり), 3=未帰還 , 4=失敗, 5=発見, 6=発見できず.
     std::tuple<kcv::kcsapi::detection_type, kcv::kcsapi::detection_type> api_search;
 
-    /// @brief 航空戦フラグ. [3].
-    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
+    /// @brief 航空戦フラグ. [0]=api_stage1, [1]=api_stage2, [2]=api_stage3.
+    kcv::kcsapi::api_stage_flag api_stage_flag;
 
     /// @brief 航空戦情報.
     std::optional<kcv::kcsapi::api_kouku> api_kouku;

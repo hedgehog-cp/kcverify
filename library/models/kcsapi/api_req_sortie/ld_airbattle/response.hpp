@@ -9,6 +9,7 @@
 
 // kcv
 #include "models/kcsapi/types/api_kouku.hpp"
+#include "models/kcsapi/types/api_stage_flag.hpp"
 #include "models/kcsapi/types/enum/detection_type.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
 #include "models/kcsapi/types/enum/equipment_id.hpp"
@@ -81,8 +82,8 @@ struct response final {
     /// @brief 煙幕システム(2023/4/23~). 0=未 使用|不発, 1,2,3=濃度. 現在, 夜戦では煙幕を展開しない.
     std::optional<std::int32_t> api_smoke_type;
 
-    /// @brief 航空戦フラグ. [3].
-    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
+    /// @brief 航空戦フラグ. [0]=api_stage1, [1]=api_stage2, [2]=api_stage3.
+    kcv::kcsapi::api_stage_flag api_stage_flag;
 };
 
 }  // namespace ld_airbattle

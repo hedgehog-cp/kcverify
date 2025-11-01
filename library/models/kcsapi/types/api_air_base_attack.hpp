@@ -14,6 +14,7 @@
 #include "models/kcsapi/types/api_stage2.hpp"
 #include "models/kcsapi/types/api_stage3.hpp"
 #include "models/kcsapi/types/api_stage3_combined.hpp"
+#include "models/kcsapi/types/api_stage_flag.hpp"
 
 namespace kcv {
 namespace kcsapi {
@@ -23,8 +24,8 @@ struct api_air_base_attack_value_t final {
     /// @brief 航空隊ID.
     std::int32_t api_base_id;
 
-    /// @brief 航空戦フラグ. [3].
-    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
+    /// @brief 航空戦フラグ. [0]=api_stage1, [1]=api_stage2, [2]=api_stage3.
+    kcv::kcsapi::api_stage_flag api_stage_flag;
 
     /// @brief 航空機発艦可能艦インデックス. [2][]. [0]=味方, [1]=敵. なければ null. 味方は常に null ?.
     std::tuple<std::optional<std::vector<std::int32_t>>, std::optional<std::vector<std::int32_t>>> api_plane_from;

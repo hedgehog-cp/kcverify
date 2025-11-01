@@ -14,6 +14,7 @@
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "models/kcsapi/types/api_kouku.hpp"
+#include "models/kcsapi/types/api_stage_flag.hpp"
 #include "models/kcsapi/types/svdata.hpp"
 
 namespace {
@@ -129,7 +130,7 @@ void kcv::process_api(
     initialize_abyssal_fleet_data(current, data, api_mst_ship, api_mst_slotitem);
 
     // 航空戦.
-    if (std::get<2>(data.api_stage_flag) == 1 and data.api_kouku.has_value()) {
+    if (std::get<kcv::kcsapi::idx_stage_flag::stage3>(data.api_stage_flag) == 1 and data.api_kouku.has_value()) {
         update(battlelogs, current, *data.api_kouku);
     }
 

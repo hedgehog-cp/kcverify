@@ -14,6 +14,7 @@
 #include "models/kcsapi/types/api_kouku.hpp"
 #include "models/kcsapi/types/api_opening_atack.hpp"
 #include "models/kcsapi/types/api_raigeki.hpp"
+#include "models/kcsapi/types/api_stage_flag.hpp"
 #include "models/kcsapi/types/api_support_info.hpp"
 #include "models/kcsapi/types/enum/detection_type.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
@@ -126,8 +127,8 @@ struct response final {
     /// @brief 基地航空隊攻撃.
     std::optional<kcv::kcsapi::api_air_base_attack> api_air_base_attack;
 
-    /// @brief 航空戦フラグ. [n]==0のときapi_stage{n+1}==null (航空戦力なし, 艦戦のみなど).
-    std::vector<std::int32_t> api_stage_flag;
+    /// @brief 航空戦フラグ. [0]=api_stage1, [1]=api_stage2, [2]=api_stage3.
+    kcv::kcsapi::api_stage_flag api_stage_flag;
 
     /// @brief 航空戦情報.
     std::optional<kcv::kcsapi::api_kouku> api_kouku;

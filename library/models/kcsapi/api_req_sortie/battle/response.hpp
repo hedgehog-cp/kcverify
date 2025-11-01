@@ -18,6 +18,7 @@
 #include "models/kcsapi/types/api_kouku.hpp"
 #include "models/kcsapi/types/api_opening_atack.hpp"
 #include "models/kcsapi/types/api_raigeki.hpp"
+#include "models/kcsapi/types/api_stage_flag.hpp"
 #include "models/kcsapi/types/api_support_info.hpp"
 #include "models/kcsapi/types/enum/detection_type.hpp"
 #include "models/kcsapi/types/enum/engagement.hpp"
@@ -143,8 +144,8 @@ struct response final {
     /// @brief 敵艦船Lv. [艦船数].
     std::vector<std::int32_t> api_ship_lv;
 
-    /// @brief 航空戦フラグ. [n]==0のときapi_stage{n+1}==null (航空戦力なし, 艦戦のみなど).
-    std::tuple<std::int32_t, std::int32_t, std::int32_t> api_stage_flag;
+    /// @brief 航空戦フラグ. [0]=api_stage1, [1]=api_stage2, [2]=api_stage3.
+    kcv::kcsapi::api_stage_flag api_stage_flag;
 
     /// @brief 支援艦隊フラグ. 0=なし, 1=空撃, 2=砲撃, 3=雷撃, 4=対潜.
     kcv::kcsapi::support_type api_support_flag;
