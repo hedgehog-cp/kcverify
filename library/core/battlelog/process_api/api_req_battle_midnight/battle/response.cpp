@@ -45,7 +45,7 @@ auto make_ungrown_equipment(
     kcv::kcsapi::equipment_id id,                          //
     const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem  //
 ) -> std::optional<kcv::equipment> {
-    return id == kcv::kcsapi::equipment_id::invalid
+    return id == kcv::kcsapi::invalid_equipment_id
              ? std::nullopt
              : std::make_optional<kcv::equipment>(kcv::find_mst(api_mst_slotitem, id), 0, 0);
 }
@@ -193,30 +193,32 @@ void update(
                                       | std::ranges::views::transform(&kcv::to_equipment_id)
                                       | std::ranges::to<std::vector>();
         for (const auto& [cl, dam, df] : attack) {
-            battlelogs.push_back(kcv::battlelog{
-                .world              = current.world,
-                .map                = current.map,
-                .cell               = current.cell,
-                .x_al01             = current.x_al01,
-                .balloon_cell       = current.balloon_cell,
-                .atoll_cell         = current.atoll_cell,
-                .girls_fleet_data   = friend_fleet_data,
-                .abyssal_fleet_data = current.abyssal_fleet_data,
-                .girls_formation    = current.girls_formation,
-                .abyssal_formation  = current.abyssal_formation,
-                .engagement         = current.engagement,
-                .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},  // ?
-                .attacker_side      = at_eflag,
-                .attacker_fleet     = attacker_fleet,
-                .attacker_ship      = static_cast<std::size_t>(at_list),
-                .defender_fleet     = defender_fleet,
-                .defender_ship      = static_cast<std::size_t>(df),
-                .attack_kind        = sp_list,
-                .display_equipments = display_equipments,
-                .clitical           = cl,
-                .is_protected       = kcv::is_protected(dam),
-                .damage             = kcv::unprotected_damage(dam),
-            });
+            battlelogs.push_back(
+                kcv::battlelog{
+                    .world              = current.world,
+                    .map                = current.map,
+                    .cell               = current.cell,
+                    .x_al01             = current.x_al01,
+                    .balloon_cell       = current.balloon_cell,
+                    .atoll_cell         = current.atoll_cell,
+                    .girls_fleet_data   = friend_fleet_data,
+                    .abyssal_fleet_data = current.abyssal_fleet_data,
+                    .girls_formation    = current.girls_formation,
+                    .abyssal_formation  = current.abyssal_formation,
+                    .engagement         = current.engagement,
+                    .touch_plane        = {kcv::kcsapi::invalid_equipment_id, kcv::kcsapi::invalid_equipment_id},  // ?
+                    .attacker_side      = at_eflag,
+                    .attacker_fleet     = attacker_fleet,
+                    .attacker_ship      = static_cast<std::size_t>(at_list),
+                    .defender_fleet     = defender_fleet,
+                    .defender_ship      = static_cast<std::size_t>(df),
+                    .attack_kind        = sp_list,
+                    .display_equipments = display_equipments,
+                    .clitical           = cl,
+                    .is_protected       = kcv::is_protected(dam),
+                    .damage             = kcv::unprotected_damage(dam),
+                }
+            );
 
             auto& defender = at_eflag == kcv::kcsapi::fleet_flag::player  //
                                ? current.abyssal_fleet_data.fleets().at(defender_fleet).value().ships().at(df)
@@ -263,30 +265,32 @@ void update(kcv::battlelog& current, std::vector<kcv::battlelog>& battlelogs, co
                                       | std::ranges::views::transform(&kcv::to_equipment_id)
                                       | std::ranges::to<std::vector>();
         for (const auto& [cl, dam, df] : attack) {
-            battlelogs.push_back(kcv::battlelog{
-                .world              = current.world,
-                .map                = current.map,
-                .cell               = current.cell,
-                .x_al01             = current.x_al01,
-                .balloon_cell       = current.balloon_cell,
-                .atoll_cell         = current.atoll_cell,
-                .girls_fleet_data   = current.girls_fleet_data,
-                .abyssal_fleet_data = current.abyssal_fleet_data,
-                .girls_formation    = current.girls_formation,
-                .abyssal_formation  = current.abyssal_formation,
-                .engagement         = current.engagement,
-                .touch_plane        = current.touch_plane,
-                .attacker_side      = at_eflag,
-                .attacker_fleet     = attacker_fleet,
-                .attacker_ship      = static_cast<std::size_t>(at_list),
-                .defender_fleet     = defender_fleet,
-                .defender_ship      = static_cast<std::size_t>(df),
-                .attack_kind        = sp_list,
-                .display_equipments = display_equipments,
-                .clitical           = cl,
-                .is_protected       = kcv::is_protected(dam),
-                .damage             = kcv::unprotected_damage(dam),
-            });
+            battlelogs.push_back(
+                kcv::battlelog{
+                    .world              = current.world,
+                    .map                = current.map,
+                    .cell               = current.cell,
+                    .x_al01             = current.x_al01,
+                    .balloon_cell       = current.balloon_cell,
+                    .atoll_cell         = current.atoll_cell,
+                    .girls_fleet_data   = current.girls_fleet_data,
+                    .abyssal_fleet_data = current.abyssal_fleet_data,
+                    .girls_formation    = current.girls_formation,
+                    .abyssal_formation  = current.abyssal_formation,
+                    .engagement         = current.engagement,
+                    .touch_plane        = current.touch_plane,
+                    .attacker_side      = at_eflag,
+                    .attacker_fleet     = attacker_fleet,
+                    .attacker_ship      = static_cast<std::size_t>(at_list),
+                    .defender_fleet     = defender_fleet,
+                    .defender_ship      = static_cast<std::size_t>(df),
+                    .attack_kind        = sp_list,
+                    .display_equipments = display_equipments,
+                    .clitical           = cl,
+                    .is_protected       = kcv::is_protected(dam),
+                    .damage             = kcv::unprotected_damage(dam),
+                }
+            );
 
             auto& defender = at_eflag == kcv::kcsapi::fleet_flag::player  //
                                ? current.abyssal_fleet_data.fleets().at(defender_fleet).value().ships().at(df)

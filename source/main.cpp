@@ -2,14 +2,13 @@
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
-#include <print>
 #include <vector>
 
 // kcv
 #include "core/battlelog/generate_battlelog.hpp"
+#include "core/constants/constants.hpp"
 #include "core/utility/read_json.hpp"
 #include "extensions/exception.hpp"
-#include "extensions/formatter.hpp"
 #include "models/eoen/database/sortie/sortie_record.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
@@ -18,12 +17,14 @@
 int main() try {
     const auto api_mst_ship = []() -> kcv::kcsapi::api_mst_ship {
         auto temp = kcv::kcsapi::api_mst_ship{};
+        temp.reserve(kcv::api_mst_ship_size_hint);
         kcv::read_json(temp, std::filesystem::path{"./assets/api_mst_ship.json"});
         return temp;
     }();
 
     const auto api_mst_slotitem = []() -> kcv::kcsapi::api_mst_slotitem {
         auto temp = kcv::kcsapi::api_mst_slotitem{};
+        temp.reserve(kcv::api_mst_slotitem_size_hint);
         kcv::read_json(temp, std::filesystem::path{"./assets/api_mst_slotitem.json"});
         return temp;
     }();

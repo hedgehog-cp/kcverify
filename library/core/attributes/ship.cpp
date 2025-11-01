@@ -1,4 +1,4 @@
-#include "core/constants/ship.hpp"
+#include "core/attributes/ship.hpp"
 
 // std
 #include <algorithm>
@@ -6,6 +6,7 @@
 #include <string_view>
 
 // kcv
+#include "core/constants/ship.hpp"
 #include "extensions/inplace_vector.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"

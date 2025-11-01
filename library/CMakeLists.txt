@@ -1,10 +1,7 @@
 add_library(libkcv STATIC
-    ./core/constants/equipment.cpp
-    ./core/constants/ship.cpp
-
-    ./core/utility/kcsapi.cpp
-    ./core/utility/read_json.cpp
-
+    ./core/attributes/equipment.cpp
+    ./core/attributes/ship.cpp
+    
     ./core/battlelog/process_api/api_get_member/ship_deck/response.cpp
     ./core/battlelog/process_api/api_req_battle_midnight/battle/response.cpp
     ./core/battlelog/process_api/api_req_battle_midnight/sp_midnight/response.cpp
@@ -26,8 +23,11 @@ add_library(libkcv STATIC
     ./core/battlelog/process_api/api_req_sortie/ld_airbattle/response.cpp
     ./core/battlelog/equipment_bonus.cpp
     ./core/battlelog/generate_battlelog.cpp
-
+    
     ./core/entity/adapter/from_eoen.cpp
+
+    ./core/utility/kcsapi.cpp
+    ./core/utility/read_json.cpp
 
     ./extensions/exception.cpp
 )

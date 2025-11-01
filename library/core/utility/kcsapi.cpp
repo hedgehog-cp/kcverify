@@ -98,7 +98,7 @@ auto kcv::to_equipment_id(const kcv::kcsapi::number& v) noexcept -> kcv::kcsapi:
             if (std::int32_t i; std::from_chars(s.data(), s.data() + s.size(), i).ec == std::errc{}) [[likely]] {
                 return kcv::kcsapi::equipment_id{i};
             }
-            return kcv::kcsapi::equipment_id::invalid;
+            return kcv::kcsapi::invalid_equipment_id;
         }
     };
 

@@ -2,19 +2,38 @@
 #define KCVERIFY_CORE_CONSTANTS_SHIP_HPP_INCLUDED
 
 // std
+#include <algorithm>
 #include <cstddef>
 #include <string_view>
 #include <type_traits>
 
 // kcv
 #include "extensions/exception.hpp"
-#include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/types/enum/ship_id.hpp"
 
 namespace kcv {
 namespace detail {
 
+/// @brief コンパイル時艦船マスタ.
+struct api_mst_ship_value_t final {
+    /// @brief .incファイルおよびその生成ファイルがkcv::kcsapi::ship_idに依存しないようにコンストラクタを定義する.
+    consteval api_mst_ship_value_t(std::underlying_type_t<kcv::kcsapi::ship_id> api_id, const char* api_name)
+        : api_id{api_id}
+        , api_name{api_name} {}
+
+    /// @brief 艦船ID.
+    kcv::kcsapi::ship_id api_id;
+
+    /// @brief 艦名.
+    std::string_view api_name;
+};
+
+/// @brief コンパイル時艦船マスタ. このコンパイル時定数は実行時に持ち込まない.
+inline constexpr api_mst_ship_value_t api_mst_ship[] = {
 #include "core/constants/ship.hpp.inc"
+};
+
+static_assert(std::ranges::is_sorted(api_mst_ship, {}, &api_mst_ship_value_t::api_id));
 
 }  // namespace detail
 }  // namespace kcv
@@ -57,43 +76,6 @@ consteval auto operator""_id(const char* str, std::size_t size) -> kcv::kcsapi::
 
 }  // namespace ship_literals
 }  // namespace literals
-}  // namespace kcv
-
-namespace kcv {
-
-/// @brief 深海棲艦であるかを検証する.
-bool is_abyssal_ship(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 陸上型であるかを検証する.
-bool is_installation(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 砲台小鬼あるいはトーチカであるかを検証する.
-bool is_pillbox(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 離島棲姫であるかを検証する.
-bool is_isolated_island(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 港湾棲姫であるかを検証する.
-bool is_harbour_summer_princess(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief ソフトスキンであるかを検証する.
-bool is_soft_skin(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 潜水艦であるかを検証する.
-bool is_submarine(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 航空母艦であるかを検証する.
-bool is_aircraft_carrier(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 夜間作戦空母であるかを検証する.
-bool is_night_operation_aircraft_carrier(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief 夜間砲撃可能空母であるかを検証する.
-bool is_night_shellable_aircraft_carrier(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
-/// @brief アークロイヤルであるかを検証する.
-bool is_ark_royal(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
-
 }  // namespace kcv
 
 #endif  // KCVERIFY_CORE_CONSTANTS_SHIP_HPP_INCLUDED

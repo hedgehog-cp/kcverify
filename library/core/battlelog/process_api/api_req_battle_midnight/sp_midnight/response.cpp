@@ -11,6 +11,7 @@
 #include "models/kcsapi/api_req_battle_midnight/sp_midnight/response.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "models/kcsapi/types/enum/equipment_id.hpp"
 #include "models/kcsapi/types/svdata.hpp"
 
 namespace {
@@ -34,7 +35,7 @@ auto make_ungrown_equipment(
     kcv::kcsapi::equipment_id id,                          //
     const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem  //
 ) -> std::optional<kcv::equipment> {
-    return id == kcv::kcsapi::equipment_id::invalid
+    return id == kcv::kcsapi::invalid_equipment_id
              ? std::nullopt
              : std::make_optional<kcv::equipment>(kcv::find_mst(api_mst_slotitem, id), 0, 0);
 }
@@ -245,13 +246,13 @@ void update(
                     .girls_formation    = current.girls_formation,
                     .abyssal_formation  = current.abyssal_formation,
                     .engagement         = current.engagement,
-                    .touch_plane    = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},  // ?
-                    .attacker_side  = at_eflag,
-                    .attacker_fleet = attacker_fleet,
-                    .attacker_ship  = static_cast<std::size_t>(at_list),
-                    .defender_fleet = defender_fleet,
-                    .defender_ship  = static_cast<std::size_t>(df),
-                    .attack_kind    = sp_list,
+                    .touch_plane        = {kcv::kcsapi::invalid_equipment_id, kcv::kcsapi::invalid_equipment_id},  // ?
+                    .attacker_side      = at_eflag,
+                    .attacker_fleet     = attacker_fleet,
+                    .attacker_ship      = static_cast<std::size_t>(at_list),
+                    .defender_fleet     = defender_fleet,
+                    .defender_ship      = static_cast<std::size_t>(df),
+                    .attack_kind        = sp_list,
                     .display_equipments = display_equipments,
                     .clitical           = cl,
                     .is_protected       = kcv::is_protected(dam),

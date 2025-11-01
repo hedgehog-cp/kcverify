@@ -54,7 +54,7 @@ void initialize_abyssal_fleet_data(
         auto slots = std::vector<kcv::slot>{};
         slots.reserve(slot.size());
         for (const auto id : slot) {
-            auto equipment = id == kcv::kcsapi::equipment_id::invalid
+            auto equipment = id == kcv::kcsapi::invalid_equipment_id
                                ? std::nullopt
                                : std::make_optional<kcv::equipment>(kcv::find_mst(api_mst_slotitem, id), 0, 0);
             slots.emplace_back(0, 0, std::move(equipment));

@@ -8,7 +8,8 @@
 #include <vector>
 
 // kcv
-#include "core/constants/equipment.hpp"
+#include "core/attributes/equipment.hpp"
+#include "core/constants/constants.hpp"
 #include "core/entity/equipment.hpp"
 #include "core/entity/ship.hpp"
 #include "core/entity/slot.hpp"
@@ -26,12 +27,9 @@
 
 namespace {
 
-/// @brief 最大スロットサイズ = 装備スロット|5 + 増設スロット|1.
-constexpr auto max_slot_size = 5uz + 1uz;
-
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
 void append_fit_equipments(
-    kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments,
+    kcv::inplace_vector<const kcv::equipment*, kcv::max_slot_size>& fit_equipments,
     const kcv::ship& ship,
     const std::optional<std::vector<kcv::kcsapi::category>>& types
 ) {
@@ -47,7 +45,7 @@ void append_fit_equipments(
 
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
 void append_fit_equipments(
-    kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments,
+    kcv::inplace_vector<const kcv::equipment*, kcv::max_slot_size>& fit_equipments,
     const kcv::ship& ship,
     const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids
 ) {
@@ -63,7 +61,7 @@ void append_fit_equipments(
 
 /// @brief 装備ボーナスのベースとなる装備を抽出する.
 void append_fit_equipments(
-    kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments,
+    kcv::inplace_vector<const kcv::equipment*, kcv::max_slot_size>& fit_equipments,
     const kcv::ship& ship,
     const std::optional<std::vector<kcv::kcsapi::category>>& types,
     const std::optional<std::vector<kcv::kcsapi::equipment_id>>& ids
@@ -84,7 +82,7 @@ void append_fit_equipments(
 }
 
 /// @brief 指定した改修値以上の装備の個数を数え上げ, これを返す.
-int count_if(const kcv::inplace_vector<const kcv::equipment*, max_slot_size>& fit_equipments, std::int32_t level) {
+int count_if(const kcv::inplace_vector<const kcv::equipment*, kcv::max_slot_size>& fit_equipments, std::int32_t level) {
     int count = 0;
     for (const auto& e : fit_equipments) {
         if (e->level() >= level) {
@@ -241,7 +239,7 @@ auto kcv::total_equipment_bonus(
     const bool has_accuracy_radar = contains_matching_equipment(ship.slots(), kcv::is_accuracy_radar);
 
     for (const auto& [types, ids, bonuses] : fit_bonuses) {
-        auto fit_equipments = kcv::inplace_vector<const kcv::equipment*, max_slot_size>{};
+        auto fit_equipments = kcv::inplace_vector<const kcv::equipment*, kcv::max_slot_size>{};
         append_fit_equipments(fit_equipments, ship, types, ids);
         if (fit_equipments.empty()) {
             continue;
@@ -401,7 +399,7 @@ auto kcv::total_equipment_bonus(const kcv::ship& ship, const std::vector<kcv::kc
     const bool has_accuracy_radar = contains_matching_equipment(ship.slots(), kcv::is_accuracy_radar);
 
     for (const auto& [types, ids, bonuses] : fit_bonuses) {
-        auto fit_equipments = kcv::inplace_vector<const kcv::equipment*, max_slot_size>{};
+        auto fit_equipments = kcv::inplace_vector<const kcv::equipment*, kcv::max_slot_size>{};
         append_fit_equipments(fit_equipments, ship, types, ids);
         if (fit_equipments.empty()) {
             continue;

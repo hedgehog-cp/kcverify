@@ -77,7 +77,7 @@ void initialize_abyssal_fleet_data(
         auto slots = std::vector<kcv::slot>{};
         slots.reserve(slot.size());
         for (const auto id : slot) {
-            auto equipment = id == kcv::kcsapi::equipment_id::invalid
+            auto equipment = id == kcv::kcsapi::invalid_equipment_id
                                ? std::nullopt
                                : std::make_optional<kcv::equipment>(kcv::find_mst(api_mst_slotitem, id), 0, 0);
             slots.emplace_back(0, 0, std::move(equipment));
@@ -298,7 +298,7 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
                     .girls_formation    = current.girls_formation,
                     .abyssal_formation  = current.abyssal_formation,
                     .engagement         = current.engagement,
-                    .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                    .touch_plane        = {kcv::kcsapi::invalid_equipment_id, kcv::kcsapi::invalid_equipment_id},
                     .attacker_side      = at_eflag,
                     .attacker_fleet     = attacker_fleet,
                     .attacker_ship      = static_cast<std::size_t>(at_list),
@@ -357,7 +357,7 @@ void update(
                     .girls_formation    = current.girls_formation,
                     .abyssal_formation  = current.abyssal_formation,
                     .engagement         = current.engagement,
-                    .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                    .touch_plane        = {kcv::kcsapi::invalid_equipment_id, kcv::kcsapi::invalid_equipment_id},
                     .attacker_side      = kcv::kcsapi::fleet_flag::player,
                     .attacker_fleet     = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1),
                     .attacker_ship      = index,
@@ -409,7 +409,7 @@ void update(
                     .girls_formation    = current.girls_formation,
                     .abyssal_formation  = current.abyssal_formation,
                     .engagement         = current.engagement,
-                    .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                    .touch_plane        = {kcv::kcsapi::invalid_equipment_id, kcv::kcsapi::invalid_equipment_id},
                     .attacker_side      = kcv::kcsapi::fleet_flag::enemy,
                     .attacker_fleet     = 0uz,
                     .attacker_ship      = index,
@@ -456,7 +456,7 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
                 .girls_formation    = current.girls_formation,
                 .abyssal_formation  = current.abyssal_formation,
                 .engagement         = current.engagement,
-                .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                .touch_plane        = {kcv::kcsapi::invalid_equipment_id, kcv::kcsapi::invalid_equipment_id},
                 .attacker_side      = kcv::kcsapi::fleet_flag::player,
                 .attacker_fleet     = static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1),
                 .attacker_ship      = index,
@@ -499,7 +499,7 @@ void update(std::vector<kcv::battlelog>& battlelogs, kcv::battlelog& current, co
                 .girls_formation    = current.girls_formation,
                 .abyssal_formation  = current.abyssal_formation,
                 .engagement         = current.engagement,
-                .touch_plane        = {kcv::kcsapi::equipment_id::invalid, kcv::kcsapi::equipment_id::invalid},
+                .touch_plane        = {kcv::kcsapi::invalid_equipment_id, kcv::kcsapi::invalid_equipment_id},
                 .attacker_side      = kcv::kcsapi::fleet_flag::enemy,
                 .attacker_fleet     = 0uz,
                 .attacker_ship      = index,
