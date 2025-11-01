@@ -31,8 +31,10 @@
 #include "models/kcsapi/api_req_battle_midnight/sp_midnight/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/battle_water/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/battleresult/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/each_battle_water/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/ec_battle/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/ec_midnight_battle/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/ld_airbattle/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/midnight_battle/response.hpp"
 #include "models/kcsapi/api_req_map/next/response.hpp"
 #include "models/kcsapi/api_req_map/start/request.hpp"
@@ -408,11 +410,17 @@ template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_b
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battleresult::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::battleresult::response>&, const std::filesystem::path&);
 
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::each_battle_water::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::each_battle_water::response>&, const std::filesystem::path&);
+
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>&, const std::filesystem::path&);
 
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ld_airbattle::response>&, const std::string&);
+template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ld_airbattle::response>&, const std::filesystem::path&);
 
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::midnight_battle::response>&, const std::string&);
 template void kcv::read_json(kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::midnight_battle::response>&, const std::filesystem::path&);

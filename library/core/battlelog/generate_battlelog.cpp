@@ -21,8 +21,10 @@
 #include "models/kcsapi/api_req_battle_midnight/sp_midnight/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/battle_water/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/battleresult/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/each_battle_water/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/ec_battle/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/ec_midnight_battle/response.hpp"
+#include "models/kcsapi/api_req_combined_battle/ld_airbattle/response.hpp"
 #include "models/kcsapi/api_req_combined_battle/midnight_battle/response.hpp"
 #include "models/kcsapi/api_req_map/next/response.hpp"
 #include "models/kcsapi/api_req_map/start/request.hpp"
@@ -79,6 +81,12 @@ void parse_api_file(kcv::sortie_api& dst, const kcv::eoen::database::kancolle_ap
         return;
     }
 
+    if (name == "api_req_combined_battle/each_battle_water"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::each_battle_water::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
     if (name == "api_req_combined_battle/ec_battle"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_battle::response>;
         kcv::read_json(dst.emplace<T>(), content);
@@ -87,6 +95,12 @@ void parse_api_file(kcv::sortie_api& dst, const kcv::eoen::database::kancolle_ap
 
     if (name == "api_req_combined_battle/ec_midnight_battle"sv and type == file_type::response) {
         using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ec_midnight_battle::response>;
+        kcv::read_json(dst.emplace<T>(), content);
+        return;
+    }
+
+    if (name == "api_req_combined_battle/ld_airbattle"sv and type == file_type::response) {
+        using T = kcv::kcsapi::svdata<kcv::kcsapi::api_req_combined_battle::ld_airbattle::response>;
         kcv::read_json(dst.emplace<T>(), content);
         return;
     }
@@ -154,7 +168,7 @@ void parse_api_file(kcv::sortie_api& dst, const kcv::eoen::database::kancolle_ap
     std::ofstream{"execlog.json"} << content << std::endl;
     throw kcv::exception{
         std::format(
-            "failed to parse api file."
+            "failed to parse api file. "
             "[id = {}, api_file_type = {}, name = {}, time_stamp = {}, version = {}, sortie_record_id = {}], "
             "see execlog.json.",
             src.id, std::to_underlying(src.api_file_type), src.name, src.time_stamp, src.version, src.sortie_record_id
