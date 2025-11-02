@@ -9,10 +9,11 @@
 #include "extensions/interval.hpp"
 
 namespace kcv {
+namespace functions {
 
 /// @brief 線形補正逆関数.
-struct liner_inverse_fn final {
-    using composable_concept = kcv::compose_tag;
+struct liner_inverse final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 乗算補正値.
     kcv::interval a = kcv::interval{1.0};
@@ -35,8 +36,8 @@ struct liner_inverse_fn final {
 };
 
 /// @brief 線形補正関数.
-struct liner_fn final {
-    using composable_concept = kcv::compose_tag;
+struct liner final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 乗算補正値.
     kcv::number a = kcv::number{1.0};
@@ -50,8 +51,8 @@ struct liner_fn final {
     }
 
     /// @brief 逆関数を返す.
-    auto operator^(int) const noexcept -> kcv::liner_inverse_fn {
-        return liner_inverse_fn{
+    auto operator^(int) const noexcept -> kcv::functions::liner_inverse {
+        return liner_inverse{
             .a = kcv::make_interval(a),
             .b = kcv::make_interval(b),
         };
@@ -59,8 +60,8 @@ struct liner_fn final {
 };
 
 /// @brief 砲撃戦.航空攻撃補正逆関数.
-struct air_attack_inverse_fn final {
-    using composable_concept = kcv::compose_tag;
+struct air_attack_inverse final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 砲撃戦.航空攻撃であるか.
     bool is_air_attack;
@@ -72,8 +73,8 @@ struct air_attack_inverse_fn final {
 };
 
 /// @brief 砲撃戦.航空攻撃補正関数.
-struct air_attack_fn final {
-    using composable_concept = kcv::compose_tag;
+struct air_attack final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 砲撃戦.航空攻撃であるか.
     bool is_air_attack;
@@ -84,14 +85,14 @@ struct air_attack_fn final {
     }
 
     /// @brief 逆関数を返す.
-    auto operator^(int) const noexcept -> air_attack_inverse_fn {
-        return air_attack_inverse_fn{.is_air_attack = is_air_attack};
+    auto operator^(int) const noexcept -> air_attack_inverse {
+        return air_attack_inverse{.is_air_attack = is_air_attack};
     }
 };
 
 /// @brief 床逆関数.
-struct floor_inverse_fn final {
-    using composable_concept = kcv::compose_tag;
+struct floor_inverse final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 床逆関数を適当する.
     static auto operator()(const kcv::interval& x) noexcept -> kcv::interval {
@@ -103,8 +104,8 @@ struct floor_inverse_fn final {
 };
 
 /// @brief 床関数.
-struct floor_fn final {
-    using composable_concept = kcv::compose_tag;
+struct floor final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 床関数を適用する.
     static auto operator()(const kcv::number& x) noexcept -> kcv::number {
@@ -115,45 +116,45 @@ struct floor_fn final {
     }
 
     /// @brief 逆関数を返す.
-    auto operator^(int) const noexcept -> floor_inverse_fn {
-        return floor_inverse_fn{};
+    auto operator^(int) const noexcept -> floor_inverse {
+        return floor_inverse{};
     }
 };
 
 /// @brief 条件付き床逆関数.
-struct floor_if_inverse_fn final {
-    using composable_concept = kcv::compose_tag;
+struct floor_if_inverse final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 床関数を適用するか.
     bool is_flooring;
 
     /// @brief 条件付き床逆関数を適用する.
     auto operator()(const kcv::interval& x) const noexcept -> kcv::interval {
-        return is_flooring ? kcv::floor_inverse_fn{}(x) : x;
+        return is_flooring ? kcv::functions::floor_inverse{}(x) : x;
     }
 };
 
 /// @brief 条件付き床関数.
-struct floor_if_fn final {
-    using composable_concept = kcv::compose_tag;
+struct floor_if final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 床関数を適用するか.
     bool is_flooring;
 
     /// @brief 条件付き床関数を適用する.
     auto operator()(const kcv::number& x) const noexcept -> kcv::number {
-        return is_flooring ? kcv::floor_fn{}(x) : x;
+        return is_flooring ? kcv::functions::floor{}(x) : x;
     }
 
     /// @brief 逆関数を返す.
-    auto operator^(int) const noexcept -> floor_if_inverse_fn {
-        return floor_if_inverse_fn{.is_flooring = is_flooring};
+    auto operator^(int) const noexcept -> floor_if_inverse {
+        return floor_if_inverse{.is_flooring = is_flooring};
     }
 };
 
 /// @brief ソフトキャップ補正逆関数.
-struct softcap_inverse_fn final {
-    using composable_concept = kcv::compose_tag;
+struct softcap_inverse final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief キャップ値.
     kcv::interval cap;
@@ -169,8 +170,8 @@ struct softcap_inverse_fn final {
 };
 
 /// @brief ソフトキャップ補正関数.
-struct softcap_fn final {
-    using composable_concept = kcv::compose_tag;
+struct softcap final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief キャップ値.
     kcv::number cap;
@@ -181,16 +182,16 @@ struct softcap_fn final {
     }
 
     /// @brief 逆関数を返す.
-    auto operator^(int) const noexcept -> softcap_inverse_fn {
-        return softcap_inverse_fn{
+    auto operator^(int) const noexcept -> softcap_inverse {
+        return softcap_inverse{
             .cap = kcv::make_interval(cap),
         };
     }
 };
 
 /// @brief PT小鬼群補正逆関数.
-struct pt_inverse_fn final {
-    using composable_concept = kcv::compose_tag;
+struct pt_inverse final {
+    using composable_concept = kcv::functions::compose_tag;
 
     static auto operator()(const kcv::interval& x) noexcept -> std::optional<kcv::interval> {
         const auto a = 6.0 * x - 55.0;
@@ -208,8 +209,8 @@ struct pt_inverse_fn final {
 };
 
 /// @brief PT小鬼群補正関数.
-struct pt_fn final {
-    using composable_concept = kcv::compose_tag;
+struct pt final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief PT小鬼群補正関数を適用する.
     static auto operator()(const kcv::number& x) noexcept -> std::optional<kcv::number> {
@@ -221,14 +222,14 @@ struct pt_fn final {
     }
 
     /// @brief 逆関数を返す.
-    auto operator^(int) const noexcept -> pt_inverse_fn {
-        return pt_inverse_fn{};
+    auto operator^(int) const noexcept -> pt_inverse {
+        return pt_inverse{};
     }
 };
 
 /// @brief 急所補正逆関数.
-struct critical_inverse_fn final {
-    using composable_concept = kcv::compose_tag;
+struct critical_inverse final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 急所攻撃であるか.
     bool is_critical;
@@ -240,8 +241,8 @@ struct critical_inverse_fn final {
 };
 
 /// @brief 急所補正関数.
-struct critical_fn final {
-    using composable_concept = kcv::compose_tag;
+struct critical final {
+    using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 急所攻撃であるか.
     bool is_critical;
@@ -252,11 +253,12 @@ struct critical_fn final {
     }
 
     /// @brief 逆関数を返す.
-    auto operator^(int) const noexcept -> critical_inverse_fn {
-        return critical_inverse_fn{.is_critical = is_critical};
+    auto operator^(int) const noexcept -> critical_inverse {
+        return critical_inverse{.is_critical = is_critical};
     }
 };
 
+}  // namespace functions
 }  // namespace kcv
 
 #endif  // KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_MODIFIER_FUNCTIONS_HPP_INCLUDED

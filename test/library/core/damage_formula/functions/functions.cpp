@@ -18,15 +18,15 @@ int main() {
     auto dist_0_50 = std::uniform_real_distribution<>{0, 50};
 
     for (int _ = 0; _ < 10; _++) {
-        const auto f1         = kcv::liner_fn{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
-        const auto f2         = kcv::liner_fn{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
-        const auto air_attack = kcv::air_attack_fn{.is_air_attack = true};
-        const auto softcap    = kcv::softcap_fn{kcv::number{220}};
-        const auto floor      = kcv::floor_fn{};
-        const auto f3         = kcv::liner_fn{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
-        const auto pt         = kcv::pt_fn{};
-        const auto critical   = kcv::critical_fn{.is_critical = true};
-        const auto floor_if   = kcv::floor_if_fn{.is_flooring = true};
+        const auto f1         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
+        const auto f2         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
+        const auto air_attack = kcv::functions::air_attack{.is_air_attack = true};
+        const auto softcap    = kcv::functions::softcap{kcv::number{220}};
+        const auto floor      = kcv::functions::floor{};
+        const auto f3         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
+        const auto pt         = kcv::functions::pt{};
+        const auto critical   = kcv::functions::critical{.is_critical = true};
+        const auto floor_if   = kcv::functions::floor_if{.is_flooring = true};
 
         const auto f = f1 | f2 | air_attack | softcap | floor | f3 | pt | critical | floor_if;
         const auto x = std::fabs(dist_0_50(engine) * 2 + 20);

@@ -14,6 +14,7 @@
 #include "extensions/type_traits.hpp"
 
 namespace kcv {
+namespace functions {
 
 template <typename T>
 struct inverse_result final {};
@@ -36,13 +37,14 @@ auto solve(const T&, const U& minmax, const F&) -> std::optional<inverse_result<
 }
 
 template <>
-struct inverse_result<kcv::liner_fn> final {
+struct inverse_result<kcv::functions::liner> final {
     std::optional<kcv::interval> a;
     std::optional<kcv::interval> b;
 };
 
 template <typename T, typename U>
-auto solve(const T& x, const U& minmax, const kcv::liner_fn& f) -> std::optional<inverse_result<kcv::liner_fn>> {
+auto solve(const T& x, const U& minmax, const kcv::functions::liner& f)
+    -> std::optional<inverse_result<kcv::functions::liner>> {
     if constexpr (kcv::is_optional_v<T>) {
         if (x.has_value()) {
             return solve(*x, minmax, f);
@@ -59,20 +61,20 @@ auto solve(const T& x, const U& minmax, const kcv::liner_fn& f) -> std::optional
         } else {
             const auto a = (minmax - kcv::make_interval(f.b)) / kcv::make_interval(x);
             const auto b = minmax - kcv::make_interval(x) * kcv::make_interval(f.a);
-            return inverse_result<kcv::liner_fn>{a, b};
+            return inverse_result<kcv::functions::liner>{a, b};
         }
     }
 }
 
 struct inverse_fn final {
     template <typename T, typename U, typename... Fs>
-    static constexpr auto operator()(T x, U minmax, const kcv::function_composition<Fs...>& f) {
+    static constexpr auto operator()(T x, U minmax, const kcv::functions::function_composition<Fs...>& f) {
         return inverse(x, minmax, f);
     }
 
    private:
     template <typename T, typename U, typename... Fs>
-    static constexpr auto inverse(T x, U minmax, const kcv::function_composition<Fs...>& f) {
+    static constexpr auto inverse(T x, U minmax, const kcv::functions::function_composition<Fs...>& f) {
         return inverse_impl_1(x, minmax, f.decompose(), std::make_index_sequence<sizeof...(Fs)>{});
     }
 
@@ -83,7 +85,7 @@ struct inverse_fn final {
 
     template <typename T, typename U, typename F, typename... Fs>
     static constexpr auto inverse_impl_2(T x, U minmax, const F& f, const Fs&... fs) {
-        const auto inv = kcv::function_composition{fs...} ^ -1;
+        const auto inv = kcv::functions::function_composition{fs...} ^ -1;
         const auto y   = kcv::invoke(inv, minmax);
         return std::tuple_cat(inverse_impl_2(f(x), minmax, fs...), std::make_tuple(solve(x, y, f)));
     }
@@ -95,6 +97,7 @@ struct inverse_fn final {
 
 } inline constexpr inverse{};
 
+}  // namespace functions
 }  // namespace kcv
 
 #endif  // KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_INVERSE_HPP_INCLUDED

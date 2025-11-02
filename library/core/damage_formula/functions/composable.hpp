@@ -4,6 +4,7 @@
 #include <concepts>
 
 namespace kcv {
+namespace functions {
 
 /// @brief 合成関数として合成可能な型を表すタグ型.
 struct compose_tag final {};
@@ -13,6 +14,7 @@ struct compose_tag final {};
 template <typename T>
 concept composable = requires { requires std::same_as<typename T::composable_concept, compose_tag>; };
 
+}  // namespace functions
 }  // namespace kcv
 
 #endif  // KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_COMPOSABLE_HPP_INCLUDED
