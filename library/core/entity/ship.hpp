@@ -64,16 +64,16 @@ class ship final {
         return this->hp_;
     }
 
-    void hp(std::int32_t v) noexcept {
-        this->hp_ = v;
+    void hp(std::int32_t hp) noexcept {
+        this->hp_ = hp;
     }
 
     auto level() const noexcept -> std::int32_t {
         return this->level_;
     }
 
-    void level(std::int32_t v) noexcept {
-        this->level_ = v;
+    void level(std::int32_t level) noexcept {
+        this->level_ = level;
     }
 
    private:
@@ -116,7 +116,7 @@ class ship final {
     // /// @brief 特注アイテム.
     // std::optional<std::vector<kcv::kcsapi::sp_effect_item>> special_effect_items;
 
-    // /// @brief 耐久.
+    /// @brief 耐久.
     std::int32_t hp_;
 
     // /// @brief 火力.
