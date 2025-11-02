@@ -43,7 +43,7 @@ int main() try {
         }(dir.path());
 
         for (const auto& sortie_record : sortie_records) {
-            const auto battlelogs = kcv::generate_battlelog(api_mst_ship, api_mst_slotitem, fit_bonuses, sortie_record);
+            const auto battlelogs = kcv::generate_battlelog(sortie_record, api_mst_ship, api_mst_slotitem);
             for ([[maybe_unused]] const auto& battlelog : battlelogs) {
                 // ...
             }
