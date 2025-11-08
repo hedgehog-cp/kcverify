@@ -20,13 +20,13 @@ int main() {
     for (int _ = 0; _ < 10; _++) {
         const auto f1         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
         const auto f2         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
-        const auto air_attack = kcv::functions::air_attack{.is_air_attack = true};
+        const auto air_attack = kcv::functions::air_attack{.is_enabled = true};
         const auto softcap    = kcv::functions::softcap{kcv::number{220}};
         const auto floor      = kcv::functions::floor{};
         const auto f3         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
-        const auto pt         = kcv::functions::pt{};
-        const auto critical   = kcv::functions::critical{.is_critical = true};
-        const auto floor_if   = kcv::functions::floor_if{.is_flooring = true};
+        const auto pt         = kcv::functions::pt_imp{};
+        const auto critical   = kcv::functions::critical{.is_enabled = true};
+        const auto floor_if   = kcv::functions::floor{.is_enabled = true};
 
         const auto f = f1 | f2 | air_attack | softcap | floor | f3 | pt | critical | floor_if;
         const auto x = std::fabs(dist_0_50(engine) * 2 + 20);

@@ -69,6 +69,7 @@ class function_composition final {
     } static constexpr inverse{};
 
    public:
+    /// @brief 合成可能.
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 合成関数を構築する.
