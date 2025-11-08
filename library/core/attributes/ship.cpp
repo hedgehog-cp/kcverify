@@ -23,11 +23,12 @@ bool kcv::is_pillbox(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
     static constexpr auto ids = kcv::detail::api_mst_ship
                               | std::ranges::views::filter([](const auto& e) static -> bool {
                                     const auto& [_, api_name] = e;
-                                    return api_name == std::string_view{"砲台小鬼"}              //
-                                        or api_name == std::string_view{"トーチカ小鬼"}          //
-                                        or api_name == std::string_view{"対空小鬼"}              //
-                                        or api_name == std::string_view{"トーチカ要塞棲姫"}      //
-                                        or api_name == std::string_view{"トーチカ要塞棲姫-壊"};  //
+                                    using std::literals::string_view_literals::operator""sv;
+                                    return api_name == "砲台小鬼"sv              //
+                                        or api_name == "トーチカ小鬼"sv          //
+                                        or api_name == "対空小鬼"sv              //
+                                        or api_name == "トーチカ要塞棲姫"sv      //
+                                        or api_name == "トーチカ要塞棲姫-壊"sv;  //
                                 })
                               | std::ranges::views::transform([](const auto& e) static -> kcv::kcsapi::ship_id {
                                     const auto& [api_id, _] = e;
@@ -42,7 +43,8 @@ bool kcv::is_isolated_island(const kcv::kcsapi::api_mst_ship_value_t& mst) noexc
     static constexpr auto ids = kcv::detail::api_mst_ship
                               | std::ranges::views::filter([](const auto& e) static -> bool {
                                     const auto& [_, api_name] = e;
-                                    return api_name == std::string_view{"離島棲姫"};
+                                    using std::literals::string_view_literals::operator""sv;
+                                    return api_name == "離島棲姫"sv;
                                 })
                               | std::ranges::views::transform([](const auto& e) static -> kcv::kcsapi::ship_id {
                                     const auto& [api_id, _] = e;
@@ -58,12 +60,13 @@ bool kcv::is_harbour_summer_princess(const kcv::kcsapi::api_mst_ship_value_t& ms
     static constexpr auto ids = kcv::detail::api_mst_ship
                               | std::ranges::views::filter([](const auto& e) static -> bool {
                                     const auto& [_, api_name] = e;
-                                    return api_name == std::string_view{"港湾夏姫"}               //
-                                        or api_name == std::string_view{"港湾夏姫II"}             //
-                                        or api_name == std::string_view{"港湾夏姫II-壊"}          //
-                                        or api_name == std::string_view{"港湾夏姫-壊"}            //
-                                        or api_name == std::string_view{"港湾棲姫 休日mode"}      //
-                                        or api_name == std::string_view{"港湾棲姫 休日mode-壊"};  //
+                                    using std::literals::string_view_literals::operator""sv;
+                                    return api_name == "港湾夏姫"sv               //
+                                        or api_name == "港湾夏姫II"sv             //
+                                        or api_name == "港湾夏姫II-壊"sv          //
+                                        or api_name == "港湾夏姫-壊"sv            //
+                                        or api_name == "港湾棲姫 休日mode"sv      //
+                                        or api_name == "港湾棲姫 休日mode-壊"sv;  //
                                 })
                               | std::ranges::views::transform([](const auto& e) static -> kcv::kcsapi::ship_id {
                                     const auto& [api_id, _] = e;
@@ -77,6 +80,24 @@ bool kcv::is_harbour_summer_princess(const kcv::kcsapi::api_mst_ship_value_t& ms
 
 bool kcv::is_soft_skin(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
     return is_installation(mst) and not(is_pillbox(mst) or is_isolated_island(mst) or is_harbour_summer_princess(mst));
+}
+
+bool kcv::is_pt_imp(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    static constexpr auto ids = kcv::detail::api_mst_ship
+                              | std::ranges::views::filter([](const auto& e) static -> bool {
+                                    const auto& [_, api_name] = e;
+                                    using std::literals::string_view_literals::operator""sv;
+                                    return api_name == "PT小鬼群"sv            //
+                                        or api_name == "Schnellboot小鬼群"sv;  //
+                                })
+                              | std::ranges::views::transform([](const auto& e) static -> kcv::kcsapi::ship_id {
+                                    const auto& [api_id, _] = e;
+                                    return api_id;
+                                })
+                              | std::ranges::to<kcv::inplace_vector<kcv::kcsapi::ship_id, 7>>();
+
+    static_assert(std::ranges::is_sorted(ids));
+    return std::ranges::binary_search(ids, mst.api_id);
 }
 
 bool kcv::is_submarine(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {

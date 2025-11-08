@@ -24,6 +24,9 @@ bool is_harbour_summer_princess(const kcv::kcsapi::api_mst_ship_value_t& mst) no
 /// @brief ソフトスキンであるかを検証する.
 bool is_soft_skin(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
 
+/// @brief PT小鬼群であるかを検証する.
+bool is_pt_imp(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
+
 /// @brief 潜水艦であるかを検証する.
 bool is_submarine(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
 
