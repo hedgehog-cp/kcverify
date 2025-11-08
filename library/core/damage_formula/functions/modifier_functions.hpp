@@ -71,7 +71,7 @@ struct air_attack_inverse final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief 砲撃戦.航空攻撃補正逆関数を適用する.
     auto operator()(const kcv::interval& x) const noexcept -> kcv::interval {
@@ -89,7 +89,7 @@ struct air_attack final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief 砲撃戦.航空攻撃補正関数を適用する.
     auto operator()(const kcv::number& x) const noexcept -> kcv::number {
@@ -112,7 +112,7 @@ struct floor_inverse final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief 床逆関数を適当する.
     auto operator()(const kcv::interval& x) const noexcept -> kcv::interval {
@@ -133,7 +133,7 @@ struct floor final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief 床関数を適用する.
     auto operator()(const kcv::number& x) const noexcept -> kcv::number {
@@ -198,7 +198,7 @@ struct pt_imp_inverse final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief PT補正逆関数を適用する.
     auto operator()(const kcv::interval& x) const noexcept -> std::optional<kcv::interval> {
@@ -226,7 +226,7 @@ struct pt_imp final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief PT小鬼群補正関数を適用する.
     auto operator()(const kcv::number& x) const noexcept -> std::optional<kcv::number> {
@@ -253,7 +253,7 @@ struct critical_inverse final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 急所攻撃であるか.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief 急所補正逆関数を適用する.
     auto operator()(const kcv::interval& x) const noexcept -> kcv::interval {
@@ -271,7 +271,7 @@ struct critical final {
     using composable_concept = kcv::functions::compose_tag;
 
     /// @brief 急所攻撃であるか.
-    bool is_enabled;
+    bool is_enabled = true;
 
     /// @brief 急所補正関数を適用する.
     auto operator()(const kcv::number& x) const noexcept -> kcv::number {

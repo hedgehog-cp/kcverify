@@ -74,7 +74,7 @@ class fleet_data final {
     /// @brief 艦隊決戦支援.
     std::int32_t boss_support_fleet_id_;
 
-    /// @see https://github.com/ElectronicObserverEN/ElectronicObserver/blob/main/ElectronicObserverTypes/FleetType.cs
+    /// @see ElectronicObserver.Core/Types/FleetType.cs
     /// single = 0, carrier = 1, surface = 2, transport = 3.
     std::int32_t combined_flag_;
 
