@@ -71,10 +71,11 @@ void initialize_abyssal_fleet_data(
             slots.emplace_back(0, 0, std::move(equipment));
         }
 
-        const auto exslot = std::nullopt;
-        const auto hp     = kcv::to_integer(nowhp).value();
+        const auto exslot     = std::nullopt;
+        const auto maximum_hp = kcv::to_integer(maxhp).value();
+        const auto hp         = kcv::to_integer(nowhp).value();
 
-        ships.emplace_back(mst, base_id, nationality, std::move(slots), exslot, ship_lv, hp);
+        ships.emplace_back(mst, base_id, nationality, std::move(slots), exslot, ship_lv, maximum_hp, hp);
     }
 
     current.abyssal_fleet_data = kcv::fleet_data{
@@ -120,10 +121,11 @@ auto make_friend_fleet_data(
             slots.emplace_back(maxeq, maxeq, std::move(equipment));
         }
 
-        auto exslot   = kcv::slot{0, 0, make_ungrown_equipment(slot_ex, api_mst_slotitem)};
-        const auto hp = kcv::to_integer(nowhp).value();
+        auto exslot           = kcv::slot{0, 0, make_ungrown_equipment(slot_ex, api_mst_slotitem)};
+        const auto maximum_hp = kcv::to_integer(maxhp).value();
+        const auto hp         = kcv::to_integer(nowhp).value();
 
-        ships.emplace_back(mst, base_id, nationality, std::move(slots), std::move(exslot), ship_lv, hp);
+        ships.emplace_back(mst, base_id, nationality, std::move(slots), std::move(exslot), ship_lv, maximum_hp, hp);
     }
 
     return kcv::fleet_data{

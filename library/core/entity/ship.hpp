@@ -25,6 +25,7 @@ class ship final {
         std::vector<kcv::slot> eqslots,
         std::optional<kcv::slot> exslot,
         std::int32_t level,
+        std::int32_t maxhp,
         std::int32_t hp
     )
         : mst_{mst}
@@ -34,6 +35,7 @@ class ship final {
         , exslot_{exslot}
         , slots_{kcv::ranges::views::concat(this->eqslots_, this->exslot_)}
         , level_{level}
+        , maxhp_{maxhp}
         , hp_{hp} {}
 
     auto mst() const noexcept -> const kcv::kcsapi::api_mst_ship_value_t& {
@@ -58,6 +60,10 @@ class ship final {
 
     auto slots() const noexcept -> const kcv::ranges::slots_view<kcv::slot>& {
         return this->slots_;
+    }
+
+    auto maxhp() const noexcept -> std::int32_t {
+        return this->maxhp_;
     }
 
     auto hp() const noexcept -> std::int32_t {
@@ -115,6 +121,9 @@ class ship final {
 
     // /// @brief 特注アイテム.
     // std::optional<std::vector<kcv::kcsapi::sp_effect_item>> special_effect_items;
+
+    /// @brief 最大耐久.
+    std::int32_t maxhp_;
 
     /// @brief 耐久.
     std::int32_t hp_;

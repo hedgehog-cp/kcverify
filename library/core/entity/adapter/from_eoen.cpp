@@ -15,6 +15,7 @@
 #include "core/entity/ship.hpp"
 #include "core/entity/slot.hpp"
 #include "core/utility/kcsapi.hpp"
+#include "models/kcsapi/types/api_minmax.hpp"
 
 auto kcv::equipment_from_eoen(
     const kcv::eoen::database::sortie::sortie_equipment& src,
@@ -60,6 +61,7 @@ auto kcv::ship_from_eoen(
             return kcv::slot_from_eoen(e, api_mst_slotitem);
         }),
         src.level,
+        std::get<kcv::kcsapi::idx_minmax::max>(mst.api_taik.value()),
         src.hp,
     };
 }
