@@ -18,7 +18,7 @@ namespace kcv {
 /// @tparam T 浮動小数点数型.
 /// @tparam Fenv 浮動小数点数環境.
 /// @note 空集合を表現できない.
-/// コンパイル時の浮動小数点数環境を指定することはできないため, 各関数constexprをすると意図しない結果を得る.
+/// コンパイル時の浮動小数点数環境を指定することはできないため, 各関数をconstexprにすると意図しない結果を得る.
 /// @todo operator+=, operator-=, operator*=, operator/=, 0除算
 template <std::floating_point T, kcv::floating_environment Fenv>
 class basic_interval final {
