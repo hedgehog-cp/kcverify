@@ -10,7 +10,7 @@
 #include "core/battlelog/battlelog.hpp"
 #include "core/battlelog/generate_battlelog/process_kcsapi.hpp"
 #include "core/entity/adapter/from_eoen.hpp"
-#include "core/utility/read_json.hpp"
+#include "core/json/read_json.hpp"
 #include "extensions/exception.hpp"
 #include "extensions/formatter.hpp"
 #include "models/eoen/database/kancolle_api/api_files.hpp"

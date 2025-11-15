@@ -26,8 +26,9 @@ add_library(libkcv STATIC
     
     ./core/entity/adapter/from_eoen.cpp
 
+    ./core/json/read_json.cpp
+
     ./core/utility/kcsapi.cpp
-    ./core/utility/read_json.cpp
 
     ./extensions/exception.cpp
 )

@@ -10,7 +10,7 @@
 #include "core/battlelog/equipment_bonus.hpp"
 #include "core/entity/adapter/from_eoen.hpp"
 #include "core/entity/ship.hpp"
-#include "core/utility/read_json.hpp"
+#include "core/json/read_json.hpp"
 #include "extensions/formatter.hpp"
 #include "models/eoen/database/sortie/sortie_record.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"

@@ -10,7 +10,7 @@
 #include "core/battlelog/equipment_bonus.hpp"
 #include "core/entity/adapter/from_eoen.hpp"
 #include "core/entity/ship.hpp"
-#include "core/utility/read_json.hpp"
+#include "core/json/read_json.hpp"
 #include "models/eoen/database/sortie/sortie_record.hpp"
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
