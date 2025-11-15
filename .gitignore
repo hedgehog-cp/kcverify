@@ -14,6 +14,7 @@
 !.gitignore
 !CMakeLists.txt
 !Doxyfile
+!LICENSE
 !README.md
 !setup.sh
 
