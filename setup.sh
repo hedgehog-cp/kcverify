@@ -5,6 +5,7 @@ curl https://raw.githubusercontent.com/Tibowl/api_start2/refs/heads/master/parse
 curl https://raw.githubusercontent.com/Tibowl/api_start2/refs/heads/master/parsed/api_mst_slotitem.json         > ./assets/api_mst_slotitem.json
 
 curl https://raw.githubusercontent.com/ElectronicObserverEN/Data/refs/heads/master/Data/FitBonuses.json         > ./assets/eoen/fit_bonuses.json
+curl https://raw.githubusercontent.com/ElectronicObserverEN/Data/refs/heads/master/Data/destination.json        > ./assets/eoen/destination.json
 
 curl https://raw.githubusercontent.com/KC3Kai/kancolle-replay/refs/heads/master/js/data/mst_slotitem_bonus.json > ./assets/kc3kai/mst_slotitem_bonus.json
 curl https://raw.githubusercontent.com/KC3Kai/kancolle-replay/refs/heads/master/js/data/bonus/57-1.json         > ./assets/kc3kai/bonus/57-1.json
