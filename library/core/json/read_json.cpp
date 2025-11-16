@@ -6,6 +6,7 @@
 #include <vector>
 
 // kcv
+#include "core/destination.hpp"  // 未整理
 #include "models/eoen/database/kancolle_api/api_files.hpp"
 #include "models/eoen/database/sortie/sortie_air_base.hpp"
 #include "models/eoen/database/sortie/sortie_air_base_squadron.hpp"
@@ -19,6 +20,7 @@
 #include "models/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
+#include "models/kc3kai/bonus/bonus.hpp"
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_get_member/ship_deck/response.hpp"
 #include "models/kcsapi/api_port/port/response.hpp"
@@ -63,6 +65,9 @@ template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fi
 template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>&, const std::string&);
 template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>&, const std::filesystem::path&);
 
+template void kcv::read_json(kcv::destination&, const std::string&);            // 未整理
+template void kcv::read_json(kcv::destination&, const std::filesystem::path&);  // 未整理
+
 // MARK: kc3kai
 
 template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>&, const std::string&);
@@ -70,6 +75,9 @@ template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>&, const std::
 
 template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>&, const std::string&);
 template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>&, const std::filesystem::path&);
+
+template void kcv::read_json(kcv::kc3kai::bonus_map_t&, const std::string&);
+template void kcv::read_json(kcv::kc3kai::bonus_map_t&, const std::filesystem::path&);
 
 // MARK: kcsapi
 

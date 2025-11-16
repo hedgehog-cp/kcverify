@@ -42,6 +42,10 @@ add_executable(test_eoen_sortie_record ./library/models/eoen/sortie_record.cpp)
 target_link_libraries(test_eoen_sortie_record PRIVATE libkcv -lstdc++exp)
 add_test(NAME eoen_sortie_record COMMAND test_eoen_sortie_record WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+add_executable(test_kc3kai_bonus_bonus ./library/models/kc3kai/bonus/bonus.cpp)
+target_link_libraries(test_kc3kai_bonus_bonus PRIVATE libkcv -lstdc++exp)
+add_test(NAME kc3kai_bonus_bonus COMMAND test_kc3kai_bonus_bonus WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_executable(test_api_get_member_ship_deck_response ./library/models/kcsapi/api_get_member/ship_deck/response.cpp)
 target_link_libraries(test_api_get_member_ship_deck_response PRIVATE libkcv -lstdc++exp)
 add_test(NAME api_get_member_ship_deck_response COMMAND test_api_get_member_ship_deck_response WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

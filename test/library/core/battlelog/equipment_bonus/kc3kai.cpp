@@ -83,7 +83,7 @@ int main() {
 
     const auto bonus_list = []() static -> std::vector<kcv::kc3kai::mst_slotitem_bonus> {
         auto temp = std::vector<kcv::kc3kai::mst_slotitem_bonus>{};
-        kcv::read_json(temp, std::filesystem::path{"./assets/mst_slotitem_bonus.json"});
+        kcv::read_json(temp, std::filesystem::path{"./assets/kc3kai/mst_slotitem_bonus.json"});
         return temp;
     }();
 

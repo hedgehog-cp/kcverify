@@ -88,7 +88,7 @@ int main() {
 
     const auto bonus_object = []() static -> std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
         auto temp = std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>{};
-        kcv::read_json(temp, std::filesystem::path{"./assets/fit_bonuses.json"});
+        kcv::read_json(temp, std::filesystem::path{"./assets/eoen/fit_bonuses.json"});
         return temp;
     }();
 
