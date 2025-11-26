@@ -34,6 +34,10 @@ add_executable(test_core_battlelog_equipment_bonus_kc3kai ./library/core/battlel
 target_link_libraries(test_core_battlelog_equipment_bonus_kc3kai PRIVATE libkcv -lstdc++exp)
 add_test(NAME core_battlelog_equipment_bonus_kc3kai COMMAND test_core_battlelog_equipment_bonus_kc3kai WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+add_executable(test_eoen_destination ./library/models/eoen/destination.cpp)
+target_link_libraries(test_eoen_destination PRIVATE libkcv -lstdc++exp)
+add_test(NAME eoen_destination COMMAND test_eoen_destination WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 add_executable(test_eoen_fit_bonus ./library/models/eoen/fit_bonus.cpp)
 target_link_libraries(test_eoen_fit_bonus PRIVATE libkcv -lstdc++exp)
 add_test(NAME eoen_fit_bonus COMMAND test_eoen_fit_bonus WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

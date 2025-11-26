@@ -11,6 +11,7 @@
 #include "core/json/glz/meta/eoen/database/sortie/sortie_map_data.hpp"
 #include "core/json/glz/meta/eoen/database/sortie/sortie_record.hpp"
 #include "core/json/glz/meta/eoen/database/sortie/sortie_ship.hpp"
+#include "core/json/glz/meta/eoen/destination.hpp"
 #include "core/json/glz/meta/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "core/json/glz/meta/kc3kai/bonus/bonus.hpp"
 #include "core/json/glz/meta/kc3kai/mst_slotitem_bonus.hpp"
