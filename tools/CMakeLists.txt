@@ -25,7 +25,7 @@ add_custom_command(
 )
 
 
-add_custom_target(libkcv_tools
+add_custom_target(kcvtools
     DEPENDS
         ${CMAKE_SOURCE_DIR}/library/core/constants/equipment.hpp.inc
         ${CMAKE_SOURCE_DIR}/library/core/constants/ship.hpp.inc

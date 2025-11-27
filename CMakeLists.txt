@@ -36,8 +36,8 @@ add_subdirectory(library)
 # main #########################################################################
 
 add_executable(kcverify ./source/main.cpp)
-target_link_libraries(kcverify PRIVATE libkcv -lstdc++exp)
-add_dependencies(kcverify libkcv_tools)
+target_link_libraries(kcverify PRIVATE kcv -lstdc++exp)
+add_dependencies(kcverify kcvtools)
 
 # test #########################################################################
 

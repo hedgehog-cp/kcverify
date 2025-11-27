@@ -1,4 +1,4 @@
-add_library(libkcv STATIC
+add_library(kcv STATIC
     ./core/attributes/equipment.cpp
     ./core/attributes/ship.cpp
     
@@ -34,5 +34,5 @@ add_library(libkcv STATIC
 
     ./extensions/exception.cpp
 )
-target_include_directories(libkcv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-add_dependencies(libkcv libkcv_tools)
+target_include_directories(kcv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_dependencies(kcv kcvtools)
