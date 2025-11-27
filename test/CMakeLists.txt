@@ -26,13 +26,13 @@ add_executable(test_damage_formula_functions_inverse ./library/core/damage_formu
 target_link_libraries(test_damage_formula_functions_inverse PRIVATE libkcv -lstdc++exp)
 add_test(NAME damage_formula_functions_inverse COMMAND test_damage_formula_functions_inverse WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-add_executable(test_core_battlelog_equipment_bonus_eoen ./library/core/battlelog/equipment_bonus/eoen.cpp)
-target_link_libraries(test_core_battlelog_equipment_bonus_eoen PRIVATE libkcv -lstdc++exp)
-add_test(NAME core_battlelog_equipment_bonus_eoen COMMAND test_core_battlelog_equipment_bonus_eoen WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(test_core_damage_formula_equipment_bonus_eoen ./library/core/damage_formula/equipment_bonus/eoen.cpp)
+target_link_libraries(test_core_damage_formula_equipment_bonus_eoen PRIVATE libkcv -lstdc++exp)
+add_test(NAME core_damage_formula_equipment_bonus_eoen COMMAND test_core_damage_formula_equipment_bonus_eoen WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-add_executable(test_core_battlelog_equipment_bonus_kc3kai ./library/core/battlelog/equipment_bonus/kc3kai.cpp)
-target_link_libraries(test_core_battlelog_equipment_bonus_kc3kai PRIVATE libkcv -lstdc++exp)
-add_test(NAME core_battlelog_equipment_bonus_kc3kai COMMAND test_core_battlelog_equipment_bonus_kc3kai WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_executable(test_core_damage_formula_equipment_bonus_kc3kai ./library/core/damage_formula/equipment_bonus/kc3kai.cpp)
+target_link_libraries(test_core_damage_formula_equipment_bonus_kc3kai PRIVATE libkcv -lstdc++exp)
+add_test(NAME core_damage_formula_equipment_bonus_kc3kai COMMAND test_core_damage_formula_equipment_bonus_kc3kai WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 add_executable(test_eoen_destination ./library/models/eoen/destination.cpp)
 target_link_libraries(test_eoen_destination PRIVATE libkcv -lstdc++exp)

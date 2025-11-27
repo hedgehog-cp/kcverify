@@ -7,19 +7,17 @@
 #include <vector>
 
 // kcv
-#include "core/battlelog/equipment_bonus.hpp"
+#include "core/damage_formula/equipment_bonus.hpp"
 #include "core/entity/adapter/from_eoen.hpp"
 #include "core/entity/ship.hpp"
 #include "core/json/read_json.hpp"
-#include "extensions/formatter.hpp"
 #include "models/eoen/database/sortie/sortie_record.hpp"
-#include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
-#include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
+#include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_start2/api_mst_ship.hpp"
 #include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
 
 template <>
-struct std::formatter<kcv::eoen::serialization::fit_bonus::fit_bonus_value> {
+struct std::formatter<kcv::kc3kai::bonus_value> {
     std::formatter<std::int32_t> int32_t_formatter;
 
     constexpr auto parse(std::format_parse_context& ctx) {
@@ -27,7 +25,7 @@ struct std::formatter<kcv::eoen::serialization::fit_bonus::fit_bonus_value> {
     }
 
     template <typename FormatContext>
-    constexpr auto format(const kcv::eoen::serialization::fit_bonus::fit_bonus_value& bonus, FormatContext& ctx) const {
+    constexpr auto format(const kcv::kc3kai::bonus_value& bonus, FormatContext& ctx) const {
         auto out = ctx.out();
         out      = std::format_to(out, "houg: ");
         out      = int32_t_formatter.format(bonus.houg, ctx);
@@ -55,10 +53,7 @@ struct std::formatter<kcv::eoen::serialization::fit_bonus::fit_bonus_value> {
 
 namespace {
 
-bool operator==(
-    const kcv::eoen::serialization::fit_bonus::fit_bonus_value& lhs,
-    const kcv::eoen::serialization::fit_bonus::fit_bonus_value& rhs
-) noexcept {
+bool operator==(const kcv::kc3kai::bonus_value& lhs, const kcv::kc3kai::bonus_value& rhs) noexcept {
     return lhs.houg == rhs.houg   //
        and lhs.tyku == rhs.tyku   //
        and lhs.kaih == rhs.kaih   //
@@ -86,33 +81,34 @@ int main() {
         return temp;
     }();
 
-    const auto bonus_object = []() static -> std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
-        auto temp = std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>{};
-        kcv::read_json(temp, std::filesystem::path{"./assets/eoen/fit_bonuses.json"});
+    const auto bonus_list = []() static -> std::vector<kcv::kc3kai::mst_slotitem_bonus> {
+        auto temp = std::vector<kcv::kc3kai::mst_slotitem_bonus>{};
+        kcv::read_json(temp, std::filesystem::path{"./assets/kc3kai/mst_slotitem_bonus.json"});
         return temp;
     }();
 
-    for (const auto& dir : std::filesystem::directory_iterator{"./test/library/core/battlelog/equipment_bonus/data"}) {
+    constexpr auto dir = "./test/library/core/damage_formula/equipment_bonus/data";
+    for (const auto& dir : std::filesystem::directory_iterator{dir}) {
         const auto sortie_record = [](const auto& fname) static {
             auto temp = std::vector<kcv::eoen::database::sortie::sortie_record>{};
             kcv::read_json(temp, fname);
-            return temp.at(0);
+            return temp.front();
         }(dir.path() / "sortie_record.json");
 
         const auto expected = [](const auto& fname) static {
-            auto temp = std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_value>{};
+            auto temp = std::vector<kcv::kc3kai::bonus_value>{};
             kcv::read_json(temp, fname);
             return temp;
         }(dir.path() / "expected.json");
 
-        const auto& ships = sortie_record.fleet_data.fleets.at(0)->ships;
+        const auto& ships = sortie_record.fleet_data.fleets.front()->ships;
         if (ships.size() != expected.size()) {
             return EXIT_FAILURE;
         }
 
         for (const auto& [eoen_ship, bonus] : std::ranges::views::zip(ships, expected)) {
             const auto sortie_ship     = kcv::ship_from_eoen(eoen_ship, api_mst_ship, api_mst_slotitem);
-            const auto equipment_bonus = kcv::total_equipment_bonus(sortie_ship, bonus_object);
+            const auto equipment_bonus = kcv::total_equipment_bonus(sortie_ship, bonus_list);
             if (equipment_bonus != bonus) {
                 std::println("{}", sortie_ship.mst().api_name);
                 std::println("calculated: {:>2}", equipment_bonus);
