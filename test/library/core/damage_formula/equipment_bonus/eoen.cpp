@@ -7,7 +7,7 @@
 #include <vector>
 
 // kcv
-#include "core/battlelog/equipment_bonus.hpp"
+#include "core/damage_formula/equipment_bonus.hpp"
 #include "core/entity/adapter/from_eoen.hpp"
 #include "core/entity/ship.hpp"
 #include "core/json/read_json.hpp"
@@ -88,11 +88,12 @@ int main() {
 
     const auto bonus_object = []() static -> std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment> {
         auto temp = std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>{};
-        kcv::read_json(temp, std::filesystem::path{"./assets/fit_bonuses.json"});
+        kcv::read_json(temp, std::filesystem::path{"./assets/eoen/fit_bonuses.json"});
         return temp;
     }();
 
-    for (const auto& dir : std::filesystem::directory_iterator{"./test/library/core/battlelog/equipment_bonus/data"}) {
+    constexpr auto dir = "./test/library/core/damage_formula/equipment_bonus/data";
+    for (const auto& dir : std::filesystem::directory_iterator{dir}) {
         const auto sortie_record = [](const auto& fname) static {
             auto temp = std::vector<kcv::eoen::database::sortie::sortie_record>{};
             kcv::read_json(temp, fname);

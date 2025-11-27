@@ -22,8 +22,10 @@ add_library(libkcv STATIC
     ./core/battlelog/generate_battlelog/process_kcsapi/api_req_sortie/goback_port/response.cpp
     ./core/battlelog/generate_battlelog/process_kcsapi/api_req_sortie/ld_airbattle/response.cpp
     ./core/battlelog/generate_battlelog/generate_battlelog.cpp
-    ./core/battlelog/equipment_bonus.cpp
     
+    ./core/damage_formula/equipment_bonus.cpp
+    ./core/damage_formula/map_bonus.cpp
+
     ./core/entity/adapter/from_eoen.cpp
 
     ./core/json/read_json.cpp

@@ -16,9 +16,11 @@
 #include "models/eoen/database/sortie/sortie_map_data.hpp"
 #include "models/eoen/database/sortie/sortie_record.hpp"
 #include "models/eoen/database/sortie/sortie_ship.hpp"
+#include "models/eoen/destination.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_data.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 #include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
+#include "models/kc3kai/bonus/bonus.hpp"
 #include "models/kc3kai/mst_slotitem_bonus.hpp"
 #include "models/kcsapi/api_get_member/ship_deck/response.hpp"
 #include "models/kcsapi/api_port/port/response.hpp"
@@ -57,19 +59,42 @@
 template void kcv::read_json(std::vector<kcv::eoen::database::sortie::sortie_record>&, const std::string&);
 template void kcv::read_json(std::vector<kcv::eoen::database::sortie::sortie_record>&, const std::filesystem::path&);
 
-template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_value>&, const std::string&);
-template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_value>&, const std::filesystem::path&);
+template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_value>& dst, const std::string& buffer);
+template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_value>& dst, const std::filesystem::path& fname);
 
-template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>&, const std::string&);
-template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>&, const std::filesystem::path&);
+template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& dst, const std::string& buffer);
+template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& dst, const std::filesystem::path& fname);
+
+template <>
+void kcv::read_json(kcv::eoen::destination& dst, const std::string& buffer) {
+    /// HACK: "World (\d+)-(\d+)"のようなキーをメンバ名で表現することが困難であるため, 不明なキー名として扱う.
+    constexpr auto opts = glz::opts{
+        .error_on_unknown_keys = false,
+        .quoted_num            = true,
+    };
+    kcv::detail::read_json_impl<opts>(dst, buffer);
+}
+
+template <>
+void kcv::read_json(kcv::eoen::destination& dst, const std::filesystem::path& fname) {
+    /// HACK: "World (\d+)-(\d+)"のようなキーをメンバ名で表現することが困難であるため, 不明なキー名として扱う.
+    constexpr auto opts = glz::opts{
+        .error_on_unknown_keys = false,
+        .quoted_num            = true,
+    };
+    kcv::detail::read_json_impl<opts>(dst, fname);
+}
 
 // MARK: kc3kai
 
-template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>&, const std::string&);
-template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>&, const std::filesystem::path&);
+template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>& dst, const std::string& buffer);
+template void kcv::read_json(std::vector<kcv::kc3kai::bonus_value>& dst, const std::filesystem::path& fname);
 
-template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>&, const std::string&);
-template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>&, const std::filesystem::path&);
+template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>& dst, const std::string& buffer);
+template void kcv::read_json(std::vector<kcv::kc3kai::mst_slotitem_bonus>& dst, const std::filesystem::path& fname);
+
+template void kcv::read_json(kcv::kc3kai::bonus_map_t&, const std::string&);
+template void kcv::read_json(kcv::kc3kai::bonus_map_t&, const std::filesystem::path&);
 
 // MARK: kcsapi
 

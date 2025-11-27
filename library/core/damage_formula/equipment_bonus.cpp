@@ -1,4 +1,4 @@
-#include "core/battlelog/equipment_bonus.hpp"
+#include "core/damage_formula/equipment_bonus.hpp"
 
 // std
 #include <algorithm>
