@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "models/kcsapi/types/enum/ship_id.hpp"
+#include "models/kcsapi/types/enum/stype.hpp"
+
 namespace kcv {
 namespace kc3kai {
 
@@ -13,8 +16,8 @@ struct bonus_bonus_t final {
     std::optional<double> dmg;
     std::optional<double> acc;
     std::optional<double> eva;
-    std::optional<std::vector<std::int32_t>> ship_base;
-    std::optional<std::vector<std::int32_t>> ship_type;
+    std::optional<std::vector<kcv::kcsapi::ship_id>> ship_base;
+    std::optional<std::vector<kcv::kcsapi::stype>> ship_type;
     std::optional<std::vector<std::int32_t>> ship_class;
     std::optional<std::vector<std::int32_t>> ship_id;
     std::optional<std::int32_t> is_plane;

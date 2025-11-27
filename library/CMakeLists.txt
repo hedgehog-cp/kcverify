@@ -24,6 +24,8 @@ add_library(libkcv STATIC
     ./core/battlelog/generate_battlelog/generate_battlelog.cpp
     ./core/battlelog/equipment_bonus.cpp
     
+    ./core/damage_formula/map_bonus.cpp
+
     ./core/entity/adapter/from_eoen.cpp
 
     ./core/json/read_json.cpp
