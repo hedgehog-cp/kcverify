@@ -24,12 +24,8 @@ bool matches_ship(const kcv::ship& ship, const kcv::kc3kai::bonus_bonus_t& data)
 auto kcv::total_map_bonus(
     const kcv::ship& ship,                                      //
     const std::vector<kcv::kc3kai::bonus_bonus_t>& map_bonuses  //
-) -> kcv::map_bonus_result_t {
-    auto total = kcv::map_bonus_result_t{
-        .dmg = 1.0,
-        .acc = 1.0,
-        .eva = 1.0,
-    };
+) -> kcv::map_bonus_result {
+    auto total = kcv::map_bonus_result{};
 
     for (const auto& data : map_bonuses) {
         /// TODO: 条件を追加する. とりあえず#7-4, #7-5に対応.

@@ -8,6 +8,7 @@
 #include <regex>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -57,7 +58,7 @@ namespace eoen {
 
 struct destination final {
     std::int32_t version;
-    std::unordered_map<std::string, std::unordered_map<std::int32_t, std::vector<std::string>>> worlds;
+    std::unordered_map<std::string, std::unordered_map<std::int32_t, std::tuple<std::string, std::string>>> worlds;
 };
 
 }  // namespace eoen
