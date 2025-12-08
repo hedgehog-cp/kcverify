@@ -11,7 +11,7 @@ struct map_bonus_result final {
     double acc = 1.0;
     double eva = 1.0;
 
-    friend auto operator*=(map_bonus_result& lhs, const map_bonus_result& rhs) noexcept -> map_bonus_result {
+    friend auto operator*=(map_bonus_result& lhs, const map_bonus_result& rhs) noexcept -> map_bonus_result& {
         lhs.dmg *= rhs.dmg;
         lhs.acc *= rhs.acc;
         lhs.eva *= rhs.eva;

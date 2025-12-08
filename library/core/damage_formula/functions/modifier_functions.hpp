@@ -2,11 +2,16 @@
 #define KCVERIFY_CORE_DAMAGE_FORMULA_FUNCTIONS_MODIFIER_FUNCTIONS_HPP_INCLUDED
 
 // std
+#include <cmath>
+#include <cstdint>
+#include <limits>
 #include <optional>
 
 // kcv
 #include "core/damage_formula/functions/composable.hpp"
 #include "extensions/interval.hpp"
+#include "extensions/interval/basic_interval.hpp"
+#include "extensions/stdfloat.hpp"
 
 namespace kcv {
 namespace functions {
@@ -285,6 +290,69 @@ struct critical final {
     /// @brief 逆関数を返す.
     auto operator^(int) const noexcept -> critical_inverse {
         return critical_inverse{.is_enabled = is_enabled};
+    }
+};
+
+/// @brief 爆雷装甲減少補正キャップ逆関数.
+struct break_armor_cap_inverse final {
+    /// @brief 合成可能.
+    using composable_concept = kcv::functions::compose_tag;
+
+    /// @brief 爆雷装甲減少補正が有効.
+    bool is_enable = true;
+
+    /// @brief 爆雷装甲減少補正キャップ逆関数を適用する.
+    auto operator()(const kcv::interval& x) const noexcept -> kcv::interval {
+        if (not is_enable) {
+            return x;
+        }
+
+        return kcv::interval{
+            -std::numeric_limits<kcv::interval::base_type>::infinity(),
+            x.upper(),
+        };
+    }
+};
+
+/// @brief 爆雷装甲減少補正キャップ関数.
+struct depth_armor_break_cap final {
+    /// @brief 合成可能.
+    using composable_concept = kcv::functions::compose_tag;
+
+    /// @brief 爆雷装甲減少補正が有効.
+    bool is_enable = true;
+
+    /// @brief 爆雷装甲減少補正キャップ関数を適用する.
+    auto operator()(const kcv::number& x) const noexcept -> kcv::number {
+        if (not is_enable) {
+            return x;
+        }
+
+        return kcv::number{
+            std::max(x.lower(), 1.0),
+            std::max(x.upper(), 1.0),
+        };
+    }
+
+    /// @brief 逆関数を返す.
+    auto operator^(int) const noexcept -> break_armor_cap_inverse {
+        return break_armor_cap_inverse{};
+    }
+};
+
+struct aromor_rand final {
+    /// @brief 合成可能.
+    using composable_concept = kcv::functions::compose_tag;
+
+    static auto operator()(const kcv::number& x) noexcept -> kcv::number {
+        // [0, 1)の乱数を扱う.
+        // 下側は0に固定できる.
+        // const auto min_rand = 0.0;
+        // 上側は直後に切り捨てがあるため, 1より少しだけ小さい数を乗算する.
+        // 装甲は大きくても十進3桁なので, 小数点以下4桁もあれば十分. より安全側に+1桁.
+        const auto sup_rand = std::floor(0.99999 * std::floor(x.upper()));
+
+        return kcv::number{x.lower() * 0.7, x.upper() * 0.7 + sup_rand * 0.6};
     }
 };
 
