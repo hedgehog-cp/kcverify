@@ -12,7 +12,7 @@
 #include <utility>
 
 // kcv
-#include "core/damage_formula/functions/function_composition.hpp"
+#include "core/damage_formula/functions/composed_function.hpp"
 #include "core/damage_formula/functions/modifier_functions.hpp"
 #include "extensions/formatter.hpp"
 #include "extensions/interval.hpp"
@@ -25,10 +25,10 @@ int main() {
     auto dist_0_50 = std::uniform_real_distribution<>{0, 50};
 
     for (int _ = 0; _ < 1; _++) {
-        const auto f1 = kcv::functions::liner{dist_1_2(engine), dist_0_50(engine)};
-        const auto f2 = kcv::functions::liner{dist_1_2(engine), dist_0_50(engine)};
-        const auto f3 = kcv::functions::liner{dist_1_2(engine), dist_0_50(engine)};
-        const auto f4 = kcv::functions::liner{dist_1_2(engine), dist_0_50(engine)};
+        const auto f1 = kcv::functions::liner{.a = dist_1_2(engine), .b = dist_0_50(engine)};
+        const auto f2 = kcv::functions::liner{.a = dist_1_2(engine), .b = dist_0_50(engine)};
+        const auto f3 = kcv::functions::liner{.a = dist_1_2(engine), .b = dist_0_50(engine)};
+        const auto f4 = kcv::functions::liner{.a = dist_1_2(engine), .b = dist_0_50(engine)};
 
         const auto f = f1 | f2 | f3 | f4;
         const auto x = std::fabs(dist_0_50(engine) * 2 + 20);

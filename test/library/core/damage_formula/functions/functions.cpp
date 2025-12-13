@@ -6,30 +6,30 @@
 #include <random>
 
 // kcv
-#include "core/damage_formula/functions/function_composition.hpp"
+#include "core/damage_formula/functions/composed_function.hpp"
 #include "core/damage_formula/functions/modifier_functions.hpp"
 #include "extensions/formatter.hpp"
 #include "extensions/interval.hpp"
 
 int main() {
-    auto seed_gen  = std::random_device{};
-    auto engine    = std::default_random_engine{seed_gen()};
-    auto dist_1_2  = std::uniform_real_distribution<>{1, 2};
-    auto dist_0_50 = std::uniform_real_distribution<>{0, 50};
+    auto seed_gen = std::random_device{};
+    auto engine   = std::default_random_engine{seed_gen()};
+    auto r_1_2    = std::uniform_real_distribution<>{1, 2};
+    auto r_0_50   = std::uniform_real_distribution<>{0, 50};
 
     for (int _ = 0; _ < 10; _++) {
-        const auto f1         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
-        const auto f2         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
+        const auto f1 = kcv::functions::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
+        const auto f2 = kcv::functions::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
         const auto air_attack = kcv::functions::air_attack{.is_enabled = true};
-        const auto softcap    = kcv::functions::softcap{kcv::number{220}};
+        const auto softcap    = kcv::functions::softcap{.cap = kcv::number{220}};
         const auto floor      = kcv::functions::floor{};
-        const auto f3         = kcv::functions::liner{kcv::number{dist_1_2(engine)}, kcv::number{dist_0_50(engine)}};
-        const auto pt         = kcv::functions::pt_imp{};
-        const auto critical   = kcv::functions::critical{.is_enabled = true};
-        const auto floor_if   = kcv::functions::floor{.is_enabled = true};
+        const auto f3       = kcv::functions::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
+        const auto pt       = kcv::functions::pt_imp{};
+        const auto critical = kcv::functions::critical{.is_enabled = true};
+        const auto floor_if = kcv::functions::floor{.is_enabled = true};
 
         const auto f = f1 | f2 | air_attack | softcap | floor | f3 | pt | critical | floor_if;
-        const auto x = std::fabs(dist_0_50(engine) * 2 + 20);
+        const auto x = std::fabs(r_0_50(engine) * 2 + 20);
         const auto y = f(kcv::number{x});
 
         std::println("x = {:.3f}", x);

@@ -3,7 +3,6 @@
 
 // std
 #include <cmath>
-#include <cstdint>
 #include <limits>
 #include <optional>
 
@@ -11,25 +10,17 @@
 #include "core/damage_formula/functions/composable.hpp"
 #include "extensions/interval.hpp"
 #include "extensions/interval/basic_interval.hpp"
-#include "extensions/stdfloat.hpp"
 
 namespace kcv {
 namespace functions {
 
-// operator^(int)による逆関数の取得を定義するため, 逆関数クラスを先に定義する.
-// 前方宣言を使えば, 相互に逆関数を取得できるが今その要求はない.
-// 加えて, using inverse_function = /* ... */; で逆関数を紐づけられるが, やはり今その要求はない.
-
 /// @brief 線形補正逆関数.
-struct liner_inverse final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct liner_inverse final : public kcv::functions::composable<liner_inverse> {
     /// @brief 乗算補正値.
-    kcv::interval a = kcv::interval{1.0};
+    kcv::interval a = 1.0;
 
     /// @brief 加算補正値.
-    kcv::interval b = kcv::interval{0.0};
+    kcv::interval b = 0.0;
 
     /// @brief 線形補正逆関数を適用する.
     auto operator()(const auto& x) const noexcept -> std::optional<kcv::interval> {
@@ -37,24 +28,21 @@ struct liner_inverse final {
             return std::nullopt;
         }
 
-        if (kcv::is_positive(a)) {
-            return (x - b) / a;
+        if (kcv::is_negative(a)) {
+            return std::nullopt;
         }
 
-        return std::nullopt;
+        return (x - b) / a;
     }
 };
 
 /// @brief 線形補正関数.
-struct liner final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct liner final : public kcv::functions::composable<liner> {
     /// @brief 乗算補正値.
-    kcv::number a = kcv::number{1.0};
+    kcv::number a = 1.0;
 
     /// @brief 加算補正値.
-    kcv::number b = kcv::number{0.0};
+    kcv::number b = 0.0;
 
     /// @brief 線形補正関数を適用する.
     auto operator()(const auto& x) const noexcept -> kcv::number {
@@ -71,10 +59,7 @@ struct liner final {
 };
 
 /// @brief 砲撃戦.航空攻撃補正逆関数.
-struct air_attack_inverse final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct air_attack_inverse final : public kcv::functions::composable<air_attack_inverse> {
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
     bool is_enabled = true;
 
@@ -89,10 +74,7 @@ struct air_attack_inverse final {
 };
 
 /// @brief 砲撃戦.航空攻撃補正関数.
-struct air_attack final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct air_attack final : public kcv::functions::composable<air_attack> {
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
     bool is_enabled = true;
 
@@ -112,10 +94,7 @@ struct air_attack final {
 };
 
 /// @brief 床逆関数.
-struct floor_inverse final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct floor_inverse final : public kcv::functions::composable<floor_inverse> {
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
     bool is_enabled = true;
 
@@ -133,10 +112,7 @@ struct floor_inverse final {
 };
 
 /// @brief 床関数.
-struct floor final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct floor final : public kcv::functions::composable<floor> {
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
     bool is_enabled = true;
 
@@ -159,10 +135,7 @@ struct floor final {
 };
 
 /// @brief ソフトキャップ補正逆関数.
-struct softcap_inverse final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct softcap_inverse final : public kcv::functions::composable<softcap_inverse> {
     /// @brief キャップ値.
     kcv::interval cap;
 
@@ -177,10 +150,7 @@ struct softcap_inverse final {
 };
 
 /// @brief ソフトキャップ補正関数.
-struct softcap final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct softcap final : public kcv::functions::composable<softcap> {
     /// @brief キャップ値.
     kcv::number cap;
 
@@ -198,10 +168,7 @@ struct softcap final {
 };
 
 /// @brief PT小鬼群補正逆関数.
-struct pt_imp_inverse final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct pt_imp_inverse final : public kcv::functions::composable<pt_imp_inverse> {
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
     bool is_enabled = true;
 
@@ -226,10 +193,7 @@ struct pt_imp_inverse final {
 };
 
 /// @brief PT小鬼群補正関数.
-struct pt_imp final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct pt_imp final : public kcv::functions::composable<pt_imp> {
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.
     bool is_enabled = true;
 
@@ -253,10 +217,7 @@ struct pt_imp final {
 };
 
 /// @brief 急所補正逆関数.
-struct critical_inverse final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct critical_inverse final : public kcv::functions::composable<critical_inverse> {
     /// @brief 急所攻撃であるか.
     bool is_enabled = true;
 
@@ -271,10 +232,7 @@ struct critical_inverse final {
 };
 
 /// @brief 急所補正関数.
-struct critical final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct critical final : public kcv::functions::composable<critical> {
     /// @brief 急所攻撃であるか.
     bool is_enabled = true;
 
@@ -294,10 +252,7 @@ struct critical final {
 };
 
 /// @brief 爆雷装甲減少補正キャップ逆関数.
-struct break_armor_cap_inverse final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct break_armor_cap_inverse final : public kcv::functions::composable<break_armor_cap_inverse> {
     /// @brief 爆雷装甲減少補正が有効.
     bool is_enable = true;
 
@@ -315,10 +270,7 @@ struct break_armor_cap_inverse final {
 };
 
 /// @brief 爆雷装甲減少補正キャップ関数.
-struct depth_armor_break_cap final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct depth_armor_break_cap final : public kcv::functions::composable<depth_armor_break_cap> {
     /// @brief 爆雷装甲減少補正が有効.
     bool is_enable = true;
 
@@ -340,10 +292,7 @@ struct depth_armor_break_cap final {
     }
 };
 
-struct aromor_rand final {
-    /// @brief 合成可能.
-    using composable_concept = kcv::functions::compose_tag;
-
+struct aromor_rand final : public kcv::functions::composable<aromor_rand> {
     static auto operator()(const kcv::number& x) noexcept -> kcv::number {
         // [0, 1)の乱数を扱う.
         // 下側は0に固定できる.
