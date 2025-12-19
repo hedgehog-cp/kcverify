@@ -8,7 +8,7 @@
 #include <utility>
 
 // kcv
-#include "core/damage_formula/functions/function_composition.hpp"
+#include "core/damage_formula/functions/composed_function.hpp"
 #include "core/damage_formula/functions/modifier_functions.hpp"
 #include "extensions/interval.hpp"
 #include "extensions/type_traits.hpp"
@@ -68,13 +68,13 @@ auto solve(const T& x, const U& minmax, const kcv::functions::liner& f)
 
 struct inverse_fn final {
     template <typename T, typename U, typename... Fs>
-    static constexpr auto operator()(T x, U minmax, const kcv::functions::function_composition<Fs...>& f) {
+    static constexpr auto operator()(T x, U minmax, const kcv::functions::composed_function<Fs...>& f) {
         return inverse(x, minmax, f);
     }
 
    private:
     template <typename T, typename U, typename... Fs>
-    static constexpr auto inverse(T x, U minmax, const kcv::functions::function_composition<Fs...>& f) {
+    static constexpr auto inverse(T x, U minmax, const kcv::functions::composed_function<Fs...>& f) {
         return inverse_impl_1(x, minmax, f.decompose(), std::make_index_sequence<sizeof...(Fs)>{});
     }
 
@@ -85,7 +85,7 @@ struct inverse_fn final {
 
     template <typename T, typename U, typename F, typename... Fs>
     static constexpr auto inverse_impl_2(T x, U minmax, const F& f, const Fs&... fs) {
-        const auto inv = kcv::functions::function_composition{fs...} ^ -1;
+        const auto inv = kcv::functions::composed_function{fs...} ^ -1;
         const auto y   = kcv::invoke(inv, minmax);
         return std::tuple_cat(inverse_impl_2(f(x), minmax, fs...), std::make_tuple(solve(x, y, f)));
     }
