@@ -601,6 +601,15 @@ auto min(const basic_interval<T, Fenv>& a, const basic_interval<T, Fenv>& b) noe
     };
 }
 
+/// @brief 最小値を返す.
+template <std::floating_point T, kcv::floating_environment Fenv>
+auto floor(const basic_interval<T, Fenv>& x) noexcept -> basic_interval<T, Fenv> {
+    return basic_interval<T, Fenv>{
+        std::floor(x.lower()),
+        std::floor(x.upper()),
+    };
+}
+
 /// @brief 平方根を返す.
 template <std::floating_point T, kcv::floating_environment Fenv>
 auto sqrt(const basic_interval<T, Fenv>& x) noexcept -> basic_interval<T, Fenv> {

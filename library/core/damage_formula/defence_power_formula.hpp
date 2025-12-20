@@ -5,13 +5,15 @@
 #include "core/context_data.hpp"
 #include "core/damage_formula/functions/composed_function.hpp"
 #include "core/damage_formula/functions/modifier_functions.hpp"
+#include "extensions/interval.hpp"
 
 namespace kcv {
 
 /// @brief 防御力式.
 class defence_power_formula final {
    public:
-    using formula_type = kcv::functions::composed_function<
+    /// @brief 防御力式.
+    using modifier_function_t = kcv::functions::composed_function<
         kcv::functions::liner,                  // 第3種補正.
         kcv::functions::liner,                  // 改修補正.
         kcv::functions::liner,                  // 北方海域北方バルジ補正.
@@ -23,7 +25,7 @@ class defence_power_formula final {
         >;
 
     defence_power_formula(const kcv::context_data& ctx, const kcv::battlelog& data)
-        : formula_{
+        : function_{
               f3(ctx, data)                       //
               | improvement(ctx, data)            //
               | noth_bulge(ctx, data)             //
@@ -34,6 +36,9 @@ class defence_power_formula final {
               | armor_break(ctx, data)            //
           } {}
 
+    auto base_value() const -> kcv::number;
+
+   private:
     static auto f3(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
         return kcv::functions::liner{};
     }
@@ -68,7 +73,8 @@ class defence_power_formula final {
     }
 
    private:
-    formula_type formula_;
+    /// @brief 防御力式.
+    modifier_function_t function_;
 };
 
 }  // namespace kcv
