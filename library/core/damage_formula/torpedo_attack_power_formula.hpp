@@ -59,7 +59,8 @@ inline auto get_damage_state(const kcv::ship& ship) -> damage_state {
 /// @brief 攻撃力式 - 雷撃.
 class torpedo_attack_power_formula final {
    public:
-    using formula_type = kcv::functions::composed_function<
+    /// @brief 補正関数.
+    using modifier_function_t = kcv::functions::composed_function<
         kcv::functions::liner,     // 第0種補正
         kcv::functions::liner,     // 交戦形態補正
         kcv::functions::liner,     // 攻撃側陣形補正
@@ -91,6 +92,7 @@ class torpedo_attack_power_formula final {
    public:
     torpedo_attack_power_formula(const kcv::context_data& ctx, const kcv::battlelog& data)
         : memory_{}
+        , base_value_{}  //
         , formula_{
               f0(ctx, data, this->memory_)                  //
               | engagement(ctx, data, this->memory_)        //
@@ -109,10 +111,12 @@ class torpedo_attack_power_formula final {
               | floor_if_cl2(ctx, data, this->memory_)      //
           } {}
 
+    auto base_value() const -> kcv::number;
+
     auto formula() const;
 
     auto evaluate() const -> std::optional<kcv::number> {
-        return this->formula_(0);
+        return this->formula_(this->base_value_);
     }
 
    private:
@@ -284,7 +288,8 @@ class torpedo_attack_power_formula final {
 
    private:
     memory memory_;
-    formula_type formula_;
+    kcv::number base_value_;
+    modifier_function_t formula_;
 };
 
 }  // namespace kcv
