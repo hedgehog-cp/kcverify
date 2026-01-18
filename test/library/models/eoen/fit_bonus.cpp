@@ -1,4 +1,4 @@
-#include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
+#include "kcv/external/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 
 // std
 #include <filesystem>

@@ -1,4 +1,4 @@
-#include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 
 // std
 #include <filesystem>

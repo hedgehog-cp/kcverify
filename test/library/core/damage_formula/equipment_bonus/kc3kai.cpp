@@ -11,10 +11,10 @@
 #include "core/entity/adapter/from_eoen.hpp"
 #include "core/entity/ship.hpp"
 #include "core/json/read_json.hpp"
-#include "models/eoen/database/sortie/sortie_record.hpp"
-#include "models/kc3kai/mst_slotitem_bonus.hpp"
-#include "models/kcsapi/api_start2/api_mst_ship.hpp"
-#include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "kcv/external/eoen/database/sortie/sortie_record.hpp"
+#include "kcv/external/kc3kai/mst_slotitem_bonus.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 
 template <>
 struct std::formatter<kcv::kc3kai::bonus_value> {

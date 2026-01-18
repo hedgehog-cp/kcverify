@@ -1,5 +1,5 @@
 /* データが無いため
-#include "models/kcsapi/api_port/port/response.hpp"
+#include "kcv/external/kcsapi/api_port/port/response.hpp"
 
 // std
 #include <filesystem>

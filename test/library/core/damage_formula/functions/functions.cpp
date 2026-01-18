@@ -18,15 +18,15 @@ int main() {
     auto r_0_50   = std::uniform_real_distribution<>{0, 50};
 
     for (int _ = 0; _ < 10; _++) {
-        const auto f1 = kcv::functions::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
-        const auto f2 = kcv::functions::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
-        const auto air_attack = kcv::functions::air_attack{.is_enabled = true};
-        const auto softcap    = kcv::functions::softcap{.cap = kcv::number{220}};
-        const auto floor      = kcv::functions::floor{};
-        const auto f3       = kcv::functions::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
-        const auto pt       = kcv::functions::pt_imp{};
-        const auto critical = kcv::functions::critical{.is_enabled = true};
-        const auto floor_if = kcv::functions::floor{.is_enabled = true};
+        const auto f1 = kcv::modifiers::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
+        const auto f2 = kcv::modifiers::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
+        const auto air_attack = kcv::modifiers::air_attack{.is_enabled = true};
+        const auto softcap    = kcv::modifiers::softcap{.cap = kcv::number{220}};
+        const auto floor      = kcv::modifiers::floor{};
+        const auto f3       = kcv::modifiers::liner{.a = kcv::number{r_1_2(engine)}, .b = kcv::number{r_0_50(engine)}};
+        const auto pt       = kcv::modifiers::pt_imp{};
+        const auto critical = kcv::modifiers::critical{.is_enabled = true};
+        const auto floor_if = kcv::modifiers::floor{.is_enabled = true};
 
         const auto f = f1 | f2 | air_attack | softcap | floor | f3 | pt | critical | floor_if;
         const auto x = std::fabs(r_0_50(engine) * 2 + 20);

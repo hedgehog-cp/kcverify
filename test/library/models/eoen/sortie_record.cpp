@@ -1,4 +1,4 @@
-#include "models/eoen/database/sortie/sortie_record.hpp"
+#include "kcv/external/eoen/database/sortie/sortie_record.hpp"
 
 // std
 #include <filesystem>

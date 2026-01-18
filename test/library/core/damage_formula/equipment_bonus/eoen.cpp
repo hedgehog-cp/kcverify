@@ -12,11 +12,11 @@
 #include "core/entity/ship.hpp"
 #include "core/json/read_json.hpp"
 #include "extensions/formatter.hpp"
-#include "models/eoen/database/sortie/sortie_record.hpp"
-#include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
-#include "models/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
-#include "models/kcsapi/api_start2/api_mst_ship.hpp"
-#include "models/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "kcv/external/eoen/database/sortie/sortie_record.hpp"
+#include "kcv/external/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
+#include "kcv/external/eoen/serialization/fit_bonus/fit_bonus_value.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 
 template <>
 struct std::formatter<kcv::eoen::serialization::fit_bonus::fit_bonus_value> {
