@@ -9,6 +9,7 @@
 #include "kcv/external/kcsapi/types/enum/engagement.hpp"
 #include "kcv/external/kcsapi/types/enum/fleet_flag.hpp"
 #include "kcv/external/kcsapi/types/enum/formation.hpp"
+#include "kcv/external/kcsapi/types/enum/stype.hpp"
 
 namespace kcv {
 
@@ -79,6 +80,79 @@ constexpr auto to_string(kcv::kcsapi::fleet_flag v) noexcept -> std::string_view
     }
 
     return "(未知の艦隊フラグ)";
+}
+
+/// @brief 艦種IDを文字列に変換する.
+constexpr auto to_string(kcv::kcsapi::stype v) noexcept -> std::string_view {
+    switch (v) {
+        case kcv::kcsapi::stype::de:
+            return "海防艦";
+
+        case kcv::kcsapi::stype::dd:
+            return "駆逐艦";
+
+        case kcv::kcsapi::stype::cl:
+            return "軽巡洋艦";
+
+        case kcv::kcsapi::stype::clt:
+            return "重雷装巡洋艦";
+
+        case kcv::kcsapi::stype::ca:
+            return "重巡洋艦";
+
+        case kcv::kcsapi::stype::cav:
+            return "航空巡洋艦";
+
+        case kcv::kcsapi::stype::cvl:
+            return "軽空母";
+
+        case kcv::kcsapi::stype::fbb:
+            return "戦艦";
+
+        case kcv::kcsapi::stype::bb:
+            return "戦艦";
+
+        case kcv::kcsapi::stype::bbv:
+            return "航空戦艦";
+
+        case kcv::kcsapi::stype::cv:
+            return "正規空母";
+
+        case kcv::kcsapi::stype::xbb:
+            return "超弩級戦艦";
+
+        case kcv::kcsapi::stype::ss:
+            return "潜水艦";
+
+        case kcv::kcsapi::stype::ssv:
+            return "潜水空母";
+
+        case kcv::kcsapi::stype::ap:
+            return "補給艦";
+
+        case kcv::kcsapi::stype::av:
+            return "水上機母艦";
+
+        case kcv::kcsapi::stype::lha:
+            return "揚陸艦";
+
+        case kcv::kcsapi::stype::cvb:
+            return "装甲空母";
+
+        case kcv::kcsapi::stype::ar:
+            return "工作艦";
+
+        case kcv::kcsapi::stype::as:
+            return "潜水母艦";
+
+        case kcv::kcsapi::stype::ct:
+            return "練習巡洋艦";
+
+        case kcv::kcsapi::stype::ao:
+            return "補給艦";
+    }
+
+    return "(未知の艦種ID)";
 }
 
 }  // namespace kcv

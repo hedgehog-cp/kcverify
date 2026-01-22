@@ -73,10 +73,18 @@ void initialize_abyssal_fleet_data(
 
         const auto exslot     = std::nullopt;
         const auto condition  = 49;
+        const auto ammo       = 0;  // 深海棲艦の弾薬量補正は常に1.
+        const auto kyouka     = kcv::kcsapi::api_kyouka{};
         const auto maximum_hp = kcv::to_integer(maxhp).value();
         const auto hp         = kcv::to_integer(nowhp).value();
+        const auto torpedo    = std::get<kcv::kcsapi::idx_param::raig>(param);
+        const auto armor      = std::get<kcv::kcsapi::idx_param::souk>(param);
+        const auto speed      = mst.api_soku;  // ?
 
-        ships.emplace_back(mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, maximum_hp, hp);
+        ships.emplace_back(
+            mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, ammo, kyouka, maximum_hp, hp,
+            torpedo, armor, speed
+        );
     }
 
     current.abyssal_fleet_data = kcv::fleet_data{
@@ -124,11 +132,17 @@ auto make_friend_fleet_data(
 
         auto exslot           = kcv::slot{0, 0, make_ungrown_equipment(slot_ex, api_mst_slotitem)};
         const auto condition  = 49;
+        const auto ammo       = mst.api_bull_max.value_or(0);  // ?
+        const auto kyouka     = kcv::kcsapi::api_kyouka{};     // ?
         const auto maximum_hp = kcv::to_integer(maxhp).value();
         const auto hp         = kcv::to_integer(nowhp).value();
+        const auto torpedo    = std::get<kcv::kcsapi::idx_param::raig>(param);
+        const auto armor      = std::get<kcv::kcsapi::idx_param::souk>(param);
+        const auto speed      = mst.api_soku;  // ?
 
         ships.emplace_back(
-            mst, base_id, nationality, std::move(slots), std::move(exslot), ship_lv, condition, maximum_hp, hp
+            mst, base_id, nationality, std::move(slots), std::move(exslot), ship_lv, condition, ammo, kyouka,
+            maximum_hp, hp, torpedo, armor, speed
         );
     }
 

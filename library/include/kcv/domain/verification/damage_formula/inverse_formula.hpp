@@ -29,6 +29,12 @@ struct inverse_result<kcv::functions::liner> final {
     std::optional<kcv::interval> b;
 };
 
+template <typename Tag>
+struct inverse_result<kcv::functions::basic_liner<Tag>> final {
+    std::optional<kcv::interval> a;
+    std::optional<kcv::interval> b;
+};
+
 template <typename T, typename U, typename F>
 auto solve(const T&, const U&, const F&) -> inverse_result<F> {
     return inverse_result<F>{};
@@ -54,6 +60,30 @@ auto solve(const T& x, const U& minmax, const kcv::functions::liner& f)
             const auto a = (minmax - kcv::make_interval(f.b)) / kcv::make_interval(x);
             const auto b = minmax - kcv::make_interval(x) * kcv::make_interval(f.a);
             return inverse_result<kcv::functions::liner>{a, b};
+        }
+    }
+}
+
+template <typename T, typename U, typename Tag>
+auto solve(const T& x, const U& minmax, const kcv::functions::basic_liner<Tag>& f)
+    -> std::optional<inverse_result<kcv::functions::basic_liner<Tag>>> {
+    if constexpr (kcv::is_optional_v<T>) {
+        if (x.has_value()) {
+            return solve(*x, minmax, f);
+        } else {
+            return std::nullopt;
+        }
+    } else {
+        if constexpr (kcv::is_optional_v<U>) {
+            if (minmax.has_value()) {
+                return solve(x, *minmax, f);
+            } else {
+                return std::nullopt;
+            }
+        } else {
+            const auto a = (minmax - kcv::make_interval(f.b)) / kcv::make_interval(x);
+            const auto b = minmax - kcv::make_interval(x) * kcv::make_interval(f.a);
+            return inverse_result<kcv::functions::basic_liner<Tag>>{a, b};
         }
     }
 }

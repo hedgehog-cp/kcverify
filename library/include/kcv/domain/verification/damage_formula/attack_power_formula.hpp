@@ -18,34 +18,33 @@ class attack_power_formula final {
    public:
     /// @brief 攻撃力補正関数.
     using modifier_function_t = kcv::functions::composed_function<
-        kcv::functions::liner,     // 第0種補正.
-        kcv::functions::liner,     // 交戦形態補正.
-        kcv::functions::liner,     // 攻撃側陣形補正.
-        kcv::functions::liner,     // 損傷状態補正.
-        kcv::functions::liner,     // 前対潜シナジー補正.
-        kcv::functions::liner,     // 後対潜シナジー補正.
-        kcv::functions::liner,     // 第14種補正.
-        kcv::functions::liner,     // フィット砲補正.
-        kcv::functions::softcap,   // ソフトキャップ.
-        kcv::functions::liner,     // 第5種補正.
-        kcv::functions::floor_if,  // 切り捨て.
-        kcv::functions::liner,     // 第6種補正.
-        kcv::functions::liner,     // 第7種補正.
-        kcv::functions::floor_if,  // 切り捨て.
-                                   // 昼間特殊攻撃補正.
-                                   // 徹甲弾補正.
-                                   // 第11種補正.
-                                   // 艦種補正.
-        kcv::functions::liner,     // 海域補正.
-        kcv::functions::liner,     // 期間限定海域.
-        kcv::functions::liner,     // 第8種補正.
-        kcv::functions::pt_imp,    // PT.
-                                   // PT装備補正は多層の乗算...
-        kcv::functions::critical,  // 急所補正.
-        kcv::functions::floor_if   // 切り捨て.
+        kcv::functions::f0,            // 第0種補正.
+        kcv::functions::engagement,    // 交戦形態補正.
+        kcv::functions::formation,     // 攻撃側陣形補正.
+        kcv::functions::damage_state,  // 損傷状態補正.
+        kcv::functions::pre_asw,       // 前対潜シナジー補正.
+        kcv::functions::post_asw,      // 後対潜シナジー補正.
+        kcv::functions::f14,           // 第14種補正.
+        kcv::functions::fit_gun,       // フィット砲補正.
+        kcv::functions::softcap,       // ソフトキャップ.
+        kcv::functions::f5,            // 第5種補正.
+        kcv::functions::floor_if,      // 切り捨て.
+        kcv::functions::f6,            // 第6種補正.
+        kcv::functions::f7,            // 第7種補正.
+        kcv::functions::floor_if,      // 切り捨て.
+                                       // 昼間特殊攻撃補正.
+                                       // 徹甲弾補正.
+                                       // 第11種補正.
+                                       // 艦種補正.
+        kcv::functions::map,           // 海域補正.
+        kcv::functions::event,         // 期間限定海域.
+        kcv::functions::f8,            // 第8種補正.
+        kcv::functions::pt_imp,        // PT.
+                                       // PT装備補正は多層の乗算...
+        kcv::functions::critical,      // 急所補正.
+        kcv::functions::floor_if       // 切り捨て.
         >;
 
-   public:
     attack_power_formula(const kcv::number& base_value, const modifier_function_t& modifier_function) noexcept
         : base_value_{base_value}
         , modifier_function_{modifier_function} {}
@@ -79,43 +78,43 @@ namespace modifiers {
 auto basic_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number;
 
 /// @brief 未知の第0種補正.
-auto f0(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f0(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f0;
 
 /// @brief 交戦形態補正.
-auto engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::engagement;
 
 /// @brief 攻撃側陣形補正.
-auto formation(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto formation(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::formation;
 
 /// @brief 損傷状態補正.
-auto damage_state(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto damage_state(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::damage_state;
 
 /// @brief 前対潜シナジー補正.
-auto pre_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto pre_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::pre_asw;
 
 /// @brief 後対潜シナジー補正.
-auto post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::post_asw;
 
 /// @brief 未知の第14種補正.
-auto f14(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f14(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f14;
 
 /// @brief フィット砲補正.
-auto fit_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto fit_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::fit_gun;
 
 /// @brief ソフトキャップ補正.
 auto softcap(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::softcap;
 
 /// @brief 未知の第5種補正.
-auto f5(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f5(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f5;
 
 /// @brief 切り捨て補正.
 auto floor_f5(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::floor_if;
 
 /// @brief 未知の第6種補正.
-auto f6(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f6(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f6;
 
 /// @brief 未知の第7種補正.
-auto f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f7;
 
 /// @brief 切り捨て補正.
 auto floor_f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::floor_if;
@@ -136,13 +135,13 @@ auto floor_f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::
 /// @brief 対船渠棲姫.
 
 /// @brief 海域補正.
-auto map(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto map(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::map;
 
 /// @brief 期間限定海域補正.
-auto event(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto event(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::event;
 
 /// @brief 未知の第8種補正.
-auto f8(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f8(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f8;
 
 /// @brief 対PT小鬼群補正.
 auto pt_imp(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::pt_imp;

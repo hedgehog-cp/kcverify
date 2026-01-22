@@ -75,10 +75,18 @@ auto make_abyssal_ships(
 
         const auto exslot     = std::nullopt;
         const auto condition  = 49;
+        const auto ammo       = 0;  // 深海棲艦の弾薬量補正は常に1.
+        const auto kyouka     = kcv::kcsapi::api_kyouka{};
         const auto maximum_hp = kcv::to_integer(maxhp).value();
         const auto hp         = kcv::to_integer(nowhp).value();
+        const auto torpedo    = std::get<kcv::kcsapi::idx_param::raig>(param);
+        const auto armor      = std::get<kcv::kcsapi::idx_param::souk>(param);
+        const auto speed      = mst.api_soku;  // ?
 
-        ships.emplace_back(mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, maximum_hp, hp);
+        ships.emplace_back(
+            mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, ammo, kyouka, maximum_hp, hp,
+            torpedo, armor, speed
+        );
     }
 
     return ships;

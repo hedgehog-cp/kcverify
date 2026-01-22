@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <fstream>
 #include <ostream>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -12,12 +13,16 @@
 
 // kcv
 #include "domain/verification/battlelog/process_kcsapi.hpp"
+#include "kcv/core/context_data.hpp"
 #include "kcv/core/json/read_json.hpp"
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_io.hpp"
 #include "kcv/domain/verification/entity/adapter/from_eoen.hpp"
 #include "kcv/domain/verification/entity/fleet.hpp"
+#include "kcv/domain/verification/entity/fleet_data.hpp"
+#include "kcv/domain/verification/entity/ship.hpp"
+#include "kcv/domain/verification/entity/slot.hpp"
 #include "kcv/external/eoen/database/kancolle_api/api_files.hpp"
 #include "kcv/external/eoen/database/sortie/sortie_record.hpp"
 #include "kcv/external/kcsapi/api_get_member/ship_deck/response.hpp"
@@ -40,9 +45,12 @@
 #include "kcv/external/kcsapi/api_req_sortie/ld_airbattle/response.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "kcv/external/kcsapi/extensions/damage_state.hpp"
 #include "kcv/external/kcsapi/extensions/to_string.hpp"
+#include "kcv/external/kcsapi/extensions/utility.hpp"
 #include "kcv/external/kcsapi/types/enum/air_hit_type.hpp"
 #include "kcv/external/kcsapi/types/enum/day_attack_kind.hpp"
+#include "kcv/external/kcsapi/types/enum/equipment_id.hpp"
 #include "kcv/external/kcsapi/types/enum/fleet_flag.hpp"
 #include "kcv/external/kcsapi/types/enum/night_attack_kind.hpp"
 #include "kcv/std_ext/exception.hpp"
@@ -227,6 +235,144 @@ namespace kcv {
 namespace {
 namespace impl {
 
+void write_akakari_header(std::ostream& os) {
+    os << "No.,"
+          "日付,"
+          "海域,"
+          "マス,"
+          "出撃,"
+          "ランク,"
+          "敵艦隊,"
+          "提督レベル,"
+          "自陣形,"
+          "敵陣形,"
+          "自索敵,"
+          "敵索敵,"
+          "制空権,"
+          "会敵,"
+          "自触接,"
+          "敵触接,"
+          "自照明弾,"
+          "敵照明弾,"
+          "戦闘種別,"
+          "艦名1,艦名2,艦名3,艦名4,艦名5,艦名6,艦名7,"
+          "開始,"
+          "攻撃艦,"
+          "砲撃種別,"
+          "砲撃回数,"
+          "表示装備1,表示装備2,表示装備3,"
+          "クリティカル,"
+          "ダメージ,"
+          "かばう,"
+          "攻撃艦.編成順,"
+          "攻撃艦.ID,"
+          "攻撃艦.名前,"
+          "攻撃艦.種別,"
+          "攻撃艦.疲労,"
+          // "攻撃艦.戦闘後疲労,"
+          "攻撃艦.残耐久,"
+          "攻撃艦.最大耐久,"
+          "攻撃艦.損傷,"
+          //   "攻撃艦.残燃料,"
+          //   "攻撃艦.戦闘後残燃料,"
+          //   "攻撃艦.最大燃料,"
+          "攻撃艦.残弾薬,"
+          //   "攻撃艦.戦闘後残弾薬,"
+          "攻撃艦.最大弾薬,"
+          "攻撃艦.Lv,"
+          "攻撃艦.速力,"
+          "攻撃艦.火力,"
+          "攻撃艦.雷装,"
+          //   "攻撃艦.対空,"
+          "攻撃艦.装甲,"
+          //   "攻撃艦.回避,"
+          "攻撃艦.対潜,"
+          //   "攻撃艦.索敵,"
+          //   "攻撃艦.運,"
+          //   "攻撃艦.射程,"
+          "攻撃艦.装備1.名前,攻撃艦.装備1.改修,攻撃艦.装備1.熟練度,攻撃艦.装備1.搭載数,攻撃艦.装備1.戦闘後搭載数,"
+          "攻撃艦.装備2.名前,攻撃艦.装備2.改修,攻撃艦.装備2.熟練度,攻撃艦.装備2.搭載数,攻撃艦.装備2.戦闘後搭載数,"
+          "攻撃艦.装備3.名前,攻撃艦.装備3.改修,攻撃艦.装備3.熟練度,攻撃艦.装備3.搭載数,攻撃艦.装備3.戦闘後搭載数,"
+          "攻撃艦.装備4.名前,攻撃艦.装備4.改修,攻撃艦.装備4.熟練度,攻撃艦.装備4.搭載数,攻撃艦.装備4.戦闘後搭載数,"
+          "攻撃艦.装備5.名前,攻撃艦.装備5.改修,攻撃艦.装備5.熟練度,攻撃艦.装備5.搭載数,攻撃艦.装備5.戦闘後搭載数,"
+          "攻撃艦.装備6.名前,攻撃艦.装備6.改修,攻撃艦.装備6.熟練度,攻撃艦.装備6.搭載数,攻撃艦.装備6.戦闘後搭載数,"
+          "防御艦.編成順,"
+          "防御艦.ID,"
+          "防御艦.名前,"
+          "防御艦.種別,"
+          "防御艦.疲労,"
+          //   "防御艦.戦闘後疲労,"
+          "防御艦.残耐久,"
+          "防御艦.最大耐久,"
+          "防御艦.損傷,"
+          //   "防御艦.残燃料,"
+          //   "防御艦.戦闘後残燃料,"
+          //   "防御艦.最大燃料,"
+          "防御艦.残弾薬,"
+          //   "防御艦.戦闘後残弾薬,"
+          "防御艦.最大弾薬,"
+          "防御艦.Lv,"
+          "防御艦.速力,"
+          "防御艦.火力,"
+          "防御艦.雷装,"
+          //   "防御艦.対空,"
+          "防御艦.装甲,"
+          //   "防御艦.回避,"
+          "防御艦.対潜,"
+          //   "防御艦.索敵,"
+          //   "防御艦.運,"
+          //   "防御艦.射程,"
+          "防御艦.装備1.名前,防御艦.装備1.改修,防御艦.装備1.熟練度,防御艦.装備1.搭載数,防御艦.装備1.戦闘後搭載数,"
+          "防御艦.装備2.名前,防御艦.装備2.改修,防御艦.装備2.熟練度,防御艦.装備2.搭載数,防御艦.装備2.戦闘後搭載数,"
+          "防御艦.装備3.名前,防御艦.装備3.改修,防御艦.装備3.熟練度,防御艦.装備3.搭載数,防御艦.装備3.戦闘後搭載数,"
+          "防御艦.装備4.名前,防御艦.装備4.改修,防御艦.装備4.熟練度,防御艦.装備4.搭載数,防御艦.装備4.戦闘後搭載数,"
+          "防御艦.装備5.名前,防御艦.装備5.改修,防御艦.装備5.熟練度,防御艦.装備5.搭載数,防御艦.装備5.戦闘後搭載数,"
+          "防御艦.装備6.名前,防御艦.装備6.改修,防御艦.装備6.熟練度,防御艦.装備6.搭載数,防御艦.装備6.戦闘後搭載数,"
+          "艦隊種類,"
+          "敵艦隊種類,"
+          //   "自探照灯.位置,"
+          //   "自探照灯.装備,"
+          //   "敵探照灯.位置,"
+          //   "敵探照灯.装備,"
+          //   "装甲破砕"
+          "\n";
+}
+
+/// @brief 戦闘種別の文字列を取得する.
+auto to_string(kcv::phase v) -> std::string_view {
+    switch (v) {
+            // 基地航空隊噴式強襲.
+
+            // 噴式強襲.
+
+            // 基地航空隊航空戦.
+
+            // 機動部隊航空友軍.
+
+            // 航空戦.
+
+            // 支援艦隊攻撃.
+
+        case kcv::phase::opening_taisen:
+            return "砲撃戦";
+
+        case kcv::phase::opening_atack:
+            return "雷撃戦";
+
+        case kcv::phase::hougeki:
+            return "砲撃戦";
+
+        case kcv::phase::raigeki:
+            return "雷撃戦";
+
+        case kcv::phase::midnight:
+            return "夜戦";
+
+        case kcv::phase::friendly:
+            return "夜戦";
+    }
+}
+
 /// @brief 出撃艦隊を取得する(赤仮用 艦名1~6).
 auto get_girls_fleet(const kcv::battlelog& data) -> const kcv::fleet& {
     switch (data.attacker_side) {
@@ -273,151 +419,244 @@ auto to_integer(const decltype(kcv::battlelog::clitical)& v) -> std::integral au
     );
 }
 
-void write_akakari_attacker(const kcv::battlelog& data, std::ostream& os);
-void write_akakari_defender(const kcv::battlelog& data, std::ostream& os);
+/// @brief 艦隊種類.
+auto player_fleet_type(const kcv::fleet_data& fleet_data) -> std::string_view {
+    switch (fleet_data.combined_flag()) {
+        case 0:
+            return "通常艦隊";
 
-void write_akakari_header(std::ostream& os) {
-    os << "海域,"
-          "マス,"
-          //   "出撃,"
-          //   "ランク,"
-          //   "敵艦隊,"
-          //   "提督レベル,"
-          "自陣形,"
-          "敵陣形,"
-          //   "自索敵,"
-          //   "敵索敵,"
-          //   "制空権,"
-          "会敵,"
-          //   "自触接,"
-          //   "敵触接,"
-          //   "自照明弾,"
-          //   "敵照明弾,"
-          //   "戦闘種別,"
-          "艦名1,艦名2,艦名3,艦名4,艦名5,艦名6,"
-          //   "開始,"
-          "攻撃艦,"
-          //   "砲撃種別,"
-          //   "砲撃回数,"
-          "表示装備1,表示装備2,表示装備3,"
-          //   "クリティカル,"
-          "ダメージ,"
-          // "かばう,"
-          //   "攻撃艦.編成順,"
-          //   "攻撃艦.ID,"
-          //   "攻撃艦.名前,"
-          //   "攻撃艦.種別,"
-          //   "攻撃艦.疲労,"
-          //   "攻撃艦.戦闘後疲労,"
-          //   "攻撃艦.残耐久,"
-          //   "攻撃艦.最大耐久,"
-          //   "攻撃艦.損傷,"
-          //   "攻撃艦.残燃料,"
-          //   "攻撃艦.戦闘後残燃料,"
-          //   "攻撃艦.最大燃料,"
-          //   "攻撃艦.残弾薬,"
-          //   "攻撃艦.戦闘後残弾薬,"
-          //   "攻撃艦.最大弾薬,"
-          //   "攻撃艦.Lv,"
-          //   "攻撃艦.速力,"
-          //   "攻撃艦.火力,"
-          //   "攻撃艦.雷装,"
-          //   "攻撃艦.対空,"
-          //   "攻撃艦.装甲,"
-          //   "攻撃艦.回避,"
-          //   "攻撃艦.対潜,"
-          //   "攻撃艦.索敵,"
-          //   "攻撃艦.運,"
-          //   "攻撃艦.射程,"
-          //   "攻撃艦.装備1.名前,攻撃艦.装備1.改修,攻撃艦.装備1.熟練度,攻撃艦.装備1.搭載数,攻撃艦.装備1.戦闘後搭載数,"
-          //   "攻撃艦.装備2.名前,攻撃艦.装備2.改修,攻撃艦.装備2.熟練度,攻撃艦.装備2.搭載数,攻撃艦.装備2.戦闘後搭載数,"
-          //   "攻撃艦.装備3.名前,攻撃艦.装備3.改修,攻撃艦.装備3.熟練度,攻撃艦.装備3.搭載数,攻撃艦.装備3.戦闘後搭載数,"
-          //   "攻撃艦.装備4.名前,攻撃艦.装備4.改修,攻撃艦.装備4.熟練度,攻撃艦.装備4.搭載数,攻撃艦.装備4.戦闘後搭載数,"
-          //   "攻撃艦.装備5.名前,攻撃艦.装備5.改修,攻撃艦.装備5.熟練度,攻撃艦.装備5.搭載数,攻撃艦.装備5.戦闘後搭載数,"
-          //   "攻撃艦.装備6.名前,攻撃艦.装備6.改修,攻撃艦.装備6.熟練度,攻撃艦.装備6.搭載数,攻撃艦.装備6.戦闘後搭載数,"
-          //   "防御艦.編成順,"
-          //   "防御艦.ID,"
-          //   "防御艦.名前,"
-          //   "防御艦.種別,"
-          //   "防御艦.疲労,"
-          //   "防御艦.戦闘後疲労,"
-          //   "防御艦.残耐久,"
-          //   "防御艦.最大耐久,"
-          //   "防御艦.損傷,"
-          //   "防御艦.残燃料,"
-          //   "防御艦.戦闘後残燃料,"
-          //   "防御艦.最大燃料,"
-          //   "防御艦.残弾薬,"
-          //   "防御艦.戦闘後残弾薬,"
-          //   "防御艦.最大弾薬,"
-          //   "防御艦.Lv,"
-          //   "防御艦.速力,"
-          //   "防御艦.火力,"
-          //   "防御艦.雷装,"
-          //   "防御艦.対空,"
-          //   "防御艦.装甲,"
-          //   "防御艦.回避,"
-          //   "防御艦.対潜,"
-          //   "防御艦.索敵,"
-          //   "防御艦.運,"
-          //   "防御艦.射程,"
-          //   "防御艦.装備1.名前,防御艦.装備1.改修,防御艦.装備1.熟練度,防御艦.装備1.搭載数,防御艦.装備1.戦闘後搭載数,"
-          //   "防御艦.装備2.名前,防御艦.装備2.改修,防御艦.装備2.熟練度,防御艦.装備2.搭載数,防御艦.装備2.戦闘後搭載数,"
-          //   "防御艦.装備3.名前,防御艦.装備3.改修,防御艦.装備3.熟練度,防御艦.装備3.搭載数,防御艦.装備3.戦闘後搭載数,"
-          //   "防御艦.装備4.名前,防御艦.装備4.改修,防御艦.装備4.熟練度,防御艦.装備4.搭載数,防御艦.装備4.戦闘後搭載数,"
-          //   "防御艦.装備5.名前,防御艦.装備5.改修,防御艦.装備5.熟練度,防御艦.装備5.搭載数,防御艦.装備5.戦闘後搭載数,"
-          //   "防御艦.装備6.名前,防御艦.装備6.改修,防御艦.装備6.熟練度,防御艦.装備6.搭載数,防御艦.装備6.戦闘後搭載数"
-          //   "艦隊種類,"
-          //   "敵艦隊種類,"
-          //   "自探照灯.位置,"
-          //   "自探照灯.装備,"
-          //   "敵探照灯.位置,"
-          //   "敵探照灯.装備,"
-          //   "装甲破砕"
-          "\n";
+        case 1:
+            return "水上打撃部隊";
+
+        case 2:
+            return "空母機動部隊";
+
+        case 3:
+            return "輸送護衛部隊";
+    }
+
+    throw kcv::exception{};
 }
 
-void write_akakari_row(const kcv::battlelog& data, std::ostream& os) {
-    // 海域,マス.
-    std::print(os, "{},{},{},", data.world, data.map, data.cell);
+/// @brief 敵艦隊種類.
+auto abyssal_fleet_type(const kcv::fleet_data& fleet_data) -> std::string_view {
+    switch (fleet_data.combined_flag()) {
+        case 0:
+            return "通常艦隊";
+
+        case 1:
+            return "連合艦隊";
+
+        case 2:
+            return "連合艦隊";
+
+        case 3:
+            return "連合艦隊";
+    }
+
+    throw kcv::exception{};
+}
+
+void write_akakari_slot(const kcv::slot& slot, std::ostream& os) {
+    // *艦.装備1.名前.
+    if (const auto& e = slot.equipment(); e.has_value()) {
+        std::print(os, "{},", e->mst().api_name);
+    } else {
+        std::print(os, ",");
+    }
+    // *艦.装備1.改修.
+    if (const auto& e = slot.equipment(); e.has_value()) {
+        std::print(os, "{},", e->level());
+    } else {
+        std::print(os, ",");
+    }
+    // *艦.装備1.熟練度.
+    if (const auto& e = slot.equipment(); e.has_value()) {
+        std::print(os, "{},", e->aircraft_level());
+    } else {
+        std::print(os, ",");
+    }
+    // *艦.装備1.搭載数.
+    std::print(os, "{},", slot.aircraft_current());
+    // *艦.装備1.戦闘後搭載数.
+    std::print(os, "{},", slot.aircraft_max());
+}
+
+void write_akakari_ship(
+    const kcv::ship& ship,
+    const kcv::kcsapi::api_mst_ship& api_mst_ship,
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
+    std::ostream& os
+) {
+    // *艦.編成順.
+
+    // *艦.ID.
+    std::print(os, "{},", std::to_underlying(ship.mst().api_id));
+    // *艦.名前.
+    std::print(os, "{},", ship.mst().api_name);
+    // *艦.種別.
+    std::print(os, "{},", kcv::to_string(ship.mst().api_stype));
+    // *艦.疲労.
+    std::print(os, "{},", ship.condition());
+    // *艦.戦闘後疲労.
+
+    // *艦.残耐久.
+    std::print(os, "{},", ship.hp());
+    // *艦.最大耐久.
+    std::print(os, "{},", ship.maxhp());
+    // *艦.損傷.
+    std::print(os, "{},", kcv::to_string(kcv::to_damage_state(ship.hp(), ship.maxhp())));
+    // *艦.残燃料.
+    // *艦.戦闘後残燃料.
+    // *艦.最大燃料.
+
+    // *艦.残弾薬.
+    std::print(os, "{},", ship.ammo());
+
+    // *艦.戦闘後残弾薬.
+
+    // *艦.最大弾薬.
+    /// @todo: ""を書き出すようにする.
+    std::print(os, "{},", ship.mst().api_bull_max.value_or(0));
+
+    // *艦.Lv.
+    std::print(os, "{},", ship.level());
+
+    // *艦.速力.
+    std::print(os, "{},", ship.speed());
+
+    // *艦.火力.
+    std::print(os, "0,");
+
+    // *艦.雷装.
+    std::print(os, "{},", ship.torpedo());
+
+    // *艦.対空.
+
+    // *艦.装甲.
+    std::print(os, "{},", ship.armor());
+
+    // *艦.回避.
+
+    // *艦.対潜.
+    std::print(os, "0,");
+
+    // *艦.索敵.
+    // *艦.運.
+    // *艦.射程.
+
+    // *艦.装備1 - *艦.装備6.
+    for (const auto slots = ship.slots(); auto i : std::ranges::views::iota(0uz, 6uz)) {
+        if (i < slots.size()) {
+            kcv::impl::write_akakari_slot(slots[i], os);
+        } else {
+            std::print(os, ",,,,,");
+        }
+    }
+}
+
+void write_akakari_row(
+    const kcv::battlelog& data,
+    const kcv::kcsapi::api_mst_ship& api_mst_ship,
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
+    std::ostream& os
+) {
+    // 日付.
+    // YYYY/MM/DD hh:mm:ss
+    std::print(os, ",");
+    // 海域.
+    std::print(os, ",");
+    // マス.
+    std::print(os, "マップ:{}-{} セル:{},", data.world, data.map, data.cell);
+    // 出撃.
+    std::print(os, ",");
+    // ランク.
+    std::print(os, ",");
+    // 敵艦隊.
+    std::print(os, ",");
+    // 提督レベル.
+    std::print(os, ",");
     // 自陣形.
     std::print(os, "{},", kcv::to_string(kcv::get_attacker_formation(data)));
     // 敵陣形.
     std::print(os, "{},", kcv::to_string(kcv::get_defender_formation(data)));
+    // 自索敵
+    std::print(os, ",");
+    // 敵索敵
+    std::print(os, ",");
+    // 制空権.
+    std::print(os, ",");
     // 会敵.
     std::print(os, "{},", kcv::to_string(data.engagement));
-    // 艦名1,艦名2,艦名3,艦名4,艦名5,艦名6.
-    for (const auto& girls = kcv::impl::get_girls_fleet(data).ships(); auto i : std::ranges::views::iota(0uz, 6uz)) {
+    // 自触接.
+    if (const auto id = std::get<0>(data.touch_plane); id == kcv::kcsapi::invalid_equipment_id) {
+        std::print(os, ",");
+    } else {
+        const auto& mst = kcv::find_mst(api_mst_slotitem, id);
+        std::print(os, "{},", mst.api_name);
+    }
+    // 敵触接.
+    if (const auto id = std::get<1>(data.touch_plane); id == kcv::kcsapi::invalid_equipment_id) {
+        std::print(os, ",");
+    } else {
+        const auto& mst = kcv::find_mst(api_mst_slotitem, id);
+        std::print(os, "{},", mst.api_name);
+    }
+    // 自照明弾.
+    std::print(os, ",");
+    // 敵照明弾.
+    std::print(os, ",");
+    // 戦闘種別.
+    std::print(os, "{},", kcv::impl::to_string(data.phase));
+    // 艦名1,艦名2,艦名3,艦名4,艦名5,艦名6,艦名7.
+    for (const auto& girls = kcv::impl::get_girls_fleet(data).ships(); auto i : std::ranges::views::iota(0uz, 7uz)) {
         if (i < girls.size()) {
             std::print(os, "{},", girls.at(i).mst().api_name);
         } else {
             std::print(os, ",");
         }
     }
+    // 開始.
+    std::print(os, ",");
     // 攻撃艦.
     std::print(os, "{},", kcv::to_string(data.attacker_side));
     // 砲撃種別.
-    std::print(os, "{}", kcv::impl::to_integer(data.attack_kind));
+    std::print(os, "{},", kcv::impl::to_integer(data.attack_kind));
+    // 砲撃回数.
+    std::print(os, "0,");
     // 表示装備.
     for (auto i : std::ranges::views::iota(0uz, 3uz)) {
         if (i < data.display_equipments.size()) {
-            /// XXX: 赤仮は装備名で出力する.
-            std::print(os, "{},", std::to_underlying(data.display_equipments.at(i)));
+            const auto id = data.display_equipments.at(i);
+            if (id == kcv::kcsapi::invalid_equipment_id) {
+                std::print(os, ",");
+            } else {
+                // 所持装備から検索すると引数リストからマスタデータを削除できる.
+                const auto& mst = kcv::find_mst(api_mst_slotitem, id);
+                std::print(os, "{},", mst.api_name);
+            }
         } else {
             std::print(os, ",");
         }
     }
     // クリティカル.
-    std::print(os, "{}", kcv::impl::to_integer(data.clitical));
+    std::print(os, "{},", kcv::impl::to_integer(data.clitical));
     // ダメージ.
     std::print(os, "{},", data.damage);
     // かばう.
-    std::print(os, "{}", +data.is_protected);
+    std::print(os, "{},", +data.is_protected);
+    // 攻撃艦.編成順.
+    std::print(os, ",");
     // 攻撃艦.
-    // kcv::impl::write_akakari_attacker(data, os);
+    kcv::impl::write_akakari_ship(kcv::get_attacker(data), api_mst_ship, api_mst_slotitem, os);
+    // 防御艦.編成順.
+    std::print(os, ",");
     // 防御艦.
-    // kcv::impl::write_akakari_defender(data, os);
-
+    kcv::impl::write_akakari_ship(kcv::get_defender(data), api_mst_ship, api_mst_slotitem, os);
+    // 艦隊種類.
+    std::print(os, "{},", kcv::impl::player_fleet_type(data.girls_fleet_data));
+    // 敵艦隊種類.
+    std::print(os, "{},", kcv::impl::abyssal_fleet_type(data.abyssal_fleet_data));
     os << '\n';
 }
 
@@ -425,12 +664,20 @@ void write_akakari_row(const kcv::battlelog& data, std::ostream& os) {
 }  // namespace
 }  // namespace kcv
 
-void kcv::write_akakari(const kcv::battlelogs_t& battlelogs, const std::filesystem::path& fname) {
+void kcv::write_akakari(
+    const kcv::battlelogs_t& battlelogs,
+    const kcv::kcsapi::api_mst_ship& api_mst_ship,
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
+    const std::filesystem::path& fname
+) {
     auto os = std::ofstream{fname};
 
     kcv::impl::write_akakari_header(os);
 
-    for (const auto& data : battlelogs) {
-        kcv::impl::write_akakari_row(data, os);
+    for (auto i = 0uz; const auto& data : battlelogs) {
+        // No.
+        std::print(os, "{},", ++i);
+
+        kcv::impl::write_akakari_row(data, api_mst_ship, api_mst_slotitem, os);
     }
 }

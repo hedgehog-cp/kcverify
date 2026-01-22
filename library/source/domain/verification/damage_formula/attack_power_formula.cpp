@@ -66,50 +66,50 @@ auto mod::basic_attack_power(const kcv::context_data& ctx, const kcv::battlelog&
     return kcv::number{};
 }
 
-auto mod::f0(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::f0(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f0 {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::f0{};
 }
 
 namespace kcv::modifiers {
 namespace {
 namespace engagement_impl {
 
-auto default_modifier() noexcept -> kcv::functions::liner {
-    return kcv::functions::liner{};
+auto default_modifier() noexcept -> kcv::functions::engagement {
+    return kcv::functions::engagement{};
 }
 
-auto special_kongou(const kcv::battlelog& data) noexcept -> kcv::functions::liner {
+auto special_kongou(const kcv::battlelog& data) noexcept -> kcv::functions::engagement {
     switch (data.engagement) {
         case kcv::kcsapi::engagement::green_t:
-            return kcv::functions::liner{.a = 1.25};
+            return kcv::functions::engagement{.a = 1.25};
 
         case kcv::kcsapi::engagement::parallel:
         case kcv::kcsapi::engagement::head_on:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::engagement{.a = 1.0};
 
         case kcv::kcsapi::engagement::red_t:
-            return kcv::functions::liner{.a = 0.8};
+            return kcv::functions::engagement{.a = 0.8};
     }
 
     return default_modifier();
 }
 
-auto nelson_touch(const kcv::battlelog& data) noexcept -> kcv::functions::liner {
+auto nelson_touch(const kcv::battlelog& data) noexcept -> kcv::functions::engagement {
     switch (data.engagement) {
         case kcv::kcsapi::engagement::green_t:
         case kcv::kcsapi::engagement::parallel:
         case kcv::kcsapi::engagement::head_on:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::engagement{.a = 1.0};
 
         case kcv::kcsapi::engagement::red_t:
-            return kcv::functions::liner{.a = 1.25};
+            return kcv::functions::engagement{.a = 1.25};
     }
 
     return default_modifier();
 }
 
-auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::engagement {
     switch (std::get<kcv::kcsapi::night_attack_kind>(data.attack_kind)) {
         case kcv::kcsapi::night_attack_kind::normal_attack:
             // 僚艦夜戦突撃を交戦形態補正とするならばネルソンタッチもここだろう.
@@ -126,19 +126,19 @@ auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
     }
 }
 
-auto primary_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto primary_modifier(const kcv::battlelog& data) -> kcv::functions::engagement {
     switch (data.engagement) {
         case kcv::kcsapi::engagement::green_t:
-            return kcv::functions::liner{.a = 1.2};
+            return kcv::functions::engagement{.a = 1.2};
 
         case kcv::kcsapi::engagement::parallel:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::engagement{.a = 1.0};
 
         case kcv::kcsapi::engagement::head_on:
-            return kcv::functions::liner{.a = 0.8};
+            return kcv::functions::engagement{.a = 0.8};
 
         case kcv::kcsapi::engagement::red_t:
-            return kcv::functions::liner{.a = 0.6};
+            return kcv::functions::engagement{.a = 0.6};
     }
 
     return default_modifier();
@@ -148,7 +148,7 @@ auto primary_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
 }  // namespace
 }  // namespace kcv::modifiers
 
-auto mod::engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::engagement {
     namespace impl = kcv::modifiers::engagement_impl;
 
     // if (ctx.既存補正をoff) { return ctx.置換; }
@@ -169,8 +169,8 @@ namespace kcv::modifiers {
 namespace {
 namespace formation_impl {
 
-auto default_modifier() noexcept -> kcv::functions::liner {
-    return kcv::functions::liner{};
+auto default_modifier() noexcept -> kcv::functions::formation {
+    return kcv::functions::formation{};
 }
 
 bool is_vanguard_main_in_combined_fleet(const kcv::battlelog& data) {
@@ -201,143 +201,143 @@ bool is_vanguard_main(const kcv::battlelog& data) noexcept {
     return is_vanguard_main_in_combined_fleet(data);
 }
 
-auto vanguard_in_midnight_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto vanguard_in_midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     if (is_vanguard_main(data)) {
-        return kcv::functions::liner{.a = 0.5};
+        return kcv::functions::formation{.a = 0.5};
     }
 
-    return kcv::functions::liner{.a = 1.0};
+    return kcv::functions::formation{.a = 1.0};
 }
 
-auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     switch (kcv::get_attacker_formation(data)) {
         case kcv::kcsapi::formation::vanguard:
             return vanguard_in_midnight_modifier(data);
 
         default:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::formation{.a = 1.0};
     }
 }
 
-auto vanguard_in_shelling_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto vanguard_in_shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     if (is_vanguard_main(data)) {
-        return kcv::functions::liner{.a = 0.5};
+        return kcv::functions::formation{.a = 0.5};
     }
 
-    return kcv::functions::liner{.a = 1.0};
+    return kcv::functions::formation{.a = 1.0};
 }
 
-auto shelling_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     switch (kcv::get_attacker_formation(data)) {
         case kcv::kcsapi::formation::line_ahead:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::formation{.a = 1.0};
 
         case kcv::kcsapi::formation::double_line:
-            return kcv::functions::liner{.a = 0.8};
+            return kcv::functions::formation{.a = 0.8};
 
         case kcv::kcsapi::formation::diamond:
-            return kcv::functions::liner{.a = 0.7};
+            return kcv::functions::formation{.a = 0.7};
 
         case kcv::kcsapi::formation::echelon:
-            return kcv::functions::liner{.a = 0.75};
+            return kcv::functions::formation{.a = 0.75};
 
         case kcv::kcsapi::formation::line_abreast:
-            return kcv::functions::liner{.a = 0.6};
+            return kcv::functions::formation{.a = 0.6};
 
         case kcv::kcsapi::formation::vanguard:
             return vanguard_in_shelling_modifier(data);
 
         case kcv::kcsapi::formation::Cruising1:
-            return kcv::functions::liner{.a = 0.8};
+            return kcv::functions::formation{.a = 0.8};
 
         case kcv::kcsapi::formation::Cruising2:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::formation{.a = 1.0};
 
         case kcv::kcsapi::formation::Cruising3:
-            return kcv::functions::liner{.a = 0.7};
+            return kcv::functions::formation{.a = 0.7};
 
         case kcv::kcsapi::formation::Cruising4:
-            return kcv::functions::liner{.a = 1.1};
+            return kcv::functions::formation{.a = 1.1};
     }
 
     return default_modifier();
 }
 
-auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     switch (kcv::get_attacker_formation(data)) {
         case kcv::kcsapi::formation::line_ahead:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::formation{.a = 1.0};
 
         case kcv::kcsapi::formation::double_line:
-            return kcv::functions::liner{.a = 0.8};
+            return kcv::functions::formation{.a = 0.8};
 
         case kcv::kcsapi::formation::diamond:
-            return kcv::functions::liner{.a = 0.7};
+            return kcv::functions::formation{.a = 0.7};
 
         case kcv::kcsapi::formation::echelon:
-            return kcv::functions::liner{.a = 0.6};
+            return kcv::functions::formation{.a = 0.6};
 
         case kcv::kcsapi::formation::line_abreast:
-            return kcv::functions::liner{.a = 0.6};
+            return kcv::functions::formation{.a = 0.6};
 
         case kcv::kcsapi::formation::vanguard:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::formation{.a = 1.0};
 
         case kcv::kcsapi::formation::Cruising1:
-            return kcv::functions::liner{.a = 0.7};
+            return kcv::functions::formation{.a = 0.7};
 
         case kcv::kcsapi::formation::Cruising2:
-            return kcv::functions::liner{.a = 0.9};
+            return kcv::functions::formation{.a = 0.9};
 
         case kcv::kcsapi::formation::Cruising3:
-            return kcv::functions::liner{.a = 0.6};
+            return kcv::functions::formation{.a = 0.6};
 
         case kcv::kcsapi::formation::Cruising4:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::formation{.a = 1.0};
     }
 
     return default_modifier();
 }
 
-auto vanguard_in_asw_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto vanguard_in_asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     if (is_vanguard_main(data)) {
-        return kcv::functions::liner{.a = 1.0};
+        return kcv::functions::formation{.a = 1.0};
     }
 
-    return kcv::functions::liner{.a = 0.6};
+    return kcv::functions::formation{.a = 0.6};
 }
 
-auto asw_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     switch (kcv::get_attacker_formation(data)) {
         case kcv::kcsapi::formation::line_ahead:
-            return kcv::functions::liner{.a = 0.6};
+            return kcv::functions::formation{.a = 0.6};
 
         case kcv::kcsapi::formation::double_line:
-            return kcv::functions::liner{.a = 0.8};
+            return kcv::functions::formation{.a = 0.8};
 
         case kcv::kcsapi::formation::diamond:
-            return kcv::functions::liner{.a = 1.2};
+            return kcv::functions::formation{.a = 1.2};
 
         case kcv::kcsapi::formation::echelon:
-            return kcv::functions::liner{.a = 1.1};
+            return kcv::functions::formation{.a = 1.1};
 
         case kcv::kcsapi::formation::line_abreast:
-            return kcv::functions::liner{.a = 1.3};
+            return kcv::functions::formation{.a = 1.3};
 
         case kcv::kcsapi::formation::vanguard:
             return vanguard_in_asw_modifier(data);
 
         case kcv::kcsapi::formation::Cruising1:
-            return kcv::functions::liner{.a = 1.3};
+            return kcv::functions::formation{.a = 1.3};
 
         case kcv::kcsapi::formation::Cruising2:
-            return kcv::functions::liner{.a = 1.1};
+            return kcv::functions::formation{.a = 1.1};
 
         case kcv::kcsapi::formation::Cruising3:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::formation{.a = 1.0};
 
         case kcv::kcsapi::formation::Cruising4:
-            return kcv::functions::liner{.a = 0.7};
+            return kcv::functions::formation{.a = 0.7};
     }
 
     return default_modifier();
@@ -347,7 +347,7 @@ auto asw_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
 }  // namespace
 }  // namespace kcv::modifiers
 
-auto mod::formation(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::formation(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::formation {
     namespace impl = kcv::modifiers::formation_impl;
 
     // if (ctx.既存補正をoff) { return ctx.置換; }
@@ -366,6 +366,7 @@ auto mod::formation(const kcv::context_data& ctx, const kcv::battlelog& data) ->
             return impl::torpedo_modifier(data);
 
         case kcv::phase::midnight:
+        case kcv::phase::friendly:
             return impl::midnight_modifier(data);
     }
 
@@ -381,21 +382,21 @@ auto get_attacker_damage_state(const kcv::battlelog& data) -> kcv::damage_state 
     return kcv::to_damage_state(attacker.hp(), attacker.maxhp());
 }
 
-auto default_modifier() noexcept -> kcv::functions::liner {
-    return kcv::functions::liner{};
+auto default_modifier() noexcept -> kcv::functions::damage_state {
+    return kcv::functions::damage_state{};
 }
 
-auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::damage_state {
     switch (get_attacker_damage_state(data)) {
         case kcv::damage_state::healthy:
         case kcv::damage_state::light:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::damage_state{.a = 1.0};
 
         case kcv::damage_state::medium:
-            return kcv::functions::liner{.a = 0.8};
+            return kcv::functions::damage_state{.a = 0.8};
 
         case kcv::damage_state::heavy:
-            return kcv::functions::liner{.a = 0.0};
+            return kcv::functions::damage_state{.a = 0.0};
 
         case kcv::damage_state::sunk:
             /// TODO: 要検討. 刺し違え雷撃.
@@ -403,17 +404,17 @@ auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
     }
 }
 
-auto primary_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto primary_modifier(const kcv::battlelog& data) -> kcv::functions::damage_state {
     switch (get_attacker_damage_state(data)) {
         case kcv::damage_state::healthy:
         case kcv::damage_state::light:
-            return kcv::functions::liner{.a = 1.0};
+            return kcv::functions::damage_state{.a = 1.0};
 
         case kcv::damage_state::medium:
-            return kcv::functions::liner{.a = 0.7};
+            return kcv::functions::damage_state{.a = 0.7};
 
         case kcv::damage_state::heavy:
-            return kcv::functions::liner{.a = 0.4};
+            return kcv::functions::damage_state{.a = 0.4};
 
         case kcv::damage_state::sunk:
             return default_modifier();
@@ -424,7 +425,7 @@ auto primary_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
 }  // namespace
 }  // namespace kcv::modifiers
 
-auto mod::damage_state(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::damage_state(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::damage_state {
     namespace impl = kcv::modifiers::damage_state_impl;
 
     // if (ctx.既存補正をoff) { return ctx.置換; }
@@ -446,15 +447,15 @@ namespace kcv::modifiers {
 namespace {
 namespace pre_asw_impl {
 
-auto default_modifier() noexcept -> kcv::functions::liner {
-    return kcv::functions::liner{};
+auto default_modifier() noexcept -> kcv::functions::pre_asw {
+    return kcv::functions::pre_asw{};
 }
 
 }  // namespace pre_asw_impl
 }  // namespace
 }  // namespace kcv::modifiers
 
-auto mod::pre_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::pre_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::pre_asw {
     namespace impl = kcv::modifiers::pre_asw_impl;
 
     // if (ctx.既存補正をoff) { return ctx.置換; }
@@ -464,7 +465,7 @@ auto mod::pre_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> k
         const bool has_sonor        = kcv::has_equipment(attacker, kcv::is_sonor);
         const bool has_depth_charge = kcv::has_equipment(attacker, kcv::is_depth_charge);
         if (has_sonor and has_depth_charge) {
-            return kcv::functions::liner{.a = 1.15};
+            return kcv::functions::pre_asw{.a = 1.15};
         }
     }
 
@@ -475,15 +476,15 @@ namespace kcv::modifiers {
 namespace {
 namespace post_asw_impl {
 
-auto default_modifier() noexcept -> kcv::functions::liner {
-    return kcv::functions::liner{};
+auto default_modifier() noexcept -> kcv::functions::post_asw {
+    return kcv::functions::post_asw{};
 }
 
 }  // namespace post_asw_impl
 }  // namespace
 }  // namespace kcv::modifiers
 
-auto mod::post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::post_asw {
     namespace impl = kcv::modifiers::post_asw_impl;
 
     // if (ctx.既存補正をoff) { return ctx.置換; }
@@ -497,9 +498,9 @@ auto mod::post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> 
                 return std::get<kcv::kcsapi::idx_type::category>(mst.api_type) == kcv::kcsapi::category::sonar;
             });
             if (has_small_sonor) {
-                return kcv::functions::liner{.a = 1.25};
+                return kcv::functions::post_asw{.a = 1.25};
             } else {
-                return kcv::functions::liner{.a = 1.1};
+                return kcv::functions::post_asw{.a = 1.1};
             }
         }
     }
@@ -507,28 +508,28 @@ auto mod::post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> 
     return impl::default_modifier();
 }
 
-auto mod::f14(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::f14(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f14 {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::f14{};
 }
 
 namespace kcv::modifiers {
 namespace {
 namespace fit_gun_impl {
 
-auto default_modifier() noexcept -> kcv::functions::liner {
-    return kcv::functions::liner{};
+auto default_modifier() noexcept -> kcv::functions::fit_gun {
+    return kcv::functions::fit_gun{};
 }
 
-auto italian_fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto italian_fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::fit_gun {
     const auto& attacker       = kcv::get_attacker(data);
     const auto italian_gun_num = kcv::number{
         static_cast<kcv::number::base_type>(kcv::count_equipment(attacker, kcv::is_italian_fit_main_gun)),
     };
-    return kcv::functions::liner{.b = kcv::sqrt(italian_gun_num)};
+    return kcv::functions::fit_gun{.b = kcv::sqrt(italian_gun_num)};
 }
 
-auto cl_fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto cl_fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::fit_gun {
     const auto& attacker    = kcv::get_attacker(data);
     const auto main_gun_num = kcv::number{
         static_cast<kcv::number::base_type>(kcv::count_equipment(attacker, kcv::is_cl_fit_main_gun)),
@@ -536,10 +537,10 @@ auto cl_fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
     const auto secondary_gun_num = kcv::number{
         static_cast<kcv::number::base_type>(kcv::count_equipment(attacker, kcv::is_cl_fit_secondary_gun)),
     };
-    return kcv::functions::liner{.b = 2 * kcv::sqrt(main_gun_num) + kcv::sqrt(secondary_gun_num)};
+    return kcv::functions::fit_gun{.b = 2 * kcv::sqrt(main_gun_num) + kcv::sqrt(secondary_gun_num)};
 }
 
-auto fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
+auto fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::fit_gun {
     const auto& attacker = kcv::get_attacker(data);
     if (kcv::is_cl(attacker.mst())) {
         return cl_fit_gun_modifier(data);
@@ -556,7 +557,7 @@ auto fit_gun_modifier(const kcv::battlelog& data) -> kcv::functions::liner {
 }  // namespace
 }  // namespace kcv::modifiers
 
-auto mod::fit_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::fit_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::fit_gun {
     namespace impl = kcv::modifiers::fit_gun_impl;
 
     // if (ctx.既存補正をoff) { return ctx.置換; }
@@ -573,6 +574,7 @@ auto mod::fit_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> k
             return impl::default_modifier();
 
         case kcv::phase::midnight:
+        case kcv::phase::friendly:
             return impl::fit_gun_modifier(data);
     }
 
@@ -645,42 +647,42 @@ auto mod::softcap(const kcv::context_data& ctx, const kcv::battlelog& data) -> k
     return kcv::functions::softcap{.cap = std::numeric_limits<kcv::number::base_type>::infinity()};
 }
 
-auto mod::f5(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::f5(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f5 {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::f5{};
 }
 
 auto mod::floor_f5(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::floor_if {
     return kcv::functions::floor_if{.is_enabled = true};
 }
 
-auto mod::f6(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::f6(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f6 {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::f6{};
 }
 
-auto mod::f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f7 {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::f7{};
 }
 
 auto mod::floor_f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::floor_if {
     return kcv::functions::floor_if{.is_enabled = true};
 }
 
-auto mod::map(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::map(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::map {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::map{};
 }
 
-auto mod::event(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::event(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::event {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::event{};
 }
 
-auto mod::f8(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
+auto mod::f8(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f8 {
     // if (ctx.既存補正をoff) { return ctx.置換; }
-    return kcv::functions::liner{};
+    return kcv::functions::f8{};
 }
 
 auto mod::pt_imp(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::pt_imp {

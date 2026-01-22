@@ -135,6 +135,7 @@ namespace {
 namespace impl {
 
 /// @brief 戦闘開始時に大破しているかを検証する.
+/// @todo ダメコン復活時の判定を考慮する.
 bool is_heavy_damaged_on_battle_start(const kcv::battlelog& data) noexcept {
     // スプレの実装では, 戦闘ログ(赤仮.csv)に戦闘開始時の残耐久が存在しないため, 常にtrueを返している.
     // ここでは, 戦闘中に耐久が回復しないことを前提に, 攻撃を受ける直前が中破以下の損傷であればfalseを返すように改善する.

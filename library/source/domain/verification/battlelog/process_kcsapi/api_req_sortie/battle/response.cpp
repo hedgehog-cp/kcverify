@@ -25,6 +25,7 @@
 #include "kcv/external/kcsapi/types/api_hougeki1.hpp"
 #include "kcv/external/kcsapi/types/api_injection_kouku.hpp"
 #include "kcv/external/kcsapi/types/api_kouku.hpp"
+#include "kcv/external/kcsapi/types/api_kyouka.hpp"
 #include "kcv/external/kcsapi/types/api_raigeki.hpp"
 #include "kcv/external/kcsapi/types/api_support_info.hpp"
 #include "kcv/external/kcsapi/types/enum/day_attack_kind.hpp"
@@ -83,10 +84,18 @@ void initialize_abyssal_fleet_data(
 
         const auto exslot     = std::nullopt;
         const auto condition  = 49;
+        const auto ammo       = 0;  // 深海棲艦の弾薬量補正は常に1.
+        const auto kyouka     = kcv::kcsapi::api_kyouka{};
         const auto maximum_hp = kcv::to_integer(maxhp).value();
         const auto hp         = kcv::to_integer(nowhp).value();
+        const auto torpedo    = std::get<kcv::kcsapi::idx_param::raig>(param);
+        const auto armor      = std::get<kcv::kcsapi::idx_param::souk>(param);
+        const auto speed      = mst.api_soku;  // ?
 
-        ships.emplace_back(mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, maximum_hp, hp);
+        ships.emplace_back(
+            mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, ammo, kyouka, maximum_hp, hp,
+            torpedo, armor, speed
+        );
     }
 
     current.abyssal_fleet_data = kcv::fleet_data{

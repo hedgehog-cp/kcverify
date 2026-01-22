@@ -33,8 +33,13 @@ class ship final {
         std::optional<kcv::slot> exslot,
         std::int32_t level,
         std::int32_t condition,
+        std::int32_t ammo,
+        const kcv::kcsapi::api_kyouka& kyouka,
         std::int32_t maxhp,
-        std::int32_t hp
+        std::int32_t hp,
+        std::int32_t torpedo,
+        std::int32_t armor,
+        std::int32_t speed
     )
         : mst_{mst}
         , base_id_{base_id}
@@ -43,8 +48,13 @@ class ship final {
         , exslot_{exslot}
         , level_{level}
         , condition_{condition}
+        , ammo_{ammo}
+        , kyouka_{kyouka}
         , maxhp_{maxhp}
-        , hp_{hp} {}
+        , hp_{hp}
+        , torpedo_{torpedo}
+        , armor_{armor}
+        , speed_{speed} {}
 
     auto mst() const noexcept -> const kcv::kcsapi::api_mst_ship_value_t& {
         return this->mst_;
@@ -86,6 +96,10 @@ class ship final {
         return this->condition_;
     }
 
+    auto ammo() const noexcept -> std::int32_t {
+        return this->ammo_;
+    }
+
     auto maxhp() const noexcept -> std::int32_t {
         return this->maxhp_;
     }
@@ -96,6 +110,18 @@ class ship final {
 
     void hp(std::int32_t hp) noexcept {
         this->hp_ = hp;
+    }
+
+    auto torpedo() const noexcept -> std::int32_t {
+        return this->torpedo_;
+    }
+
+    auto armor() const noexcept -> std::int32_t {
+        return this->armor_;
+    }
+
+    auto speed() const noexcept -> std::int32_t {
+        return this->speed_;
     }
 
    private:
@@ -124,13 +150,13 @@ class ship final {
     // std::int32_t fuel_;
 
     // /// @brief 搭載弾薬量.
-    // std::int32_t ammo_;
+    std::int32_t ammo_;
 
     // /// @brief 搭載数.
     // std::vector<std::int32_t> aircraft_;
 
-    // /// @brief 近代化改修. 0=火力, 1=雷装, 2=対空, 3=装甲, 4=運, 5=耐久, 6=対潜.
-    // kcv::kcsapi::api_kyouka kyouka_;
+    /// @brief 近代化改修. 0=火力, 1=雷装, 2=対空, 3=装甲, 4=運, 5=耐久, 6=対潜.
+    kcv::kcsapi::api_kyouka kyouka_;
 
     // /// @brief 特注アイテム.
     // std::optional<std::vector<kcv::kcsapi::sp_effect_item>> special_effect_items;
@@ -144,14 +170,14 @@ class ship final {
     // /// @brief 火力.
     // std::int32_t firepower_;
 
-    // /// @brief 雷装.
-    // std::int32_t torpedo_;
+    /// @brief 雷装.
+    std::int32_t torpedo_;
 
     // /// @brief 対空.
     // std::int32_t aa_;
 
-    // /// @brief 装甲.
-    // std::int32_t armor_;
+    /// @brief 装甲.
+    std::int32_t armor_;
 
     // /// @brief 回避.
     // std::int32_t evasion_;
@@ -159,8 +185,8 @@ class ship final {
     // /// @brief 射程.
     // std::int32_t range_;
 
-    // /// @brief 速度.
-    // std::int32_t speed_;
+    /// @brief 速力.
+    std::int32_t speed_;
 
     // /// @brief 対潜.
     // std::int32_t asw_;

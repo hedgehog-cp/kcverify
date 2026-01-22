@@ -567,6 +567,13 @@ bool in(T lhs, const basic_interval<T, Fenv>& rhs) noexcept {
     return rhs.lower() <= lhs and lhs <= rhs.upper();
 }
 
+/// @brief 区間に属するかを検証する.
+/// lhs ∊ rhs
+template <std::floating_point T, kcv::floating_environment Fenv>
+bool in(std::integral auto lhs, const basic_interval<T, Fenv>& rhs) noexcept {
+    return rhs.lower() <= static_cast<T>(lhs) and static_cast<T>(lhs) <= rhs.upper();
+}
+
 /// @brief 区間に含まれるかを検証する.
 /// lhs ⊆ rhs
 template <std::floating_point T, kcv::floating_environment Fenv>

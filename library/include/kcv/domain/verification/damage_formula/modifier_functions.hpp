@@ -62,6 +62,110 @@ struct liner final : public kcv::functions::composable<liner> {
     }
 };
 
+/// @brief 線形補正逆関数.
+template <typename Tag>
+struct basic_liner_inverse final : public kcv::functions::composable<basic_liner_inverse<Tag>> {
+    /// @brief 乗算補正値.
+    kcv::interval a = 1.0;
+
+    /// @brief 加算補正値.
+    kcv::interval b = 0.0;
+
+    /// @brief 線形補正逆関数を適用する.
+    auto operator()(const auto& x) const noexcept -> std::optional<kcv::interval> {
+        if (kcv::is_zero(a)) {
+            return std::nullopt;
+        }
+
+        if (kcv::is_negative(a)) {
+            return std::nullopt;
+        }
+
+        return (x - b) / a;
+    }
+};
+
+/// @brief 線形補正関数.
+template <typename Tag>
+struct basic_liner final : public kcv::functions::composable<basic_liner<Tag>> {
+    /// @brief 乗算補正値.
+    kcv::number a = 1.0;
+
+    /// @brief 加算補正値.
+    kcv::number b = 0.0;
+
+    /// @brief 恒等変換の関数を返す.
+    static auto identity() noexcept -> basic_liner {
+        return basic_liner{};
+    }
+
+    /// @brief 線形補正関数を適用する.
+    auto operator()(const kcv::number& x) const noexcept -> kcv::number {
+        return x * a + b;
+    }
+
+    /// @brief 逆関数を返す.
+    auto operator^(int) const noexcept -> kcv::functions::basic_liner_inverse<Tag> {
+        return basic_liner_inverse<Tag>{
+            .a = kcv::make_interval(a),
+            .b = kcv::make_interval(b),
+        };
+    }
+};
+
+// よくある一次補正をlinerのまま使うと, 補正順序の記述ミスや,
+// 逆算結果の集計時にどの補正か分からないといった不都合がある.
+// よって, linerをstrong_typeとすることで不都合の解決を図る.
+// struct *_tagはこの場限りであり, 定義はない.
+
+/// @brief 未知の第0種補正.
+using f0 = kcv::functions::basic_liner<struct f0_tag>;
+
+/// @brief 交戦形態補正.
+using engagement = kcv::functions::basic_liner<struct engagement_tag>;
+
+/// @brief 攻撃側陣形補正.
+using formation = kcv::functions::basic_liner<struct formation_tag>;
+
+/// @brief 損傷状態補正.
+using damage_state = kcv::functions::basic_liner<struct damage_state_tag>;
+
+/// @brief 前対潜シナジー補正.
+using pre_asw = kcv::functions::basic_liner<struct pre_asw_tag>;
+
+/// @brief 後対潜シナジー補正.
+using post_asw = kcv::functions::basic_liner<struct post_asw_tag>;
+
+/// @brief 未知の第14種補正.
+using f14 = kcv::functions::basic_liner<struct f14_tag>;
+
+/// @brief フィット砲補正.
+using fit_gun = kcv::functions::basic_liner<struct fit_gun_tag>;
+
+/// @brief 未知の第5種補正.
+using f5 = kcv::functions::basic_liner<struct f5_tag>;
+
+/// @brief 未知の第6種補正.
+using f6 = kcv::functions::basic_liner<struct f6_tag>;
+
+/// @brief 未知の第7種補正.
+using f7 = kcv::functions::basic_liner<struct f7_tag>;
+
+/// @brief 海域補正.
+using map = kcv::functions::basic_liner<struct map_tag>;
+
+/// @brief 期間限定海域.
+using event = kcv::functions::basic_liner<struct event_tag>;
+
+/// @brief 未知の第7種補正.
+using f7 = kcv::functions::basic_liner<struct f7_tag>;
+
+/// @brief 未知の第8種補正.
+using f8 = kcv::functions::basic_liner<struct f8_tag>;
+
+// /// @brief 未知の第3種補正.
+// using f3 = kcv::functions::basic_liner<struct f3_tag>;
+
 /// @brief 砲撃戦.航空攻撃補正逆関数.
 struct air_attack_inverse final : public kcv::functions::composable<air_attack_inverse> {
     /// @brief 無効なとき, 補正を適用せず恒等変換となる.

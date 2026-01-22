@@ -59,6 +59,7 @@ inline auto ship_from_eoen(
     const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem
 ) -> kcv::ship {
     const auto& mst = kcv::find_mst(api_mst_ship, src.id);
+    /// @todo: value_orで0にフォールバックするのが正しいのか検討する.
     return kcv::ship{
         mst,
         kcv::base_id(api_mst_ship, mst),
@@ -73,8 +74,13 @@ inline auto ship_from_eoen(
         }),
         src.level,
         src.condition,
+        src.ammo,
+        src.kyouka,
         std::get<kcv::kcsapi::idx_minmax::max>(mst.api_taik.value()),
         src.hp,
+        src.torpedo.value_or(0),
+        src.armor.value_or(0),
+        src.speed,
     };
 }
 

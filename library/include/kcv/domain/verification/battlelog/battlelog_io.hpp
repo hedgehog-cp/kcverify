@@ -27,7 +27,12 @@ void generate_battlelog(
 );
 
 /// @brief 赤仮.csvでbattlelogを書き出す.
-void write_akakari(const kcv::battlelogs_t& battlelogs, const std::filesystem::path& fname);
+void write_akakari(
+    const kcv::battlelogs_t& battlelogs,
+    const kcv::kcsapi::api_mst_ship& api_mst_ship,
+    const kcv::kcsapi::api_mst_slotitem& api_mst_slotitem,
+    const std::filesystem::path& fname
+);
 
 }  // namespace kcv
 

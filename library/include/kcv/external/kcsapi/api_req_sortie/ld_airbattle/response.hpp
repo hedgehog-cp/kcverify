@@ -9,6 +9,7 @@
 
 // kcv
 #include "kcv/external/kcsapi/types/api_kouku.hpp"
+#include "kcv/external/kcsapi/types/api_param.hpp"
 #include "kcv/external/kcsapi/types/api_stage_flag.hpp"
 #include "kcv/external/kcsapi/types/enum/detection_type.hpp"
 #include "kcv/external/kcsapi/types/enum/engagement.hpp"
@@ -44,7 +45,7 @@ struct response final {
     std::vector<kcv::kcsapi::number> api_e_nowhps;
 
     /// @brief 敵軍の基礎ステータス. [艦船数]. [][0]=火力, [][1]=雷装, [][2]=対空, [][3]=装甲.
-    std::vector<std::tuple<std::int32_t, std::int32_t, std::int32_t, std::int32_t>> api_eParam;
+    std::vector<kcv::kcsapi::api_param> api_eParam;
 
     /// @brief 退避艦インデックス. [退避艦数]. 1基点.
     std::optional<std::vector<std::int32_t>> api_escape_idx;
