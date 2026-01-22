@@ -1,11 +1,11 @@
-#include "models/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
+#include "kcv/external/eoen/serialization/fit_bonus/fit_bonus_per_equipment.hpp"
 
 // std
 #include <filesystem>
 #include <vector>
 
 // kcv
-#include "core/utility/read_json.hpp"
+#include "core/json/read_json.hpp"
 
 int main() {
     constexpr auto dir = "./test/library/models/eoen/fit_bonus/data";

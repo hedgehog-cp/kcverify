@@ -7,26 +7,26 @@ foreach(tool_src ${TOOL_SOURCES})
 endforeach()
 
 add_custom_command(
-    OUTPUT ${CMAKE_SOURCE_DIR}/library/core/constants/equipment.hpp.inc
+    OUTPUT ${CMAKE_SOURCE_DIR}/library/include/kcv/core/constants/equipment.hpp.inc
     COMMAND $<TARGET_FILE:gen_equipment>
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    DEPENDS gen_equipment ${CMAKE_SOURCE_DIR}/assets/api_mst_slotitem.json
+    DEPENDS gen_equipment ${CMAKE_SOURCE_DIR}/assets/kcsapi/api_start2/api_mst_slotitem.json
     COMMENT "Generating equipment.hpp.inc"
     VERBATIM
 )
 
 add_custom_command(
-    OUTPUT ${CMAKE_SOURCE_DIR}/library/core/constants/ship.hpp.inc
+    OUTPUT ${CMAKE_SOURCE_DIR}/library/include/kcv/core/constants/ship.hpp.inc
     COMMAND $<TARGET_FILE:gen_ship>
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    DEPENDS gen_ship ${CMAKE_SOURCE_DIR}/assets/api_mst_ship.json
+    DEPENDS gen_ship ${CMAKE_SOURCE_DIR}/assets/kcsapi/api_start2/api_mst_ship.json
     COMMENT "Generating ship.hpp.inc"
     VERBATIM
 )
 
 
-add_custom_target(libkcv_tools
+add_custom_target(kcvtools
     DEPENDS
-        ${CMAKE_SOURCE_DIR}/library/core/constants/equipment.hpp.inc
-        ${CMAKE_SOURCE_DIR}/library/core/constants/ship.hpp.inc
+        ${CMAKE_SOURCE_DIR}/library/include/kcv/core/constants/equipment.hpp.inc
+        ${CMAKE_SOURCE_DIR}/library/include/kcv/core/constants/ship.hpp.inc
 )

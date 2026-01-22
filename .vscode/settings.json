@@ -1,8 +1,7 @@
 {
-    "C/C++ Include Guard.Prefix": "KCVERIFY_",
+    "C/C++ Include Guard.Prefix": "KCV_",
     "C/C++ Include Guard.Spaces After Endif": 2,
     "C/C++ Include Guard.Suffix": "_HPP_INCLUDED",
-    "cmake.configureOnOpen": false,
     "editor.formatOnSave": true,
     "editor.rulers": [
         80, 100, 120

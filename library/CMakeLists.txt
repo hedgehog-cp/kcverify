@@ -1,33 +1,28 @@
-add_library(libkcv STATIC
-    ./core/constants/equipment.cpp
-    ./core/constants/ship.cpp
-
-    ./core/utility/kcsapi.cpp
-    ./core/utility/read_json.cpp
-
-    ./core/battlelog/process_api/api_get_member/ship_deck/response.cpp
-    ./core/battlelog/process_api/api_req_battle_midnight/battle/response.cpp
-    ./core/battlelog/process_api/api_req_battle_midnight/sp_midnight/response.cpp
-    ./core/battlelog/process_api/api_req_combined_battle/battle_water/response.cpp
-    ./core/battlelog/process_api/api_req_combined_battle/battleresult/response.cpp
-    ./core/battlelog/process_api/api_req_combined_battle/ec_battle/response.cpp
-    ./core/battlelog/process_api/api_req_combined_battle/ec_midnight_battle/response.cpp
-    ./core/battlelog/process_api/api_req_combined_battle/midnight_battle/response.cpp
-    ./core/battlelog/process_api/api_req_map/next/response.cpp
-    ./core/battlelog/process_api/api_req_map/start/request.cpp
-    ./core/battlelog/process_api/api_req_map/start/response.cpp
-    ./core/battlelog/process_api/api_req_map/start_air_base/request.cpp
-    ./core/battlelog/process_api/api_req_map/start_air_base/response.cpp
-    ./core/battlelog/process_api/api_req_sortie/battle/response.cpp
-    ./core/battlelog/process_api/api_req_sortie/battleresult/response.cpp
-    ./core/battlelog/process_api/api_req_sortie/goback_port/response.cpp
-    ./core/battlelog/process_api/api_req_sortie/ld_airbattle/response.cpp
-    ./core/battlelog/equipment_bonus.cpp
-    ./core/battlelog/generate_battlelog.cpp
-
-    ./core/entity/adapter/from_eoen.cpp
-
-    ./extensions/exception.cpp
+file(GLOB_RECURSE KCV_SOURCES 
+    CONFIGURE_DEPENDS 
+    "source/*.cpp"
+    "source/*.ipp"
 )
-target_include_directories(libkcv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-add_dependencies(libkcv libkcv_tools)
+
+add_library(kcv ${KCV_SOURCES})
+
+target_include_directories(kcv
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/source
+)
+
+target_link_libraries(kcv
+    PRIVATE
+        project_options
+        project_warnings
+        stdc++exp
+    PUBLIC
+)
+
+if(TARGET project_sanitizers)
+    target_link_libraries(kcv PRIVATE project_sanitizers)
+endif()
+
+add_dependencies(kcv kcvtools)

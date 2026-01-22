@@ -1,11 +1,11 @@
 /* データが無いため
-#include "models/kcsapi/api_port/port/response.hpp"
+#include "kcv/external/kcsapi/api_port/port/response.hpp"
 
 // std
 #include <filesystem>
 
 // kcv
-#include "core/utility/read_json.hpp"
+#include "core/json/read_json.hpp"
 
 int main() {
     constexpr auto dir = "./test/library/models/kcsapi/api_port/port/data/response";

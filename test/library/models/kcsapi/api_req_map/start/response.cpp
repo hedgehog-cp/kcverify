@@ -1,11 +1,11 @@
-#include "models/kcsapi/api_req_map/start/response.hpp"
+#include "kcv/external/kcsapi/api_req_map/start/response.hpp"
 
 // std
 #include <filesystem>
 
 // kcv
-#include "core/utility/read_json.hpp"
-#include "models/kcsapi/types/svdata.hpp"
+#include "core/json/read_json.hpp"
+#include "kcv/external/kcsapi/types/svdata.hpp"
 
 int main() {
     constexpr auto dir = "./test/library/models/kcsapi/api_req_map/start/data/response";

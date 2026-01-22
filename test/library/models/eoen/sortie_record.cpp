@@ -1,11 +1,11 @@
-#include "models/eoen/database/sortie/sortie_record.hpp"
+#include "kcv/external/eoen/database/sortie/sortie_record.hpp"
 
 // std
 #include <filesystem>
 #include <vector>
 
 // kcv
-#include "core/utility/read_json.hpp"
+#include "core/json/read_json.hpp"
 
 int main() {
     constexpr auto dir = "./test/library/models/eoen/sortie_record/data";
