@@ -9,6 +9,7 @@
 #include <optional>
 #include <print>
 #include <ranges>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -124,6 +125,7 @@ struct verify_damage_formula_result final {
     bool is_explainable_damage;
 };
 
+/// @brief 逆算した結果を要約して標準出力に出力する.
 void print_summary(const kcv::battlelogs_t& battlelogs, const std::vector<verify_damage_formula_result>& results) {
     std::println("入力件数: {}", results.size());
 
@@ -185,46 +187,52 @@ void print_summary(const kcv::battlelogs_t& battlelogs, const std::vector<verify
     std::println("説明可能判定: {}", explainable_damage_num);
 }
 
-void print_modifier(const std::vector<verify_damage_formula_result>& results) {
-    std::println("第0種補正");
-
-    using T = kcv::functions::f0;
-
-    const auto mods = results  //
-                    | std::ranges::views::filter([](const auto& e) static -> bool {
-                          return e.inversed_attack_power_modifiers.has_value();
-                      })
-                    | std::ranges::views::transform([](const auto& e) static -> const auto& {
-                          return *e.inversed_attack_power_modifiers;
-                      })
-                    | std::ranges::views::transform([](const auto& e) static -> const auto& {
-                          return std::get<std::optional<kcv::inverse_result<T>>>(e);
-                      })
-                    | std::ranges::views::filter([](const auto& e) static -> bool {  //
-                          return e.has_value();
-                      })
-                    | std::ranges::views::transform([](const auto& e) static -> const auto& {  //
-                          return *e;
-                      })
-                    | std::ranges::to<std::vector>();
+/// @brief 逆算結果のうち型Tのものを集計する.
+/// @tparam T 強い型付けをした線形補正関数. Tは逆算結果の型のうち唯一のものでなければならない.
+/// 例: T = kcv::functions::basic_liner<foo_tag>.
+/// @param inversed_results 逆算結果.
+/// @return 乗算補正値の最小値および上限, 加算補正値の最小値および上限.
+template <typename T>
+    requires kcv::functions::is_basic_liner_v<T>
+auto aggregate_attack_power_modifier(const std::vector<verify_damage_formula_result>& inversed_results) {
+    // 取り出す逆算結果の型.
+    using inversed_modifier_t = std::optional<kcv::inverse_result<T>>;
 
     auto a_min = -std::numeric_limits<kcv::interval::base_type>::infinity();
     auto a_sup = +std::numeric_limits<kcv::interval::base_type>::infinity();
     auto b_min = -std::numeric_limits<kcv::interval::base_type>::infinity();
     auto b_sup = +std::numeric_limits<kcv::interval::base_type>::infinity();
-    for (const auto& [inv_a, inv_b] : mods) {
-        if (inv_a.has_value()) {
-            a_min = std::max(inv_a->lower(), a_min);
-            a_sup = std::min(inv_a->upper(), a_sup);
-        }
-        if (inv_b.has_value()) {
-            b_min = std::max(inv_b->lower(), b_min);
-            b_sup = std::min(inv_b->upper(), b_sup);
+
+    for (const auto& result : inversed_results) {
+        if (result.inversed_attack_power_modifiers.has_value()) {
+            // 逆算結果から型Tのものを取り出す.
+            const auto& inversed_modifier = std::get<inversed_modifier_t>(*result.inversed_attack_power_modifiers);
+            if (inversed_modifier.has_value()) {
+                // 逆算した乗算補正値a, 加算補正値bそれぞれについて, 補正値の共通区間(積集合)を求める.
+                // 最小値と上限との大小関係が逆算する場合があるため区間型を用いない.
+                const auto& [a, b] = *inversed_modifier;
+                if (a.has_value()) {
+                    a_min = std::max(a->lower(), a_min);
+                    a_sup = std::min(a->upper(), a_sup);
+                }
+                if (b.has_value()) {
+                    b_min = std::max(b->lower(), b_min);
+                    b_sup = std::min(b->upper(), b_sup);
+                }
+            }
         }
     }
 
-    std::println("a=[{}, {}]", a_min, a_sup);
-    std::println("b=[{}, {}]", b_min, b_sup);
+    return std::make_tuple(a_min, a_sup, b_min, b_sup);
+}
+
+/// @brief 逆算した補正値を標準出力に出力する.
+void print_modifier(const std::vector<verify_damage_formula_result>& results) {
+    const auto& [a0_min, a0_sup, b0_min, b0_sup] = aggregate_attack_power_modifier<kcv::functions::f0>(results);
+    std::println("第0種補正: {:.5f} ≦ a0 < {:.5f}, {:.5f} ≦ b0 < {:.5f}", a0_min, a0_sup, b0_min, b0_sup);
+
+    const auto& [a14_min, a14_sup, b14_min, b14_sup] = aggregate_attack_power_modifier<kcv::functions::f14>(results);
+    std::println("第14種補正: {:.5f} ≦ a14 < {:.5f}, {:.5f} ≦ b14 < {:.5f}", a14_min, a14_sup, b14_min, b14_sup);
 }
 
 void verify_damage_formula(const kcv::context_data& ctx, const kcv::battlelogs_t& battlelogs) {

@@ -113,9 +113,17 @@ struct basic_liner final : public kcv::functions::composable<basic_liner<Tag>> {
     }
 };
 
+/// @brief 型がbasic_linerであるかを検証する.
+template <typename T>
+inline constexpr bool is_basic_liner_v = false;
+
+/// @brief 型がbasic_linerであるかを検証する.
+template <typename T>
+inline constexpr bool is_basic_liner_v<kcv::functions::basic_liner<T>> = true;
+
 // よくある一次補正をlinerのまま使うと, 補正順序の記述ミスや,
 // 逆算結果の集計時にどの補正か分からないといった不都合がある.
-// よって, linerをstrong_typeとすることで不都合の解決を図る.
+// そこで, linerをstrong typeとすることで不都合の解決を図る.
 // struct *_tagはこの場限りであり, 定義はない.
 
 /// @brief 未知の第0種補正.
