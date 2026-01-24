@@ -20,12 +20,14 @@
 #include "kcv/core/numeric/interval.hpp"
 #include "kcv/core/numeric/interval/basic_interval.hpp"
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
+#include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_io.hpp"
 #include "kcv/domain/verification/damage_formula/damage_formula.hpp"
 #include "kcv/domain/verification/damage_formula/damage_formula_verification.hpp"
 #include "kcv/domain/verification/damage_formula/inverse_formula.hpp"
 #include "kcv/domain/verification/damage_formula/modifier_functions.hpp"
 #include "kcv/external/eoen/database/sortie/sortie_record.hpp"
+#include "kcv/external/kcsapi/extensions/damage_state.hpp"
 #include "kcv/std_ext/exception.hpp"
 #include "kcv/std_ext/formatter.hpp"
 
@@ -77,14 +79,19 @@ int main() try {
 
 bool macthes_battlelog(const kcv::battlelog& data) {
     // ダメージ0を除外.
-    // if (data.damage == 0) {
-    //     return false;
-    // }
+    if (data.damage == 0) {
+        return false;
+    }
+
+    // CL0を除外.
+    if (std::get<std::int32_t>(data.clitical) == 0) {
+        return false;
+    }
 
     // 深海棲艦の攻撃を除外.
-    // if (data.attacker_side == kcv::kcsapi::fleet_flag::enemy) {
-    //     return false;
-    // }
+    if (data.attacker_side == kcv::kcsapi::fleet_flag::enemy) {
+        return false;
+    }
 
     // 雷撃でない攻撃を除外.
     static constexpr auto target_phases = std::to_array<kcv::phase>({
@@ -96,14 +103,27 @@ bool macthes_battlelog(const kcv::battlelog& data) {
     }
 
     // 連合艦隊からの攻撃を除外.
-    // if (kcv::get_attacker_fleet_data(data).combined_flag() != 0) {
-    //     return false;
-    // }
+    if (kcv::get_attacker_fleet_data(data).combined_flag() != 0) {
+        return false;
+    }
 
     // 連合艦隊への攻撃を除外.
-    // if (kcv::get_defender_fleet_data(data).combined_flag() != 0) {
-    //     return false;
-    // }
+    if (kcv::get_defender_fleet_data(data).combined_flag() != 0) {
+        return false;
+    }
+
+    // 期間限定海域を除外.
+    if (data.world > 8) {
+        return false;
+    }
+
+    // 中破を除外.
+    if (const auto& attacker = kcv::get_attacker(data);
+        kcv::to_damage_state(attacker.hp(), attacker.maxhp()) == kcv::damage_state::medium) {
+        return false;
+    }
+
+    return true;
 
     return true;
 }

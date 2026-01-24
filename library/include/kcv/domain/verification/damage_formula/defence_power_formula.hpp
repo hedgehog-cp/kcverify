@@ -18,13 +18,13 @@ class defence_power_formula final {
    public:
     /// @brief 防御力補正関数.
     using modifier_function_t = kcv::functions::composed_function<
-        kcv::functions::liner,                  // 第3種補正.
+        kcv::functions::f3,                     // 第3種補正.
         kcv::functions::liner,                  // 改修補正.
         kcv::functions::liner,                  // 北方海域北方バルジ補正.
         kcv::functions::liner,                  // 爆雷装甲減少補正.
         kcv::functions::depth_armor_break_cap,  // 爆雷装甲減少補正キャップ.
         kcv::functions::aromor_rand,            // 装甲乱数.
-        kcv::functions::liner,                  // 第2種補正.
+        kcv::functions::f2,                     // 第2種補正.
         kcv::functions::liner                   // 装甲破砕効果.
         >;
 
@@ -61,7 +61,7 @@ namespace modifiers {
 auto basic_defence_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number;
 
 /// @brief 未知の第3種補正.
-auto f3(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f3(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f3;
 
 /// @brief 改修補正.
 auto improvement(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
@@ -80,7 +80,7 @@ auto depth_charge_armor_break_cap(const kcv::context_data& ctx, const kcv::battl
 auto armor_rand(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::aromor_rand;
 
 /// @brief 未知の第2種補正.
-auto f2(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;
+auto f2(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f2;
 
 /// @brief 装甲破砕効果.
 auto armor_break(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner;

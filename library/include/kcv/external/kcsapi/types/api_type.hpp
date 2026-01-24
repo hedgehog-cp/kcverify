@@ -18,7 +18,7 @@ namespace detail {
 /// @brief `api_mst_slotitem` の `api_type` の要素アクセス用の疑似scoped enum.
 struct idx_type final {
     /// @note 意訳.
-    enum _ : std::size_t {
+    enum [[deprecated]] _ : std::size_t {
         /// @brief 大分類.
         broad,
 

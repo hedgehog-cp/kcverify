@@ -3,6 +3,7 @@
 
 // std
 #include <cmath>
+#include <concepts>
 #include <limits>
 #include <optional>
 
@@ -171,8 +172,11 @@ using f7 = kcv::functions::basic_liner<struct f7_tag>;
 /// @brief 未知の第8種補正.
 using f8 = kcv::functions::basic_liner<struct f8_tag>;
 
-// /// @brief 未知の第3種補正.
-// using f3 = kcv::functions::basic_liner<struct f3_tag>;
+/// @brief 未知の第3種補正.
+using f3 = kcv::functions::basic_liner<struct f3_tag>;
+
+/// @brief 未知の第2種補正.
+using f2 = kcv::functions::basic_liner<struct f2_tag>;
 
 /// @brief 砲撃戦.航空攻撃補正逆関数.
 struct air_attack_inverse final : public kcv::functions::composable<air_attack_inverse> {
@@ -220,6 +224,7 @@ struct floor_if_inverse final : public kcv::functions::composable<floor_if_inver
     bool is_enabled = true;
 
     /// @brief 床逆関数を適当する.
+    /// @details 半開区間 [lower, upper)に対する定義: [ceil(lower), ceil(upper)).
     auto operator()(const kcv::interval& x) const noexcept -> kcv::interval {
         if (not is_enabled) {
             return x;
@@ -227,7 +232,23 @@ struct floor_if_inverse final : public kcv::functions::composable<floor_if_inver
 
         return kcv::interval{
             std::ceil(x.lower()),
-            std::ceil(x.upper()) + 1,
+            std::ceil(x.upper()),
+        };
+    }
+
+    /// @brief 床逆関数を適当する.
+    /// @details 単一区間(整数)に対する定義: [x, x+1).
+    /// この定義が使われるのは, 観測ダメージ=floor(攻撃力-防御力)を解くときのみ...たぶん.
+    /// その他の場合は常に半開区間を対象にするときなので, intervalを引数による定義を使う...たぶん.
+    /// @todo 単一区間(小数)について検討する.
+    auto operator()(std::integral auto x) const noexcept -> kcv::interval {
+        if (not is_enabled) {
+            return x;
+        }
+
+        return kcv::interval{
+            static_cast<kcv::interval::base_type>(x),
+            static_cast<kcv::interval::base_type>(x) + 1,
         };
     }
 };

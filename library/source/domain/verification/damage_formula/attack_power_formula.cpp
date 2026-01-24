@@ -1,5 +1,6 @@
 #include "kcv/domain/verification/damage_formula/attack_power_formula.hpp"
 
+#include <algorithm>
 #include <type_traits>
 
 #include "kcv/core/constants/equipment.hpp"
@@ -12,6 +13,7 @@
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
 #include "kcv/domain/verification/damage_formula/modifier_functions.hpp"
+#include "kcv/domain/verification/entity/equipment.hpp"
 #include "kcv/domain/verification/entity/ship.hpp"
 #include "kcv/external/kcsapi/extensions/damage_state.hpp"
 #include "kcv/external/kcsapi/types/api_type.hpp"
@@ -62,7 +64,74 @@ auto kcv::formulate_attack_power(
 /// @brief 長いのでalias. 関数のシグネチャが改行されちゃうもん...
 namespace mod = kcv::modifiers;
 
+namespace kcv::modifiers {
+namespace {
+namespace basic_attack_power_impl {
+
+auto torpedo_improvement_bonus(const kcv::equipment& equipment) -> kcv::number {
+    switch (std::get<kcv::kcsapi::category>(equipment.mst().api_type)) {
+        case kcv::kcsapi::category::torpedo:
+        case kcv::kcsapi::category::aa_gun:
+            return 1.2 * std::sqrt(equipment.level());
+
+        case kcv::kcsapi::category::submarine_torpedo:
+            return 0.2 * equipment.level();
+
+        default:
+            return 0;
+    }
+}
+
+auto total_torpedo_improvement_bonus(const kcv::ship& ship) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& slot : ship.slots()) {
+        if (slot.equipment().has_value()) {
+            total += torpedo_improvement_bonus(*slot.equipment());
+        }
+    }
+
+    return total;
+}
+
+/// @brief 雷撃の基本攻撃力を返す.
+auto torpedo_attack_power(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker = kcv::get_attacker(data);
+
+    const auto base_value = 5;
+    const auto torpedo    = attacker.torpedo();
+    // TODO: 熟練甲板要員+航空整備員.ボーナス.雷装
+    const auto improvement = total_torpedo_improvement_bonus(attacker);
+    // TODO: 連合艦隊補正.
+
+    return base_value + torpedo + improvement;
+}
+
+}  // namespace basic_attack_power_impl
+}  // namespace
+}  // namespace kcv::modifiers
+
 auto mod::basic_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    namespace impl = kcv::modifiers::basic_attack_power_impl;
+
+    switch (data.phase) {
+        case kcv::phase::opening_taisen:
+            throw kcv::exception{"not impl"};
+
+        case kcv::phase::opening_atack:
+            return impl::torpedo_attack_power(data);
+
+        case kcv::phase::hougeki:
+            throw kcv::exception{"not impl"};
+
+        case kcv::phase::raigeki:
+            return impl::torpedo_attack_power(data);
+
+        case kcv::phase::midnight:
+        case kcv::phase::friendly:
+            throw kcv::exception{"not impl"};
+    }
+
     return kcv::number{};
 }
 
@@ -161,6 +230,7 @@ auto mod::engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -
             return impl::primary_modifier(data);
 
         case kcv::phase::midnight:
+        case kcv::phase::friendly:
             return impl::midnight_modifier(data);
     }
 }
@@ -432,14 +502,21 @@ auto mod::damage_state(const kcv::context_data& ctx, const kcv::battlelog& data)
 
     switch (data.phase) {
         case kcv::phase::opening_taisen:
-        case kcv::phase::hougeki:
-        case kcv::phase::midnight:
-            // 夜戦における大破艦のネルソンタッチは*0.4なので夜戦の大破補正は*0.4といえる.
             return impl::primary_modifier(data);
 
         case kcv::phase::opening_atack:
+            return impl::torpedo_modifier(data);
+
+        case kcv::phase::hougeki:
+            return impl::primary_modifier(data);
+
         case kcv::phase::raigeki:
             return impl::torpedo_modifier(data);
+
+        case kcv::phase::midnight:
+        case kcv::phase::friendly:
+            // 夜戦における大破艦のネルソンタッチは*0.4なので夜戦の大破補正は*0.4といえる.
+            return impl::primary_modifier(data);
     }
 }
 
