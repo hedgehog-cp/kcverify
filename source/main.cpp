@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cstdio>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
@@ -9,12 +10,14 @@
 #include <optional>
 #include <print>
 #include <ranges>
+#include <stacktrace>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
 // kcv
+#include "kcv/core/constants/ship_attributes.hpp"
 #include "kcv/core/context_data.hpp"
 #include "kcv/core/json/read_json.hpp"
 #include "kcv/core/numeric/interval.hpp"
@@ -42,6 +45,8 @@ bool macthes_battlelog(const kcv::battlelog& data);
 void verify_damage_formula(const kcv::context_data& ctx, const kcv::battlelogs_t& battlelogs);
 
 int main() try {
+    std::set_terminate([]() static -> void { std::println(stderr, "fatal error: {}", std::stacktrace{}); });
+
     // マスタおよび背景情報を読み込む.
     auto ctx = kcv::context_data{};
     ctx.api_mst_ship("./assets/kcsapi/api_start2/api_mst_ship.json");
@@ -55,10 +60,12 @@ int main() try {
     auto battlelogs = kcv::battlelogs_t{};
     battlelogs.reserve(500uz);
     for (const auto& file : std::filesystem::directory_iterator{"./data"}) {
-        auto sortie_records = std::vector<kcv::eoen::database::sortie::sortie_record>{};
-        kcv::read_json(sortie_records, file.path());
-        for (const auto& sortie_record : sortie_records) {
-            kcv::generate_battlelog(battlelogs, sortie_record, ctx.api_mst_ship(), ctx.api_mst_slotitem());
+        if (file.is_regular_file()) {
+            auto sortie_records = std::vector<kcv::eoen::database::sortie::sortie_record>{};
+            kcv::read_json(sortie_records, file.path());
+            for (const auto& sortie_record : sortie_records) {
+                kcv::generate_battlelog(battlelogs, sortie_record, ctx.api_mst_ship(), ctx.api_mst_slotitem());
+            }
         }
     }
     std::println("戦闘ログ: {}", battlelogs.size());
@@ -93,24 +100,27 @@ bool macthes_battlelog(const kcv::battlelog& data) {
         return false;
     }
 
-    // 雷撃でない攻撃を除外.
-    static constexpr auto target_phases = std::to_array<kcv::phase>({
-        kcv::phase::opening_atack,
-        kcv::phase::raigeki,
-    });
-    if (not std::ranges::contains(target_phases, data.phase)) {
+    // 対潜でない攻撃を除外.
+    // static constexpr auto target_phases = std::to_array<kcv::phase>({
+    //     kcv::phase::opening_atack,
+    //     kcv::phase::raigeki,
+    // });
+    // if (not std::ranges::contains(target_phases, data.phase)) {
+    //     return false;
+    // }
+    if (not kcv::is_submarine(kcv::get_defender(data).mst())) {
         return false;
     }
 
     // 連合艦隊からの攻撃を除外.
-    if (kcv::get_attacker_fleet_data(data).combined_flag() != 0) {
-        return false;
-    }
+    // if (kcv::get_attacker_fleet_data(data).combined_flag() != 0) {
+    //     return false;
+    // }
 
     // 連合艦隊への攻撃を除外.
-    if (kcv::get_defender_fleet_data(data).combined_flag() != 0) {
-        return false;
-    }
+    // if (kcv::get_defender_fleet_data(data).combined_flag() != 0) {
+    //     return false;
+    // }
 
     // 期間限定海域を除外.
     if (data.world > 8) {
@@ -118,17 +128,18 @@ bool macthes_battlelog(const kcv::battlelog& data) {
     }
 
     // 中破を除外.
-    if (const auto& attacker = kcv::get_attacker(data);
-        kcv::to_damage_state(attacker.hp(), attacker.maxhp()) == kcv::damage_state::medium) {
-        return false;
-    }
-
-    return true;
+    // if (const auto& attacker = kcv::get_attacker(data);
+    //     kcv::to_damage_state(attacker.hp(), attacker.maxhp()) == kcv::damage_state::medium) {
+    //     return false;
+    // }
 
     return true;
 }
 
 struct verify_damage_formula_result final {
+    /// @brief ダメージ式.
+    kcv::damage_formula damage_formula;
+
     /// @brief 逆算可能判定.
     bool is_invertible_damage_formula;
 
@@ -144,6 +155,68 @@ struct verify_damage_formula_result final {
     /// @brief 説明可能判定.
     bool is_explainable_damage;
 };
+
+/// @brief ダメージ式を標準出力に出力する.
+void print_damage_formula(const std::vector<verify_damage_formula_result>& results) {
+    for (const auto& result : results) {
+        const auto& atk_mods = result.damage_formula.attack_power_formula().modifier_function().decompose();
+        const auto& def_mods = result.damage_formula.defence_power_formula().modifier_function().decompose();
+
+        // 基本攻撃力.
+        const auto base_attack = result.damage_formula.attack_power_formula().base_value();
+        std::print("基本攻撃力: {:.3f}, ", base_attack);
+
+        // 第0種補正.
+        // const auto& [a0, b0] = std::get<kcv::functions::f0>(atk_mods);
+        // std::print("a0: {:.3f}, b0: {:.3f}, ", a0, b0);
+
+        // 交戦形態補正.
+        const auto& [a_engagement, _engagement] = std::get<kcv::functions::engagement>(atk_mods);
+        std::print("交戦形態補正: {:.3f}, ", a_engagement);
+
+        // 攻撃側陣形補正.
+        const auto& [a_formation, _formation] = std::get<kcv::functions::formation>(atk_mods);
+        std::print("攻撃側陣形補正: {:.3f}, ", a_formation);
+
+        // 損傷状態補正.
+        const auto& [a_damage_state, _damage_state] = std::get<kcv::functions::damage_state>(atk_mods);
+        std::print("損傷状態補正: {:.3f}, ", a_damage_state);
+
+        // 前対潜シナジー補正.
+        const auto& [a_pre, _pre] = std::get<kcv::functions::pre_asw>(atk_mods);
+        std::print("前対潜シナジー補正: {:.3f}, ", a_pre);
+
+        // 後対潜シナジー補正.
+        const auto& [a_post, _post] = std::get<kcv::functions::post_asw>(atk_mods);
+        std::print("後対潜シナジー補正: {:.3f}, ", a_post);
+
+        // 第14種補正
+        // const auto& [a14, b14] = std::get<kcv::functions::f14>(atk_mods);
+        // std::print("a14: {:.3f}, b14: {:.3f}, ", a14, b14);
+
+        // 第3種補正.
+        // const auto& [a3, b3] = std::get<kcv::functions::f3>(def_mods);
+        // std::print("a3: {:.3f}, b3: {:.3f}, ", a3, b3);
+
+        // 装甲減少補正.
+        const auto& [_ap_depth, b_ap_depth] = std::get<kcv::functions::depth_charge_armor_break>(def_mods);
+        std::print("装甲減少補正: {:.3f}, ", b_ap_depth);
+
+        // 攻撃力.
+        const auto& atk = result.damage_formula.attack_power();
+        std::print("最終攻撃力: {:.3f}, ", atk);
+
+        // 防御力.
+        const auto& def = result.damage_formula.defence_power();
+        std::print("最終防御力: {:.3f}, ", def);
+
+        // ダメージ.
+        const auto& dmg = result.damage;
+        std::print("理論ダメージ: {}, ", dmg);
+
+        std::println("");
+    }
+}
 
 /// @brief 逆算した結果を要約して標準出力に出力する.
 void print_summary(const kcv::battlelogs_t& battlelogs, const std::vector<verify_damage_formula_result>& results) {
@@ -261,7 +334,7 @@ void verify_damage_formula(const kcv::context_data& ctx, const kcv::battlelogs_t
 
     for (const auto& data : battlelogs) {
         // ダメージ式を立式.
-        const auto damage_formula = kcv::formulate_damage(ctx, data);
+        auto damage_formula = kcv::formulate_damage(ctx, data);
 
         // 逆算可能判定.
         const bool is_invertible_damage_formula = kcv::is_invertible_damage_formula(ctx, data);
@@ -282,6 +355,7 @@ void verify_damage_formula(const kcv::context_data& ctx, const kcv::battlelogs_t
 
         results.push_back(
             verify_damage_formula_result{
+                .damage_formula                   = std::move(damage_formula),
                 .is_invertible_damage_formula     = is_invertible_damage_formula,
                 .inversed_attack_power_modifiers  = std::move(inv_atk_pow_mods),
                 .inversed_defence_power_modifiers = std::move(inv_def_pow_mods),
@@ -294,6 +368,8 @@ void verify_damage_formula(const kcv::context_data& ctx, const kcv::battlelogs_t
     assert(battlelogs.size() == results.size());
 
     // 逆算結果を表示.
+    ::print_damage_formula(results);
+    std::println("------------");
     ::print_summary(battlelogs, results);
     std::println("------------");
     ::print_modifier(results);

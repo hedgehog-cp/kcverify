@@ -1,5 +1,7 @@
 #include "kcv/domain/verification/damage_formula/defence_power_formula.hpp"
 
+#include "kcv/core/constants/equipment_attributes.hpp"
+#include "kcv/core/constants/ship_attributes.hpp"
 #include "kcv/core/context_data.hpp"
 #include "kcv/core/numeric/composed_function.hpp"
 #include "kcv/core/numeric/interval.hpp"
@@ -7,6 +9,7 @@
 #include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
 #include "kcv/domain/verification/damage_formula/modifier_functions.hpp"
 #include "kcv/domain/verification/entity/ship.hpp"
+#include "kcv/external/kcsapi/types/enum/stype.hpp"
 
 auto kcv::formulate_defence_power(
     const kcv::context_data& ctx,  //
@@ -52,13 +55,33 @@ auto mod::noth_bulge(const kcv::context_data& ctx, const kcv::battlelog& data) -
     return kcv::functions::liner{};
 }
 
-auto mod::depth_charge_armor_break(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::liner {
-    return kcv::functions::liner{};
+auto mod::depth_charge_armor_break(const kcv::context_data& ctx, const kcv::battlelog& data)
+    -> kcv::functions::depth_charge_armor_break {
+    if (not kcv::is_submarine(kcv::get_defender(data).mst())) {
+        return kcv::functions::depth_charge_armor_break{};
+    }
+
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (const auto& equipment = slot.equipment(); equipment.has_value()) {
+            if (const auto& mst = equipment->mst(); kcv::is_ap_depth_charge(mst)) {
+                total += std::sqrt(mst.api_tais - 2);
+                if (attacker.mst().api_stype == kcv::kcsapi::stype::de) {
+                    total += 1;
+                }
+            }
+        }
+    }
+
+    return kcv::functions::depth_charge_armor_break{.a = 1, .b = -1 * total};
 }
 
-auto mod::depth_charge_armor_break_cap(const kcv::context_data& ctx, const kcv::battlelog& data)
-    -> kcv::functions::depth_armor_break_cap {
-    return kcv::functions::depth_armor_break_cap{};
+auto mod::depth_charge_armor_break_cap(
+    const kcv::context_data& ctx,  //
+    const kcv::battlelog& data     //
+) -> kcv::functions::depth_armor_break_cap {
+    return kcv::functions::depth_armor_break_cap{.is_enable = false};
 }
 
 auto mod::armor_rand(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::aromor_rand {

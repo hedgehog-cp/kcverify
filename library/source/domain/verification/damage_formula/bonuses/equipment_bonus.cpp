@@ -35,7 +35,7 @@ void append_fit_equipments(
 ) {
     for (const auto& slot : ship.slots()) {
         if (const auto& e = slot.equipment(); e.has_value()) {
-            const auto type = std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type);
+            const auto type = std::get<kcv::kcsapi::category>(e->mst().api_type);
             if (std::ranges::contains(*types, type)) {
                 fit_equipments.push_back(std::to_address(e));
             }
@@ -209,7 +209,7 @@ bool matches_requires_type(const kcv::ship& ship, const kcv::eoen::serialization
     int count = 0;
     for (const auto& slot : ship.slots()) {
         if (const auto& e = slot.equipment(); e.has_value()) {
-            const auto type = std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type);
+            const auto type = std::get<kcv::kcsapi::category>(e->mst().api_type);
             if (std::ranges::contains(*data.requires_type, type)) {
                 count++;
             }

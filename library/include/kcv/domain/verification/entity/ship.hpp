@@ -39,7 +39,8 @@ class ship final {
         std::int32_t hp,
         std::int32_t torpedo,
         std::int32_t armor,
-        std::int32_t speed
+        std::int32_t speed,
+        std::int32_t asw
     )
         : mst_{mst}
         , base_id_{base_id}
@@ -54,7 +55,8 @@ class ship final {
         , hp_{hp}
         , torpedo_{torpedo}
         , armor_{armor}
-        , speed_{speed} {}
+        , speed_{speed}
+        , asw_{asw} {}
 
     auto mst() const noexcept -> const kcv::kcsapi::api_mst_ship_value_t& {
         return this->mst_;
@@ -124,6 +126,10 @@ class ship final {
         return this->speed_;
     }
 
+    auto asw() const noexcept -> std::int32_t {
+        return this->asw_;
+    }
+
    private:
     /// @brief 艦船マスタ.
     const kcv::kcsapi::api_mst_ship_value_t& mst_;
@@ -188,8 +194,8 @@ class ship final {
     /// @brief 速力.
     std::int32_t speed_;
 
-    // /// @brief 対潜.
-    // std::int32_t asw_;
+    /// @brief 対潜.
+    std::int32_t asw_;
 
     // /// @brief 索敵.
     // std::int32_t search_;
@@ -224,7 +230,7 @@ struct has_equipment_fn final {
     static bool operator()(const kcv::ship& ship, kcv::kcsapi::category category) noexcept {
         for (const auto& slot : ship.slots()) {
             if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type) == category) {
+                if (std::get<kcv::kcsapi::category>(e->mst().api_type) == category) {
                     return true;
                 }
             }
@@ -236,11 +242,10 @@ struct has_equipment_fn final {
     /// @brief 条件を満たす装備を搭載しているかを検証する.
     /// @param ship 艦船.
     /// @param category 装備カテゴリ.
-    [[deprecated]]
     static bool operator()(const kcv::ship& ship, std::initializer_list<kcv::kcsapi::category> categories) noexcept {
         for (const auto& slot : ship.slots()) {
             if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::ranges::contains(categories, std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type))) {
+                if (std::ranges::contains(categories, std::get<kcv::kcsapi::category>(e->mst().api_type))) {
                     return true;
                 }
             }
@@ -255,7 +260,7 @@ struct has_equipment_fn final {
     static bool operator()(const kcv::ship& ship, kcv::kcsapi::icon icon) noexcept {
         for (const auto& slot : ship.slots()) {
             if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::get<kcv::kcsapi::idx_type::icon>(e->mst().api_type) == icon) {
+                if (std::get<kcv::kcsapi::icon>(e->mst().api_type) == icon) {
                     return true;
                 }
             }
@@ -296,7 +301,7 @@ struct count_equipment_fn final {
         int count = 0;
         for (const auto& slot : ship.slots()) {
             if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::get<kcv::kcsapi::idx_type::category>(e->mst().api_type) == category) {
+                if (std::get<kcv::kcsapi::category>(e->mst().api_type) == category) {
                     count++;
                 }
             }

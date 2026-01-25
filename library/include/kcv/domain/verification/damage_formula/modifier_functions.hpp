@@ -175,6 +175,9 @@ using f8 = kcv::functions::basic_liner<struct f8_tag>;
 /// @brief 未知の第3種補正.
 using f3 = kcv::functions::basic_liner<struct f3_tag>;
 
+/// @brief 爆雷装甲減少補正.
+using depth_charge_armor_break = kcv::functions::basic_liner<struct depth_charge_armor_break_tag>;
+
 /// @brief 未知の第2種補正.
 using f2 = kcv::functions::basic_liner<struct f2_tag>;
 

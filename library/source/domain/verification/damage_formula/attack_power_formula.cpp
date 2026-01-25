@@ -1,10 +1,13 @@
 #include "kcv/domain/verification/damage_formula/attack_power_formula.hpp"
 
 #include <algorithm>
+#include <array>
+#include <string_view>
 #include <type_traits>
 
 #include "kcv/core/constants/equipment.hpp"
 #include "kcv/core/constants/equipment_attributes.hpp"
+#include "kcv/core/constants/ship.hpp"
 #include "kcv/core/constants/ship_attributes.hpp"
 #include "kcv/core/context_data.hpp"
 #include "kcv/core/numeric/composed_function.hpp"
@@ -12,16 +15,20 @@
 #include "kcv/core/numeric/interval/basic_interval.hpp"
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
+#include "kcv/domain/verification/damage_formula/bonuses/equipment_bonus.hpp"
 #include "kcv/domain/verification/damage_formula/modifier_functions.hpp"
 #include "kcv/domain/verification/entity/equipment.hpp"
 #include "kcv/domain/verification/entity/ship.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcv/external/kcsapi/extensions/damage_state.hpp"
 #include "kcv/external/kcsapi/types/api_type.hpp"
 #include "kcv/external/kcsapi/types/enum/air_hit_type.hpp"
 #include "kcv/external/kcsapi/types/enum/category.hpp"
 #include "kcv/external/kcsapi/types/enum/engagement.hpp"
+#include "kcv/external/kcsapi/types/enum/fleet_flag.hpp"
 #include "kcv/external/kcsapi/types/enum/formation.hpp"
 #include "kcv/external/kcsapi/types/enum/night_attack_kind.hpp"
+#include "kcv/external/kcsapi/types/enum/stype.hpp"
 #include "kcv/std_ext/exception.hpp"
 #include "kcv/std_ext/utility.hpp"
 
@@ -68,6 +75,195 @@ namespace kcv::modifiers {
 namespace {
 namespace basic_attack_power_impl {
 
+/// @brief 砲撃戦の基本攻撃力を返す.
+auto hougeki_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number;
+
+/// @brief 対潜の基本攻撃力を返す.
+auto asw_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number;
+
+/// @brief 雷撃の基本攻撃力を返す.
+auto torpedo_attack_power(const kcv::battlelog& data) -> kcv::number;
+
+auto hougeki_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    if (kcv::is_submarine(kcv::get_defender(data).mst())) {
+        return asw_attack_power(ctx, data);
+    }
+
+    throw kcv::exception{"not impl"};
+}
+
+auto asw_base_power(const kcv::battlelog& data) -> kcv::number {
+    constexpr int depth_charge = 3 + 10;
+    constexpr int air_attack   = 3 + 5;
+    constexpr int not_asw      = 0;
+
+    const auto& attacker = kcv::get_attacker(data);
+
+    constexpr auto is_combined_fleet_attack = [](const kcv::battlelog& data) static -> bool {
+        return kcv::get_attacker_fleet_data(data).combined_flag() != 0;
+    };
+    switch (data.phase) {
+        case kcv::phase::midnight:
+        case kcv::phase::friendly:
+            return is_combined_fleet_attack(data) ? depth_charge : not_asw;
+
+        default:
+            break;
+    }
+
+    constexpr auto has_some_planes = [](const kcv::ship& attacker) static -> bool {
+        static constexpr auto planes = {
+            kcv::kcsapi::category::carrier_based_bomber,
+            kcv::kcsapi::category::carrier_based_torpedo,
+            kcv::kcsapi::category::seaplane_bomber,
+            kcv::kcsapi::category::autogyro,
+            kcv::kcsapi::category::as_patrol,
+        };
+        return kcv::has_equipment(attacker, planes);
+    };
+    switch (attacker.mst().api_id) {
+        using kcv::literals::ship_literals::operator""_id;
+        case "速吸"_id:
+        case "神威改母"_id:
+        case "第百一号輸送艦"_id:
+        case "第百一号輸送艦改"_id:
+        case "大泊"_id:
+        case "大泊改"_id:
+            return depth_charge;
+
+        case "速吸改"_id:
+        case "山汐丸"_id:
+        case "山汐丸改"_id:
+            return has_some_planes(attacker) ? air_attack : depth_charge;
+
+        case "加賀改二護"_id:
+            return air_attack;
+    }
+
+    using std::literals::string_view_literals::operator""sv;
+    if (attacker.mst().api_name.starts_with("宗谷"sv)) {
+        return depth_charge;
+    }
+    if (attacker.mst().api_name.starts_with("戦艦レ級"sv)) {
+        return depth_charge;
+    }
+
+    switch (attacker.mst().api_stype) {
+        case kcv::kcsapi::stype::de:
+        case kcv::kcsapi::stype::dd:
+        case kcv::kcsapi::stype::cl:
+        case kcv::kcsapi::stype::clt:
+        case kcv::kcsapi::stype::ct:
+            return depth_charge;
+
+        case kcv::kcsapi::stype::cav:
+        case kcv::kcsapi::stype::cvl:
+        case kcv::kcsapi::stype::bbv:
+        case kcv::kcsapi::stype::av:
+        case kcv::kcsapi::stype::lha:
+            return air_attack;
+
+        default:
+            break;
+    }
+
+    return not_asw;
+}
+
+auto total_equipment_asw(const kcv::ship& attacker) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& slot : attacker.slots()) {
+        if (const auto& equipment = slot.equipment(); equipment.has_value()) {
+            total += equipment->mst().api_tais;
+        }
+    }
+
+    return total;
+}
+
+auto asw_equipment(const kcv::kcsapi::api_mst_slotitem_value_t& mst) -> kcv::number {
+    switch (std::get<kcv::kcsapi::category>(mst.api_type)) {
+        case kcv::kcsapi::category::carrier_based_bomber:
+        case kcv::kcsapi::category::carrier_based_torpedo:
+        case kcv::kcsapi::category::seaplane_bomber:
+        case kcv::kcsapi::category::sonar:
+        case kcv::kcsapi::category::depth_charge:
+        case kcv::kcsapi::category::autogyro:
+        case kcv::kcsapi::category::as_patrol:
+        case kcv::kcsapi::category::sonar_large:
+            return mst.api_tais;
+
+        default:
+            return 0;
+    }
+}
+
+auto total_asw_equipment(const kcv::ship& attacker) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            total += asw_equipment(slot.equipment()->mst());
+        }
+    }
+
+    return total;
+}
+
+auto asw_improvement_bonus(const kcv::equipment& equipment) -> kcv::number {
+    switch (std::get<kcv::kcsapi::category>(equipment.mst().api_type)) {
+        case kcv::kcsapi::category::carrier_based_bomber:
+        case kcv::kcsapi::category::carrier_based_torpedo:
+            return 0.2 * equipment.level();
+
+        case kcv::kcsapi::category::sonar:
+        case kcv::kcsapi::category::depth_charge:
+            return std::sqrt(equipment.level());
+
+        case kcv::kcsapi::category::autogyro:
+            return equipment.mst().api_tais > 10  //
+                     ? 0.3 * equipment.level()
+                     : 0.2 * equipment.level();
+
+        case kcv::kcsapi::category::as_patrol:
+            return 0.3 * equipment.level();
+
+        case kcv::kcsapi::category::sonar_large:
+            return std::sqrt(equipment.level());
+
+        default:
+            return 0;
+    }
+}
+
+auto total_asw_improvement_bonus(const kcv::ship& attacker) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            total += asw_improvement_bonus(*slot.equipment());
+        }
+    }
+
+    return total;
+}
+
+auto asw_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker       = kcv::get_attacker(data);
+    const auto base_value      = asw_base_power(data);
+    const auto asw             = attacker.asw();
+    const auto equipment_asw   = total_equipment_asw(attacker);
+    const auto asw_equipment   = total_asw_equipment(attacker);
+    const auto equipment_bonus = kcv::total_equipment_bonus(attacker, ctx.fit_bonuses()).tais;
+    const auto naked_value     = data.attacker_side == kcv::kcsapi::fleet_flag::player  //
+                                   ? asw - equipment_asw - equipment_bonus
+                                   : 0;  //不明.
+    const auto asw_improvement = total_asw_improvement_bonus(attacker);
+
+    return base_value + 2 * kcv::sqrt(naked_value) + 1.5 * (asw_equipment + equipment_bonus) + asw_improvement;
+}
+
 auto torpedo_improvement_bonus(const kcv::equipment& equipment) -> kcv::number {
     switch (std::get<kcv::kcsapi::category>(equipment.mst().api_type)) {
         case kcv::kcsapi::category::torpedo:
@@ -82,10 +278,10 @@ auto torpedo_improvement_bonus(const kcv::equipment& equipment) -> kcv::number {
     }
 }
 
-auto total_torpedo_improvement_bonus(const kcv::ship& ship) -> kcv::number {
+auto total_torpedo_improvement_bonus(const kcv::ship& attacker) -> kcv::number {
     auto total = kcv::number{0};
 
-    for (const auto& slot : ship.slots()) {
+    for (const auto& slot : attacker.slots()) {
         if (slot.equipment().has_value()) {
             total += torpedo_improvement_bonus(*slot.equipment());
         }
@@ -94,7 +290,6 @@ auto total_torpedo_improvement_bonus(const kcv::ship& ship) -> kcv::number {
     return total;
 }
 
-/// @brief 雷撃の基本攻撃力を返す.
 auto torpedo_attack_power(const kcv::battlelog& data) -> kcv::number {
     const auto& attacker = kcv::get_attacker(data);
 
@@ -116,13 +311,13 @@ auto mod::basic_attack_power(const kcv::context_data& ctx, const kcv::battlelog&
 
     switch (data.phase) {
         case kcv::phase::opening_taisen:
-            throw kcv::exception{"not impl"};
+            return impl::asw_attack_power(ctx, data);
 
         case kcv::phase::opening_atack:
             return impl::torpedo_attack_power(data);
 
         case kcv::phase::hougeki:
-            throw kcv::exception{"not impl"};
+            return impl::hougeki_attack_power(ctx, data);
 
         case kcv::phase::raigeki:
             return impl::torpedo_attack_power(data);
@@ -271,22 +466,48 @@ bool is_vanguard_main(const kcv::battlelog& data) noexcept {
     return is_vanguard_main_in_combined_fleet(data);
 }
 
-auto vanguard_in_midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+auto vanguard_in_asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     if (is_vanguard_main(data)) {
-        return kcv::functions::formation{.a = 0.5};
+        return kcv::functions::formation{.a = 1.0};
     }
 
-    return kcv::functions::formation{.a = 1.0};
+    return kcv::functions::formation{.a = 0.6};
 }
 
-auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+auto asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     switch (kcv::get_attacker_formation(data)) {
-        case kcv::kcsapi::formation::vanguard:
-            return vanguard_in_midnight_modifier(data);
+        case kcv::kcsapi::formation::line_ahead:
+            return kcv::functions::formation{.a = 0.6};
 
-        default:
+        case kcv::kcsapi::formation::double_line:
+            return kcv::functions::formation{.a = 0.8};
+
+        case kcv::kcsapi::formation::diamond:
+            return kcv::functions::formation{.a = 1.2};
+
+        case kcv::kcsapi::formation::echelon:
+            return kcv::functions::formation{.a = 1.1};
+
+        case kcv::kcsapi::formation::line_abreast:
+            return kcv::functions::formation{.a = 1.3};
+
+        case kcv::kcsapi::formation::vanguard:
+            return vanguard_in_asw_modifier(data);
+
+        case kcv::kcsapi::formation::Cruising1:
+            return kcv::functions::formation{.a = 1.3};
+
+        case kcv::kcsapi::formation::Cruising2:
+            return kcv::functions::formation{.a = 1.1};
+
+        case kcv::kcsapi::formation::Cruising3:
             return kcv::functions::formation{.a = 1.0};
+
+        case kcv::kcsapi::formation::Cruising4:
+            return kcv::functions::formation{.a = 0.7};
     }
+
+    return default_modifier();
 }
 
 auto vanguard_in_shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
@@ -333,6 +554,14 @@ auto shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation 
     return default_modifier();
 }
 
+auto hougeki_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+    if (kcv::is_submarine(kcv::get_defender(data).mst())) {
+        return asw_modifier(data);
+    }
+
+    return shelling_modifier(data);
+}
+
 auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     switch (kcv::get_attacker_formation(data)) {
         case kcv::kcsapi::formation::line_ahead:
@@ -369,48 +598,22 @@ auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     return default_modifier();
 }
 
-auto vanguard_in_asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+auto vanguard_in_midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     if (is_vanguard_main(data)) {
-        return kcv::functions::formation{.a = 1.0};
+        return kcv::functions::formation{.a = 0.5};
     }
 
-    return kcv::functions::formation{.a = 0.6};
+    return kcv::functions::formation{.a = 1.0};
 }
 
-auto asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     switch (kcv::get_attacker_formation(data)) {
-        case kcv::kcsapi::formation::line_ahead:
-            return kcv::functions::formation{.a = 0.6};
-
-        case kcv::kcsapi::formation::double_line:
-            return kcv::functions::formation{.a = 0.8};
-
-        case kcv::kcsapi::formation::diamond:
-            return kcv::functions::formation{.a = 1.2};
-
-        case kcv::kcsapi::formation::echelon:
-            return kcv::functions::formation{.a = 1.1};
-
-        case kcv::kcsapi::formation::line_abreast:
-            return kcv::functions::formation{.a = 1.3};
-
         case kcv::kcsapi::formation::vanguard:
-            return vanguard_in_asw_modifier(data);
+            return vanguard_in_midnight_modifier(data);
 
-        case kcv::kcsapi::formation::Cruising1:
-            return kcv::functions::formation{.a = 1.3};
-
-        case kcv::kcsapi::formation::Cruising2:
-            return kcv::functions::formation{.a = 1.1};
-
-        case kcv::kcsapi::formation::Cruising3:
+        default:
             return kcv::functions::formation{.a = 1.0};
-
-        case kcv::kcsapi::formation::Cruising4:
-            return kcv::functions::formation{.a = 0.7};
     }
-
-    return default_modifier();
 }
 
 }  // namespace formation_impl
@@ -430,7 +633,7 @@ auto mod::formation(const kcv::context_data& ctx, const kcv::battlelog& data) ->
             return impl::torpedo_modifier(data);
 
         case kcv::phase::hougeki:
-            return impl::shelling_modifier(data);
+            return impl::hougeki_modifier(data);
 
         case kcv::phase::raigeki:
             return impl::torpedo_modifier(data);
@@ -572,7 +775,7 @@ auto mod::post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> 
         const bool has_synergistic_depth_charge = kcv::has_equipment(attacker, kcv::is_synergistic_depth_charge);
         if (has_depth_charge_projector and has_synergistic_depth_charge) {
             const bool has_small_sonor = kcv::has_equipment(attacker, [](const auto& mst) static -> bool {
-                return std::get<kcv::kcsapi::idx_type::category>(mst.api_type) == kcv::kcsapi::category::sonar;
+                return std::get<kcv::kcsapi::category>(mst.api_type) == kcv::kcsapi::category::sonar;
             });
             if (has_small_sonor) {
                 return kcv::functions::post_asw{.a = 1.25};

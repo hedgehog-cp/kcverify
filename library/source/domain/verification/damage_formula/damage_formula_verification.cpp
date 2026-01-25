@@ -308,13 +308,13 @@ bool kcv::is_night_air_attack_ci_type_indeterminable(const kcv::context_data& ct
     const auto& mst1 = kcv::find_mst(ctx.api_mst_slotitem(), data.display_equipments.at(1));
     const auto& mst2 = kcv::find_mst(ctx.api_mst_slotitem(), data.display_equipments.at(2));
 
-    const bool is_foo = std::get<kcv::kcsapi::idx_type::icon>(mst0.api_type) == kcv::kcsapi::icon::night_fighter  //
-                    and kcv::is_night_plane(mst1)                                                                 //
-                    and kcv::is_night_plane(mst2);                                                                //
+    const bool is_foo = std::get<kcv::kcsapi::icon>(mst0.api_type) == kcv::kcsapi::icon::night_fighter  //
+                    and kcv::is_night_plane(mst1)                                                       //
+                    and kcv::is_night_plane(mst2);                                                      //
 
-    const bool is_ffa = std::get<kcv::kcsapi::idx_type::icon>(mst0.api_type) == kcv::kcsapi::icon::night_fighter    //
-                    and std::get<kcv::kcsapi::idx_type::icon>(mst1.api_type) == kcv::kcsapi::icon::night_fighter    //
-                    and std::get<kcv::kcsapi::idx_type::icon>(mst0.api_type) == kcv::kcsapi::icon::night_attacker;  //
+    const bool is_ffa = std::get<kcv::kcsapi::icon>(mst0.api_type) == kcv::kcsapi::icon::night_fighter    //
+                    and std::get<kcv::kcsapi::icon>(mst1.api_type) == kcv::kcsapi::icon::night_fighter    //
+                    and std::get<kcv::kcsapi::icon>(mst0.api_type) == kcv::kcsapi::icon::night_attacker;  //
 
     return is_foo and is_ffa;
 }
