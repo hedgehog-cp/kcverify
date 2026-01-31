@@ -184,3 +184,20 @@ bool kcv::is_night_plane(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexc
             return false;
     }
 }
+
+bool kcv::is_late_model_bow_torpedo(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    switch (mst.api_id) {
+        case "後期型艦首魚雷(6門)"_id:
+        case "熟練聴音員+後期型艦首魚雷(6門)"_id:
+        case "後期型53cm艦首魚雷(8門)"_id:
+        case "21inch艦首魚雷発射管6門(後期型)"_id:
+        case "潜水艦後部魚雷発射管4門(後期型)"_id:
+        case "後期型艦首魚雷(4門)"_id:
+        case "熟練聴音員+後期型艦首魚雷(4門)"_id:
+        case "21inch艦首魚雷発射管4門(後期型)"_id:
+            return true;
+
+        default:
+            return false;
+    }
+}

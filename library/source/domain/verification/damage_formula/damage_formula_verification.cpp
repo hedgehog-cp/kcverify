@@ -408,7 +408,7 @@ bool kcv::is_miss(const kcv::context_data& ctx, const kcv::battlelog& data) {
     return std::visit(
         kcv::overloaded{
             [](std::int32_t v) static noexcept -> bool { return v == 0; },
-            [&data] [[noreturn]] (kcv::kcsapi::air_hit_type v) -> bool {
+            [&data](kcv::kcsapi::air_hit_type v) -> bool {
                 // HACK:
                 // 航空戦ではhit_or_missとなるため, missを判定できない.
                 // とりあえず, hit_or_miss かつ ダメージ0 ならばmissと扱う.

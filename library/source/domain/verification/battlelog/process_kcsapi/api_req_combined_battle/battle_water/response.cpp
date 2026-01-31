@@ -79,6 +79,7 @@ auto make_abyssal_ships(
         const auto kyouka     = kcv::kcsapi::api_kyouka{};
         const auto maximum_hp = kcv::to_integer(maxhp).value();
         const auto hp         = kcv::to_integer(nowhp).value();
+        const auto firepower  = std::get<kcv::kcsapi::idx_param::houg>(param);
         const auto torpedo    = std::get<kcv::kcsapi::idx_param::raig>(param);
         const auto armor      = std::get<kcv::kcsapi::idx_param::souk>(param);
         const auto speed      = mst.api_soku;                                                       // ?
@@ -86,7 +87,7 @@ auto make_abyssal_ships(
 
         ships.emplace_back(
             mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, ammo, kyouka, maximum_hp, hp,
-            torpedo, armor, speed, asw
+            firepower, torpedo, armor, speed, asw
         );
     }
 

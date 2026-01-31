@@ -50,8 +50,8 @@ bool is_cb_swordfish(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 /// @brief 夜間機であるかを検証する.
 bool is_night_plane(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 
-/// @brief 準夜間機であるかを検証する.
-// bool is_semi_night_plane(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
+/// @brief 後期型艦種魚雷であるかを検証する.
+bool is_late_model_bow_torpedo(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 
 }  // namespace kcv
 

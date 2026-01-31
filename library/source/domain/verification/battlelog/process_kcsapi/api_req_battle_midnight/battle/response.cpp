@@ -87,6 +87,7 @@ void initialize_abyssal_fleet_data(
         const auto kyouka     = kcv::kcsapi::api_kyouka{};
         const auto maximum_hp = kcv::to_integer(maxhp).value();
         const auto hp         = kcv::to_integer(nowhp).value();
+        const auto firepower  = std::get<kcv::kcsapi::idx_param::houg>(param);
         const auto torpedo    = std::get<kcv::kcsapi::idx_param::raig>(param);
         const auto armor      = std::get<kcv::kcsapi::idx_param::souk>(param);
         const auto speed      = mst.api_soku;                                                       // ?
@@ -94,7 +95,7 @@ void initialize_abyssal_fleet_data(
 
         ships.emplace_back(
             mst, base_id, nationality, std::move(slots), exslot, ship_lv, condition, ammo, kyouka, maximum_hp, hp,
-            torpedo, armor, speed, asw
+            firepower, torpedo, armor, speed, asw
         );
     }
 
@@ -147,6 +148,7 @@ auto make_friend_fleet_data(
         const auto kyouka     = kcv::kcsapi::api_kyouka{};     // ?
         const auto maximum_hp = kcv::to_integer(maxhp).value();
         const auto hp         = kcv::to_integer(nowhp).value();
+        const auto firepower  = std::get<kcv::kcsapi::idx_param::houg>(param);
         const auto torpedo    = std::get<kcv::kcsapi::idx_param::raig>(param);
         const auto armor      = std::get<kcv::kcsapi::idx_param::souk>(param);
         const auto speed      = mst.api_soku;                                                       // ?
@@ -154,7 +156,7 @@ auto make_friend_fleet_data(
 
         ships.emplace_back(
             mst, base_id, nationality, std::move(slots), std::move(exslot), ship_lv, condition, ammo, kyouka,
-            maximum_hp, hp, torpedo, armor, speed, asw
+            maximum_hp, hp, firepower, torpedo, armor, speed, asw
         );
     }
 
@@ -203,17 +205,17 @@ void update(
         *hougeki.api_sp_list            //
     );
     for (const auto& [index, at_eflag, at_list, cl_list, damage, df_list, n_mother_list, si_list, sp_list] : zip) {
-        const auto attack             = std::ranges::views::zip(cl_list, damage, df_list);
-        const auto attacker_fleet     = at_eflag == kcv::kcsapi::fleet_flag::player  //
-                                          ? static_cast<std::size_t>(friend_fleet_data.fleet_id() - 1)
-                                          : 0uz;
-        const auto defender_fleet     = at_eflag == kcv::kcsapi::fleet_flag::player  //
-                                          ? 0uz
-                                          : static_cast<std::size_t>(friend_fleet_data.fleet_id() - 1);
+        const auto attack         = std::ranges::views::zip(std::ranges::views::iota(0uz), cl_list, damage, df_list);
+        const auto attacker_fleet = at_eflag == kcv::kcsapi::fleet_flag::player  //
+                                      ? static_cast<std::size_t>(friend_fleet_data.fleet_id() - 1)
+                                      : 0uz;
+        const auto defender_fleet = at_eflag == kcv::kcsapi::fleet_flag::player  //
+                                      ? 0uz
+                                      : static_cast<std::size_t>(friend_fleet_data.fleet_id() - 1);
         const auto display_equipments = si_list  //
                                       | std::ranges::views::transform(&kcv::to_equipment_id)
                                       | std::ranges::to<std::vector>();
-        for (const auto& [cl, dam, df] : attack) {
+        for (const auto& [order, cl, dam, df] : attack) {
             battlelogs.push_back(
                 kcv::battlelog{
                     .world              = current.world,
@@ -236,6 +238,7 @@ void update(
                     .defender_ship      = static_cast<std::size_t>(df),
                     .attack_kind        = sp_list,
                     .display_equipments = display_equipments,
+                    .attack_order       = order,
                     .clitical           = cl,
                     .is_protected       = kcv::is_protected(dam),
                     .damage             = kcv::unprotected_damage(dam),
@@ -276,17 +279,17 @@ void update(kcv::battlelog& current, kcv::battlelogs_t& battlelogs, const kcv::k
         *data.api_sp_list               //
     );
     for (const auto& [index, at_eflag, at_list, cl_list, damage, df_list, n_mother_list, si_list, sp_list] : zip) {
-        const auto attack             = std::ranges::views::zip(cl_list, damage, df_list);
-        const auto attacker_fleet     = at_eflag == kcv::kcsapi::fleet_flag::player  //
-                                          ? static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1)
-                                          : 0uz;
-        const auto defender_fleet     = at_eflag == kcv::kcsapi::fleet_flag::player  //
-                                          ? 0uz
-                                          : static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1);
+        const auto attack         = std::ranges::views::zip(std::ranges::views::iota(0uz), cl_list, damage, df_list);
+        const auto attacker_fleet = at_eflag == kcv::kcsapi::fleet_flag::player  //
+                                      ? static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1)
+                                      : 0uz;
+        const auto defender_fleet = at_eflag == kcv::kcsapi::fleet_flag::player  //
+                                      ? 0uz
+                                      : static_cast<std::size_t>(current.girls_fleet_data.fleet_id() - 1);
         const auto display_equipments = si_list  //
                                       | std::ranges::views::transform(&kcv::to_equipment_id)
                                       | std::ranges::to<std::vector>();
-        for (const auto& [cl, dam, df] : attack) {
+        for (const auto& [order, cl, dam, df] : attack) {
             battlelogs.push_back(
                 kcv::battlelog{
                     .world              = current.world,
@@ -309,6 +312,7 @@ void update(kcv::battlelog& current, kcv::battlelogs_t& battlelogs, const kcv::k
                     .defender_ship      = static_cast<std::size_t>(df),
                     .attack_kind        = sp_list,
                     .display_equipments = display_equipments,
+                    .attack_order       = order,
                     .clitical           = cl,
                     .is_protected       = kcv::is_protected(dam),
                     .damage             = kcv::unprotected_damage(dam),

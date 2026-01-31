@@ -136,6 +136,12 @@ using engagement = kcv::functions::basic_liner<struct engagement_tag>;
 /// @brief 攻撃側陣形補正.
 using formation = kcv::functions::basic_liner<struct formation_tag>;
 
+/// @brief 夜間特殊攻撃補正.
+using night = kcv::functions::basic_liner<struct night_tag>;
+
+/// @brief 駆逐艦D砲補正.
+using dd_d_gun = kcv::functions::basic_liner<struct dd_d_gun_tag>;
+
 /// @brief 損傷状態補正.
 using damage_state = kcv::functions::basic_liner<struct damage_state_tag>;
 

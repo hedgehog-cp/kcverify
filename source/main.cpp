@@ -16,6 +16,7 @@
 #include "kcv/domain/verification/battlelog/battlelog_io.hpp"
 #include "kcv/domain/verification/damage_formula/damage_formula_verification.hpp"
 #include "kcv/external/eoen/database/sortie/sortie_record.hpp"
+#include "kcv/external/kcsapi/types/enum/night_attack_kind.hpp"
 #include "kcv/std_ext/exception.hpp"
 #include "kcv/std_ext/formatter.hpp"
 
@@ -57,7 +58,17 @@ int main() try {
     kcv::write_akakari(battlelogs, ctx.api_mst_ship(), ctx.api_mst_slotitem(), "./out/battlelogs.csv");
 
     // ダメージ式を検証する.
-    kcv::verify_damage_formula(ctx, battlelogs);
+    constexpr auto output_policy = kcv::vdf_output_policy{
+        .engagement      = false,
+        .formation       = false,
+        .damage_state    = false,
+        .pre_asw         = false,
+        .post_asw        = false,
+        .ap_depth_charge = false,
+        .inversed_f3     = {false, false},
+        .inversed_f2     = {false, false},
+    };
+    kcv::verify_damage_formula(ctx, battlelogs, output_policy);
 } catch (const std::exception& e) {
     // 捕捉した例外をフォーマットして標準エラー出力に出力するとともに, エラーとしてプログラムを終了する.
     kcv::print_exception(stderr, e);
@@ -66,28 +77,41 @@ int main() try {
 
 bool macthes_battlelog(const kcv::battlelog& data) {
     // ダメージ0を除外.
-    if (data.damage == 0) {
-        return false;
-    }
+    // if (data.damage == 0) {
+    //     return false;
+    // }
 
     // CL0を除外.
-    if (std::get<std::int32_t>(data.clitical) == 0) {
-        return false;
-    }
+    // if (std::get<std::int32_t>(data.clitical) == 0) {
+    //     return false;
+    // }
+
+    // 割合置換を除外.
+    // if (kcv::is_scratch_damage({}, data)) {
+    //     return false;
+    // }
 
     // 深海棲艦の攻撃を除外.
     // if (data.attacker_side == kcv::kcsapi::fleet_flag::enemy) {
     //     return false;
     // }
 
-    // 夜戦でない攻撃を除外.
-    // static constexpr auto target_phases = std::to_array<kcv::phase>({
-    //     kcv::phase::midnight,
-    // });
-    // if (not std::ranges::contains(target_phases, data.phase)) {
+    // 対潜攻撃を除外.
+    // if (kcv::is_submarine(kcv::get_defender(data).mst())) {
     //     return false;
     // }
-    if (not kcv::is_submarine(kcv::get_defender(data).mst())) {
+
+    // 夜戦でない攻撃を除外.
+    static constexpr auto target_phases = std::to_array<kcv::phase>({
+        kcv::phase::sp_midnight,
+        kcv::phase::midnight,
+    });
+    if (not std::ranges::contains(target_phases, data.phase)) {
+        return false;
+    }
+
+    // 艦隊特殊攻撃を除外.
+    if (std::get<kcv::kcsapi::night_attack_kind>(data.attack_kind) >= kcv::kcsapi::night_attack_kind{100}) {
         return false;
     }
 
@@ -105,12 +129,6 @@ bool macthes_battlelog(const kcv::battlelog& data) {
     if (data.world > 8) {
         return false;
     }
-
-    // 中破を除外.
-    // if (const auto& attacker = kcv::get_attacker(data);
-    //     kcv::to_damage_state(attacker.hp(), attacker.maxhp()) == kcv::damage_state::medium) {
-    //     return false;
-    // }
 
     return true;
 }

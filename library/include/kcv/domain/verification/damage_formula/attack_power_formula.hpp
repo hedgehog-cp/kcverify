@@ -21,6 +21,8 @@ class attack_power_formula final {
         kcv::functions::f0,            // 第0種補正.
         kcv::functions::engagement,    // 交戦形態補正.
         kcv::functions::formation,     // 攻撃側陣形補正.
+        kcv::functions::night,         // 夜間特殊攻撃補正.
+        kcv::functions::dd_d_gun,      // 駆逐艦D砲補正.
         kcv::functions::damage_state,  // 損傷状態補正.
         kcv::functions::pre_asw,       // 前対潜シナジー補正.
         kcv::functions::post_asw,      // 後対潜シナジー補正.
@@ -75,7 +77,7 @@ auto formulate_attack_power(const kcv::context_data& ctx, const kcv::battlelog& 
 namespace modifiers {
 
 /// @brief 基本攻撃力.
-auto basic_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number;
+auto base_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number;
 
 /// @brief 未知の第0種補正.
 auto f0(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f0;
@@ -85,6 +87,12 @@ auto engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv
 
 /// @brief 攻撃側陣形補正.
 auto formation(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::formation;
+
+/// @brief 夜間特殊攻撃補正.
+auto night(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::night;
+
+/// @brief 駆逐艦D砲補正.
+auto dd_d_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::dd_d_gun;
 
 /// @brief 損傷状態補正.
 auto damage_state(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::damage_state;

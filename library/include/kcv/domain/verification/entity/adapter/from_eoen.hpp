@@ -79,6 +79,7 @@ inline auto ship_from_eoen(
         src.kyouka,
         kcv::get_maxhp(mst, std::get<kcv::kcsapi::idx_kyouka::taik>(src.kyouka), src.level),
         src.hp,
+        src.firepower.value_or(0),
         src.torpedo.value_or(0),
         src.armor.value_or(0),
         src.speed,

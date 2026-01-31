@@ -37,6 +37,7 @@ class ship final {
         const kcv::kcsapi::api_kyouka& kyouka,
         std::int32_t maxhp,
         std::int32_t hp,
+        std::int32_t firepower,
         std::int32_t torpedo,
         std::int32_t armor,
         std::int32_t speed,
@@ -53,6 +54,7 @@ class ship final {
         , kyouka_{kyouka}
         , maxhp_{maxhp}
         , hp_{hp}
+        , firepower_{firepower}
         , torpedo_{torpedo}
         , armor_{armor}
         , speed_{speed}
@@ -114,6 +116,10 @@ class ship final {
         this->hp_ = hp;
     }
 
+    auto firepower() const noexcept -> std::int32_t {
+        return this->firepower_;
+    }
+
     auto torpedo() const noexcept -> std::int32_t {
         return this->torpedo_;
     }
@@ -173,8 +179,8 @@ class ship final {
     /// @brief 耐久.
     std::int32_t hp_;
 
-    // /// @brief 火力.
-    // std::int32_t firepower_;
+    /// @brief 火力.
+    std::int32_t firepower_;
 
     /// @brief 雷装.
     std::int32_t torpedo_;
@@ -216,6 +222,21 @@ struct has_equipment_fn final {
         for (const auto& slot : ship.slots()) {
             if (const auto& e = slot.equipment(); e.has_value()) {
                 if (std::invoke(pred, e->mst())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// @brief 条件を満たす装備を搭載しているかを検証する.
+    /// @param ship 艦船.
+    /// @param category 装備カテゴリ.
+    static bool operator()(const kcv::ship& ship, kcv::kcsapi::equipment_id id) noexcept {
+        for (const auto& slot : ship.slots()) {
+            if (const auto& e = slot.equipment(); e.has_value()) {
+                if (e->mst().api_id == id) {
                     return true;
                 }
             }
