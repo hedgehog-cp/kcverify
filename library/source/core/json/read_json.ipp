@@ -14,7 +14,7 @@
 namespace kcv {
 namespace detail {
 
-template <glz::opts Opts, typename T>
+template <auto Opts, typename T>
 void read_json_impl(T& dst, const std::string& buffer) try {
     if (const auto error = glz::read<Opts>(dst, buffer); error) {
         std::ofstream{"read_json_error.json"} << buffer;
@@ -26,7 +26,7 @@ void read_json_impl(T& dst, const std::string& buffer) try {
     std::throw_with_nested(kcv::make_exception_with_context());
 }
 
-template <glz::opts Opts, typename T>
+template <auto Opts, typename T>
 void read_json_impl(T& dst, const std::filesystem::path& fname) try {
     auto buffer = std::string{};
     buffer.resize_and_overwrite(

@@ -8,7 +8,7 @@
 #include "kcv/external/kcsapi/types/enum/icon.hpp"
 
 bool kcv::is_radar(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
-    return std::get<kcv::kcsapi::idx_type::icon>(mst.api_type) == kcsapi::icon::radar;
+    return std::get<kcv::kcsapi::icon>(mst.api_type) == kcsapi::icon::radar;
 }
 
 bool kcv::is_anti_air_radar(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
@@ -24,7 +24,7 @@ bool kcv::is_accuracy_radar(const kcv::kcsapi::api_mst_slotitem_value_t& mst) no
 }
 
 bool kcv::is_sonor(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
-    switch (std::get<kcv::kcsapi::idx_type::category>(mst.api_type)) {
+    switch (std::get<kcv::kcsapi::category>(mst.api_type)) {
         case kcv::kcsapi::category::sonar:
         case kcv::kcsapi::category::sonar_large:
             return true;
@@ -35,7 +35,7 @@ bool kcv::is_sonor(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
 }
 
 bool kcv::is_depth_charge(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
-    switch (std::get<kcv::kcsapi::idx_type::category>(mst.api_type)) {
+    switch (std::get<kcv::kcsapi::category>(mst.api_type)) {
         case kcv::kcsapi::category::depth_charge:
             return true;
 
@@ -67,6 +67,23 @@ bool kcv::is_synergistic_depth_charge(const kcv::kcsapi::api_mst_slotitem_value_
         case "二式爆雷"_id:
         case "対潜短魚雷(試作初期型)"_id:
         case "Hedgehog(初期型)"_id:
+        case "二式爆雷改二"_id:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+bool kcv::is_ap_depth_charge(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    switch (mst.api_id) {
+        using kcv::literals::equipment_literals::operator""_id;
+        case "九五式爆雷"_id:
+        case "二式爆雷"_id:
+        case "RUR-4A Weapon Alpha改"_id:
+        case "対潜短魚雷(試作初期型)"_id:
+        case "Hedgehog(初期型)"_id:
+        case "Mk.32 対潜魚雷(Mk.2落射機)"_id:
         case "二式爆雷改二"_id:
             return true;
 
@@ -157,10 +174,27 @@ bool kcv::is_night_plane(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexc
             return true;
     }
 
-    switch (std::get<kcv::kcsapi::idx_type::icon>(mst.api_type)) {
+    switch (std::get<kcv::kcsapi::icon>(mst.api_type)) {
         case kcv::kcsapi::icon::night_fighter:
         case kcv::kcsapi::icon::night_attacker:
         case kcv::kcsapi::icon::night_bomber:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+bool kcv::is_late_model_bow_torpedo(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    switch (mst.api_id) {
+        case "後期型艦首魚雷(6門)"_id:
+        case "熟練聴音員+後期型艦首魚雷(6門)"_id:
+        case "後期型53cm艦首魚雷(8門)"_id:
+        case "21inch艦首魚雷発射管6門(後期型)"_id:
+        case "潜水艦後部魚雷発射管4門(後期型)"_id:
+        case "後期型艦首魚雷(4門)"_id:
+        case "熟練聴音員+後期型艦首魚雷(4門)"_id:
+        case "21inch艦首魚雷発射管4門(後期型)"_id:
             return true;
 
         default:

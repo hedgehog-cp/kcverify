@@ -28,6 +28,9 @@ enum class phase {
 
     /// @brief 基地航空隊航空戦.
 
+    /// @brief 開幕夜戦.
+    sp_midnight,
+
     /// @brief 機動部隊航空友軍.
 
     /// @brief 航空戦.
@@ -46,11 +49,11 @@ enum class phase {
     /// @brief 雷撃戦.
     raigeki,
 
-    /// @brief 夜戦.
-    midnight,
-
     /// @brief 夜戦友軍艦隊攻撃.
     friendly,
+
+    /// @brief 夜戦.
+    midnight,
 };
 
 /// @brief ダメージごとの戦闘ログ.
@@ -118,6 +121,9 @@ struct battlelog final {
 
     /// @brief 表示装備.
     std::vector<kcv::kcsapi::equipment_id> display_equipments;
+
+    /// @brief 砲撃回数.
+    std::size_t attack_order;
 
     /// @brief cLiticalフラグ. 0=miss, 1=命中, 2=cLitical.
     std::variant<std::int32_t, kcv::kcsapi::air_hit_type> clitical;

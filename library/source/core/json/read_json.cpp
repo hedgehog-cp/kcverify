@@ -65,23 +65,21 @@ template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fi
 template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& dst, const std::string& buffer);
 template void kcv::read_json(std::vector<kcv::eoen::serialization::fit_bonus::fit_bonus_per_equipment>& dst, const std::filesystem::path& fname);
 
+/// HACK: "World (\d+)-(\d+)"のようなキーをメンバ名で表現することが困難であるため, 不明なキー名として扱う.
+struct opts final : public glz::opts {
+    bool error_on_unknown_keys = false;
+    bool quoted_num            = true;
+};
+
 template <>
 void kcv::read_json(kcv::eoen::destination& dst, const std::string& buffer) {
-    /// HACK: "World (\d+)-(\d+)"のようなキーをメンバ名で表現することが困難であるため, 不明なキー名として扱う.
-    constexpr auto opts = glz::opts{
-        .error_on_unknown_keys = false,
-        .quoted_num            = true,
-    };
+    constexpr auto opts = ::opts{};
     kcv::detail::read_json_impl<opts>(dst, buffer);
 }
 
 template <>
 void kcv::read_json(kcv::eoen::destination& dst, const std::filesystem::path& fname) {
-    /// HACK: "World (\d+)-(\d+)"のようなキーをメンバ名で表現することが困難であるため, 不明なキー名として扱う.
-    constexpr auto opts = glz::opts{
-        .error_on_unknown_keys = false,
-        .quoted_num            = true,
-    };
+    constexpr auto opts = ::opts{};
     kcv::detail::read_json_impl<opts>(dst, fname);
 }
 

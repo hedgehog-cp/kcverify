@@ -9,8 +9,10 @@
 #include <utility>
 
 // kcv
+#include "kcv/core/constants/ship.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
+#include "kcv/external/kcsapi/types/api_minmax.hpp"
 #include "kcv/external/kcsapi/types/enum/equipment_id.hpp"
 #include "kcv/external/kcsapi/types/enum/nationality.hpp"
 #include "kcv/external/kcsapi/types/enum/ship_id.hpp"
@@ -103,4 +105,97 @@ auto kcv::to_equipment_id(const kcv::kcsapi::number& v) noexcept -> kcv::kcsapi:
     };
 
     return std::visit(visitor{}, v);
+}
+
+namespace kcv {
+namespace {
+namespace impl {
+
+/// @brief ケッコンカッコカリによる耐久値の上昇量を返す.
+auto marriage_bonus(const kcv::kcsapi::api_mst_ship_value_t& mst) -> std::int32_t {
+    switch (mst.api_id) {
+        using kcv::literals::ship_literals::operator""_id;
+
+        case "速吸改"_id:
+            return 2;
+
+        case "大和"_id:
+            return 5;
+
+        case "大和改"_id:
+        case "大和改二"_id:
+            return 9;
+
+        case "武蔵"_id:
+            return 4;
+
+        case "武蔵改"_id:
+        case "武蔵改二"_id:
+            return 9;
+
+        case "長門改二"_id:
+        case "陸奥改二"_id:
+            return 8;
+
+        case "Bismarck"_id:
+            return 6;
+
+        case "Bismarck改"_id:
+            return 5;
+
+        case "Bismarck zwei"_id:
+        case "Bismarck drei"_id:
+            return 3;
+
+        case "Littorio"_id:
+        case "Italia"_id:
+        case "Roma"_id:
+        case "Roma改"_id:
+            return 6;
+
+        case "Nelson改"_id:
+            return 5;
+
+        case "Colorado改"_id:
+            return 7;
+    }
+
+    const auto taik = std::get<kcv::kcsapi::idx_minmax::min>(mst.api_taik.value());
+    if (taik <= 6) {
+        return 3;
+    }
+    if (taik <= 29) {
+        return 4;
+    }
+    if (taik <= 39) {
+        return 5;
+    }
+    if (taik <= 49) {
+        return 6;
+    }
+    if (taik <= 69) {
+        return 7;
+    }
+    if (taik <= 90) {
+        return 8;
+    }
+    return 9;
+}
+
+}  // namespace impl
+}  // namespace
+}  // namespace kcv
+
+auto kcv::get_maxhp(
+    const kcv::kcsapi::api_mst_ship_value_t& mst,  //
+    std::int32_t kyouka,                           //
+    std::int32_t level                             //
+) noexcept -> std::int32_t {
+    const auto min_taik = std::get<kcv::kcsapi::idx_minmax::min>(mst.api_taik.value());
+
+    if (level <= 99) {
+        return min_taik + kyouka;
+    }
+
+    return min_taik + kyouka + kcv::impl::marriage_bonus(mst);
 }

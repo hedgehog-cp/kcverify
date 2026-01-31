@@ -24,6 +24,7 @@
 #include "kcv/external/kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcv/external/kcsapi/extensions/utility.hpp"
+#include "kcv/external/kcsapi/types/api_kyouka.hpp"
 #include "kcv/external/kcsapi/types/api_minmax.hpp"
 
 namespace kcv {
@@ -76,11 +77,13 @@ inline auto ship_from_eoen(
         src.condition,
         src.ammo,
         src.kyouka,
-        std::get<kcv::kcsapi::idx_minmax::max>(mst.api_taik.value()),
+        kcv::get_maxhp(mst, std::get<kcv::kcsapi::idx_kyouka::taik>(src.kyouka), src.level),
         src.hp,
+        src.firepower.value_or(0),
         src.torpedo.value_or(0),
         src.armor.value_or(0),
         src.speed,
+        src.asw.value_or(0),
     };
 }
 

@@ -39,7 +39,7 @@ struct idx_type final {
 }  // namespace detail
 
 /// @brief `api_mst_slotitem` の `api_kyouka` の要素アクセス用の疑似scoped enum.
-using idx_type = detail::idx_type::_;
+using idx_type [[deprecated]] = detail::idx_type::_;
 
 /// @brief `api_mst_slotitem` の `api_type`.
 using api_type = std::tuple<std::int32_t, std::int32_t, category, icon, std::int32_t>;

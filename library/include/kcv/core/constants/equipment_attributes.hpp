@@ -29,6 +29,9 @@ bool is_depth_charge_projector(const kcv::kcsapi::api_mst_slotitem_value_t& mst)
 /// @brief シナジー爆雷であるかを検証する.
 bool is_synergistic_depth_charge(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 
+/// @brief 増加爆雷であるかを検証する.
+bool is_ap_depth_charge(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
+
 /// @brief 軽巡軽量主砲であるかを検証する.
 bool is_cl_fit_main_gun(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 
@@ -47,8 +50,8 @@ bool is_cb_swordfish(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 /// @brief 夜間機であるかを検証する.
 bool is_night_plane(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 
-/// @brief 準夜間機であるかを検証する.
-// bool is_semi_night_plane(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
+/// @brief 後期型艦種魚雷であるかを検証する.
+bool is_late_model_bow_torpedo(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept;
 
 }  // namespace kcv
 

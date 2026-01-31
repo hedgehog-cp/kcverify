@@ -4,8 +4,10 @@
 // std
 #include <algorithm>
 #include <cstddef>
+#include <ranges>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 // kcv
 #include "kcv/external/kcsapi/types/enum/ship_id.hpp"
@@ -49,21 +51,15 @@ constexpr bool is_abyssal_ship_id(kcv::kcsapi::ship_id id) noexcept {
 /// @brief 艦名から艦船IDを取得する.
 /// @throw kcv::exception  宗谷および深海棲艦は, その艦船IDを一意に決定できないため例外を送出する.
 consteval auto ship_id(std::string_view name) -> kcv::kcsapi::ship_id {
-    if (name == "宗谷") {
-        throw kcv::exception{std::format("ship id is not uniquely determined. [name = {}]", name)};
+    const auto ids = kcv::detail::api_mst_ship
+                   | std::ranges::views::filter([&name](const auto& e) -> bool { return e.api_name == name; })
+                   | std::ranges::to<std::vector>();
+
+    if (ids.size() != 1) {
+        throw kcv::exception{std::format("ship id is not uniquely determined. [name={}, size={}].", name, ids.size())};
     }
 
-    for (const auto& [api_id, api_name] : kcv::detail::api_mst_ship) {
-        if (api_name == name) {
-            if (is_abyssal_ship_id(api_id)) {
-                throw kcv::exception{std::format("ship id is not uniquely determined. [name = {}]", name)};
-            } else {
-                return api_id;
-            }
-        }
-    }
-
-    throw kcv::exception{std::format("ship id is not uniquely determined. [name = {}]", name)};
+    return ids.front().api_id;
 }
 
 inline namespace literals {

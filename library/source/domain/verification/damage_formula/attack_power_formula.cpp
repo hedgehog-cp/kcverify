@@ -1,9 +1,23 @@
 #include "kcv/domain/verification/damage_formula/attack_power_formula.hpp"
 
+// std
+#include <algorithm>
+#include <array>
+#include <concepts>
+#include <functional>
+#include <initializer_list>
+#include <optional>
+#include <ranges>
+#include <span>
+#include <string_view>
 #include <type_traits>
+#include <variant>
+#include <vector>
 
+// kcv
 #include "kcv/core/constants/equipment.hpp"
 #include "kcv/core/constants/equipment_attributes.hpp"
+#include "kcv/core/constants/ship.hpp"
 #include "kcv/core/constants/ship_attributes.hpp"
 #include "kcv/core/context_data.hpp"
 #include "kcv/core/numeric/composed_function.hpp"
@@ -13,12 +27,15 @@
 #include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
 #include "kcv/domain/verification/damage_formula/modifier_functions.hpp"
 #include "kcv/domain/verification/entity/ship.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_ship.hpp"
+#include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcv/external/kcsapi/extensions/damage_state.hpp"
-#include "kcv/external/kcsapi/types/api_type.hpp"
-#include "kcv/external/kcsapi/types/enum/air_hit_type.hpp"
+#include "kcv/external/kcsapi/extensions/utility.hpp"
 #include "kcv/external/kcsapi/types/enum/category.hpp"
 #include "kcv/external/kcsapi/types/enum/engagement.hpp"
+#include "kcv/external/kcsapi/types/enum/equipment_id.hpp"
 #include "kcv/external/kcsapi/types/enum/formation.hpp"
+#include "kcv/external/kcsapi/types/enum/icon.hpp"
 #include "kcv/external/kcsapi/types/enum/night_attack_kind.hpp"
 #include "kcv/std_ext/exception.hpp"
 #include "kcv/std_ext/utility.hpp"
@@ -28,10 +45,12 @@ auto kcv::formulate_attack_power(
     const kcv::battlelog& data     //
 ) -> kcv::attack_power_formula {
     return kcv::attack_power_formula{
-        kcv::modifiers::basic_attack_power(ctx, data),
+        kcv::modifiers::base_attack_power(ctx, data),
         kcv::modifiers::f0(ctx, data)                  //
             | kcv::modifiers::engagement(ctx, data)    //
             | kcv::modifiers::formation(ctx, data)     //
+            | kcv::modifiers::night(ctx, data)         //
+            | kcv::modifiers::dd_d_gun(ctx, data)      //
             | kcv::modifiers::damage_state(ctx, data)  //
             | kcv::modifiers::pre_asw(ctx, data)       //
             | kcv::modifiers::post_asw(ctx, data)      //
@@ -62,9 +81,8 @@ auto kcv::formulate_attack_power(
 /// @brief 長いのでalias. 関数のシグネチャが改行されちゃうもん...
 namespace mod = kcv::modifiers;
 
-auto mod::basic_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
-    return kcv::number{};
-}
+// 基本攻撃力の実装を`base_attack_power.cpp`に分離する.
+// auto kcv::base_attack_power() -> kcv::number { ... }
 
 auto mod::f0(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f0 {
     // if (ctx.既存補正をoff) { return ctx.置換; }
@@ -154,12 +172,16 @@ auto mod::engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -
     // if (ctx.既存補正をoff) { return ctx.置換; }
 
     switch (data.phase) {
+        case kcv::phase::sp_midnight:
+            return impl::midnight_modifier(data);
+
         case kcv::phase::opening_taisen:
         case kcv::phase::opening_atack:
         case kcv::phase::hougeki:
         case kcv::phase::raigeki:
             return impl::primary_modifier(data);
 
+        case kcv::phase::friendly:
         case kcv::phase::midnight:
             return impl::midnight_modifier(data);
     }
@@ -199,104 +221,6 @@ bool is_vanguard_main(const kcv::battlelog& data) noexcept {
     }
 
     return is_vanguard_main_in_combined_fleet(data);
-}
-
-auto vanguard_in_midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
-    if (is_vanguard_main(data)) {
-        return kcv::functions::formation{.a = 0.5};
-    }
-
-    return kcv::functions::formation{.a = 1.0};
-}
-
-auto midnight_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
-    switch (kcv::get_attacker_formation(data)) {
-        case kcv::kcsapi::formation::vanguard:
-            return vanguard_in_midnight_modifier(data);
-
-        default:
-            return kcv::functions::formation{.a = 1.0};
-    }
-}
-
-auto vanguard_in_shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
-    if (is_vanguard_main(data)) {
-        return kcv::functions::formation{.a = 0.5};
-    }
-
-    return kcv::functions::formation{.a = 1.0};
-}
-
-auto shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
-    switch (kcv::get_attacker_formation(data)) {
-        case kcv::kcsapi::formation::line_ahead:
-            return kcv::functions::formation{.a = 1.0};
-
-        case kcv::kcsapi::formation::double_line:
-            return kcv::functions::formation{.a = 0.8};
-
-        case kcv::kcsapi::formation::diamond:
-            return kcv::functions::formation{.a = 0.7};
-
-        case kcv::kcsapi::formation::echelon:
-            return kcv::functions::formation{.a = 0.75};
-
-        case kcv::kcsapi::formation::line_abreast:
-            return kcv::functions::formation{.a = 0.6};
-
-        case kcv::kcsapi::formation::vanguard:
-            return vanguard_in_shelling_modifier(data);
-
-        case kcv::kcsapi::formation::Cruising1:
-            return kcv::functions::formation{.a = 0.8};
-
-        case kcv::kcsapi::formation::Cruising2:
-            return kcv::functions::formation{.a = 1.0};
-
-        case kcv::kcsapi::formation::Cruising3:
-            return kcv::functions::formation{.a = 0.7};
-
-        case kcv::kcsapi::formation::Cruising4:
-            return kcv::functions::formation{.a = 1.1};
-    }
-
-    return default_modifier();
-}
-
-auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
-    switch (kcv::get_attacker_formation(data)) {
-        case kcv::kcsapi::formation::line_ahead:
-            return kcv::functions::formation{.a = 1.0};
-
-        case kcv::kcsapi::formation::double_line:
-            return kcv::functions::formation{.a = 0.8};
-
-        case kcv::kcsapi::formation::diamond:
-            return kcv::functions::formation{.a = 0.7};
-
-        case kcv::kcsapi::formation::echelon:
-            return kcv::functions::formation{.a = 0.6};
-
-        case kcv::kcsapi::formation::line_abreast:
-            return kcv::functions::formation{.a = 0.6};
-
-        case kcv::kcsapi::formation::vanguard:
-            return kcv::functions::formation{.a = 1.0};
-
-        case kcv::kcsapi::formation::Cruising1:
-            return kcv::functions::formation{.a = 0.7};
-
-        case kcv::kcsapi::formation::Cruising2:
-            return kcv::functions::formation{.a = 0.9};
-
-        case kcv::kcsapi::formation::Cruising3:
-            return kcv::functions::formation{.a = 0.6};
-
-        case kcv::kcsapi::formation::Cruising4:
-            return kcv::functions::formation{.a = 1.0};
-    }
-
-    return default_modifier();
 }
 
 auto vanguard_in_asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
@@ -343,6 +267,112 @@ auto asw_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
     return default_modifier();
 }
 
+auto vanguard_in_shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+    if (is_vanguard_main(data)) {
+        return kcv::functions::formation{.a = 0.5};
+    }
+
+    return kcv::functions::formation{.a = 1.0};
+}
+
+auto shelling_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+    switch (kcv::get_attacker_formation(data)) {
+        case kcv::kcsapi::formation::line_ahead:
+            return kcv::functions::formation{.a = 1.0};
+
+        case kcv::kcsapi::formation::double_line:
+            return kcv::functions::formation{.a = 0.8};
+
+        case kcv::kcsapi::formation::diamond:
+            return kcv::functions::formation{.a = 0.7};
+
+        case kcv::kcsapi::formation::echelon:
+            return kcv::functions::formation{.a = 0.75};
+
+        case kcv::kcsapi::formation::line_abreast:
+            return kcv::functions::formation{.a = 0.6};
+
+        case kcv::kcsapi::formation::vanguard:
+            return vanguard_in_shelling_modifier(data);
+
+        case kcv::kcsapi::formation::Cruising1:
+            return kcv::functions::formation{.a = 0.8};
+
+        case kcv::kcsapi::formation::Cruising2:
+            return kcv::functions::formation{.a = 1.0};
+
+        case kcv::kcsapi::formation::Cruising3:
+            return kcv::functions::formation{.a = 0.7};
+
+        case kcv::kcsapi::formation::Cruising4:
+            return kcv::functions::formation{.a = 1.1};
+    }
+
+    return default_modifier();
+}
+
+auto hougeki_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+    if (kcv::is_submarine(kcv::get_defender(data).mst())) {
+        return asw_modifier(data);
+    }
+
+    return shelling_modifier(data);
+}
+
+auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+    switch (kcv::get_attacker_formation(data)) {
+        case kcv::kcsapi::formation::line_ahead:
+            return kcv::functions::formation{.a = 1.0};
+
+        case kcv::kcsapi::formation::double_line:
+            return kcv::functions::formation{.a = 0.8};
+
+        case kcv::kcsapi::formation::diamond:
+            return kcv::functions::formation{.a = 0.7};
+
+        case kcv::kcsapi::formation::echelon:
+            return kcv::functions::formation{.a = 0.6};
+
+        case kcv::kcsapi::formation::line_abreast:
+            return kcv::functions::formation{.a = 0.6};
+
+        case kcv::kcsapi::formation::vanguard:
+            return kcv::functions::formation{.a = 1.0};
+
+        case kcv::kcsapi::formation::Cruising1:
+            return kcv::functions::formation{.a = 0.7};
+
+        case kcv::kcsapi::formation::Cruising2:
+            return kcv::functions::formation{.a = 0.9};
+
+        case kcv::kcsapi::formation::Cruising3:
+            return kcv::functions::formation{.a = 0.6};
+
+        case kcv::kcsapi::formation::Cruising4:
+            return kcv::functions::formation{.a = 1.0};
+    }
+
+    return default_modifier();
+}
+
+auto vanguard_in_night_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+    if (is_vanguard_main(data)) {
+        return kcv::functions::formation{.a = 0.5};
+    }
+
+    return kcv::functions::formation{.a = 1.0};
+}
+
+auto night_modifier(const kcv::battlelog& data) -> kcv::functions::formation {
+    switch (kcv::get_attacker_formation(data)) {
+        case kcv::kcsapi::formation::vanguard:
+            return vanguard_in_night_modifier(data);
+
+        default:
+            return kcv::functions::formation{.a = 1.0};
+    }
+}
+
 }  // namespace formation_impl
 }  // namespace
 }  // namespace kcv::modifiers
@@ -353,6 +383,9 @@ auto mod::formation(const kcv::context_data& ctx, const kcv::battlelog& data) ->
     // if (ctx.既存補正をoff) { return ctx.置換; }
 
     switch (data.phase) {
+        case kcv::phase::sp_midnight:
+            return impl::night_modifier(data);
+
         case kcv::phase::opening_taisen:
             return impl::asw_modifier(data);
 
@@ -360,17 +393,346 @@ auto mod::formation(const kcv::context_data& ctx, const kcv::battlelog& data) ->
             return impl::torpedo_modifier(data);
 
         case kcv::phase::hougeki:
-            return impl::shelling_modifier(data);
+            return impl::hougeki_modifier(data);
 
         case kcv::phase::raigeki:
             return impl::torpedo_modifier(data);
 
-        case kcv::phase::midnight:
         case kcv::phase::friendly:
-            return impl::midnight_modifier(data);
+        case kcv::phase::midnight:
+            return impl::night_modifier(data);
     }
 
     return impl::default_modifier();
+}
+
+namespace kcv::modifiers {
+namespace {
+namespace fleet_special_attack_impl {
+
+/// @todo ctypeを使う.
+bool is_nelson_class(const kcv::kcsapi::api_mst_ship_value_t& mst) {
+    switch (mst.api_id) {
+        using kcv::literals::ship_literals::operator""_id;
+        case "Nelson"_id:
+        case "Nelson改"_id:
+        case "Rodney"_id:
+        case "Rodney改"_id:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+auto nelson_touch(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    // T字不利の補正は交戦形態補正として適用する.
+
+    switch (data.attack_order) {
+        case 0: {
+            const auto& attacker_fleet   = kcv::get_attacker_fleet(data);
+            const bool is_nelson_class_3 = is_nelson_class(attacker_fleet.ships().at(2).mst());
+            const bool is_nelson_class_5 = is_nelson_class(attacker_fleet.ships().at(4).mst());
+            if (is_nelson_class_3 or is_nelson_class_5) {
+                return 2 * 1.15;
+            }
+            return 2;
+        }
+
+        case 1:
+        case 2: {
+            const auto& attacker = kcv::get_attacker(data);
+            if (is_nelson_class(attacker.mst())) {
+                return 2 * 1.2;
+            }
+            return 2;
+        }
+
+        default:
+            return 1;
+    }
+}
+
+auto special_nagato(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    //
+}
+
+}  // namespace fleet_special_attack_impl
+}  // namespace
+}  // namespace kcv::modifiers
+
+namespace kcv ::modifiers {
+namespace {
+namespace night_impl {
+
+// std::optional<const T&>はC++26を待つため, rwでラップする.
+using opt_mst_slotitem_value_t = std::optional<std::reference_wrapper<const kcv::kcsapi::api_mst_slotitem_value_t>>;
+
+/// @brief i番目の装備とi番目の述語関数とが全て満たすならばtrueを返す.
+template <std::predicate<const kcv::kcsapi::api_mst_slotitem_value_t&>... Preds>
+bool matches_equipments(std::span<const opt_mst_slotitem_value_t> equipments, Preds&&... preds) {
+    if (std::ranges::size(equipments) != sizeof...(Preds)) {
+        return false;
+    }
+
+    auto i = 0uz;
+    return ((equipments[i].has_value() and std::invoke(preds, equipments[i++]->get())) and ...);
+}
+
+bool is_submarine_equipment(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    return std::get<kcv::kcsapi::category>(mst.api_type) == kcv::kcsapi::category::submarine_equipment;
+}
+
+bool is_torpedo(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    return std::get<kcv::kcsapi::category>(mst.api_type) == kcv::kcsapi::category::torpedo;
+}
+
+auto cutin_torpedo_torpedo(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    // 表示装備がある場合は, 表示装備の個数==data.display_equipments.size();
+    // -1でパディングされることはないはず.
+    const auto display_equipments = data.display_equipments  //
+                                  | std::ranges::views::transform([&ctx](auto id) -> opt_mst_slotitem_value_t {
+                                        if (id == kcv::kcsapi::invalid_equipment_id) {
+                                            return std::nullopt;
+                                        }
+                                        return std::make_optional(std::cref(kcv::find_mst(ctx.api_mst_slotitem(), id)));
+                                    })
+                                  | std::ranges::to<std::vector>();
+
+    // [潜電, 後期型潜水艦魚雷].
+    if (matches_equipments(display_equipments, &is_submarine_equipment, &kcv::is_late_model_bow_torpedo)) {
+        return 1.75;
+    }
+
+    // [後期型潜水艦魚雷, 後期型潜水艦魚雷].
+    if (matches_equipments(display_equipments, &kcv::is_late_model_bow_torpedo, &kcv::is_late_model_bow_torpedo)) {
+        return 1.6;
+    }
+
+    // [魚雷, 魚雷].
+    if (matches_equipments(display_equipments, &is_torpedo, &is_torpedo)) {
+        return 1.5;
+    }
+
+    return 1;
+}
+
+bool is_night_fighter(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    return std::get<kcv::kcsapi::icon>(mst.api_type) == kcv::kcsapi::icon::night_fighter;
+}
+
+bool is_night_attacker(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    return std::get<kcv::kcsapi::icon>(mst.api_type) == kcv::kcsapi::icon::night_attacker;
+}
+
+bool is_night_bomber(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    return std::get<kcv::kcsapi::icon>(mst.api_type) == kcv::kcsapi::icon::night_bomber;
+}
+
+bool is_photoelectric_fuze_bombs(const kcv::kcsapi::api_mst_slotitem_value_t& mst) noexcept {
+    return mst.api_id == kcv::equipment_id("彗星一二型(三一号光電管爆弾搭載機)");
+}
+
+auto cutin_air_attack(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    // 表示装備がある場合は, 表示装備の個数==data.display_equipments.size();
+    // -1でパディングされることはないはず.
+    const auto display_equipments = data.display_equipments  //
+                                  | std::ranges::views::transform([&ctx](auto id) -> opt_mst_slotitem_value_t {
+                                        if (id == kcv::kcsapi::invalid_equipment_id) {
+                                            return std::nullopt;
+                                        }
+                                        return std::make_optional(std::cref(kcv::find_mst(ctx.api_mst_slotitem(), id)));
+                                    })
+                                  | std::ranges::to<std::vector>();
+
+    // [夜戦, 夜攻].
+    if (matches_equipments(display_equipments, &is_night_fighter, &is_night_attacker)) {
+        return 1.2;
+    }
+
+    // [夜戦, 光電管].
+    if (matches_equipments(display_equipments, &is_night_fighter, &is_photoelectric_fuze_bombs)) {
+        return 1.2;
+    }
+
+    // [夜攻, 光電管].
+    if (matches_equipments(display_equipments, &is_night_attacker, &is_night_attacker)) {
+        return 1.2;
+    }
+
+    // [夜戦, 夜爆].
+    if (matches_equipments(display_equipments, &is_night_fighter, &is_night_bomber)) {
+        return 1.2;
+    }
+
+    // [夜攻, 夜爆].
+    if (matches_equipments(display_equipments, &is_night_fighter, &is_night_bomber)) {
+        return 1.2;
+    }
+
+    // [夜爆, 光電管].
+    if (matches_equipments(display_equipments, &is_night_bomber, &is_photoelectric_fuze_bombs)) {
+        return 1.2;
+    }
+
+    // [夜戦, 夜間機, 夜間機].
+    if (matches_equipments(display_equipments, &is_night_fighter, &kcv::is_night_plane, &kcv::is_night_plane)) {
+        // [夜戦, 夜戦, 夜攻].
+        if (matches_equipments(display_equipments, &is_night_fighter, &is_night_fighter, &is_night_attacker)) {
+            // 判定不可能だが例外送出しないためにとりあえず返す.
+            return kcv::number{1.18, 1.25};
+        }
+        return 1.18;
+    }
+
+    return 1;
+}
+
+}  // namespace night_impl
+}  // namespace
+}  // namespace kcv::modifiers
+
+auto mod::night(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::night {
+    namespace impl = kcv::modifiers::night_impl;
+
+    // 戦闘フェーズを参照せずとも攻撃種別から夜間攻撃であることを判定でき, 直接的に補正値の分岐を記述できる.
+    return std::visit(
+        kcv::overloaded{
+            [](const auto&) static noexcept -> kcv::functions::night { return kcv::functions::night{}; },
+            [&ctx, &data](const kcv::kcsapi::night_attack_kind& v) -> kcv::functions::night {
+                switch (v) {
+                    case kcv::kcsapi::night_attack_kind::double_shelling:
+                        return kcv::functions::night{.a = 1.2};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_main_torpedo:
+                        return kcv::functions::night{.a = 1.3};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_torpedo:
+                        return kcv::functions::night{.a = impl::cutin_torpedo_torpedo(ctx, data)};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_main_sub:
+                        return kcv::functions::night{.a = 1.75};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_main_main:
+                        return kcv::functions::night{.a = 2};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_air_attack:
+                        return kcv::functions::night{.a = impl::cutin_air_attack(ctx, data)};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_radar:
+                        return kcv::functions::night{.a = 1.3};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_picket:
+                        return kcv::functions::night{.a = 1.2};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_destroyer_picket:
+                        return kcv::functions::night{.a = 1.5};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_drum:
+                        return kcv::functions::night{.a = 1.3};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_radar_2:
+                        return kcv::functions::night{.a = 1.3};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_picket_2:
+                        return kcv::functions::night{.a = 1.2};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_destroyer_picket_2:
+                        return kcv::functions::night{.a = 1.5};
+
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_drum_2:
+                        return kcv::functions::night{.a = 1.3};
+
+                    case kcv::kcsapi::night_attack_kind::special_nelson:
+                    case kcv::kcsapi::night_attack_kind::special_nagato:
+                    case kcv::kcsapi::night_attack_kind::special_mutsu:
+                    case kcv::kcsapi::night_attack_kind::special_colorado:
+                    case kcv::kcsapi::night_attack_kind::special_kongou:
+                    case kcv::kcsapi::night_attack_kind::special_richelieu:
+                        return kcv::functions::night{};  // !!! not impl
+
+                    case kcv::kcsapi::night_attack_kind::cutin_zuiun:
+                        // とりあえず区間に包む.
+                        return kcv::functions::night{.a = kcv::number{1.24, 1.36}};
+
+                    case kcv::kcsapi::night_attack_kind::special_submarine_tender_23:
+                    case kcv::kcsapi::night_attack_kind::special_submarine_tender_34:
+                    case kcv::kcsapi::night_attack_kind::special_submarine_tender_24:
+                    case kcv::kcsapi::night_attack_kind::special_yamato_3_ships:
+                    case kcv::kcsapi::night_attack_kind::special_yamato_2_ships:
+                        return kcv::functions::night{};  // !!! not impl
+
+                    default:
+                        return kcv::functions::night{};
+                }
+            },
+        },
+        data.attack_kind
+    );
+}
+
+namespace kcv::modifiers {
+namespace {
+namespace dd_d_gum_impl {
+
+auto d2_or_d3(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker = kcv::get_attacker(data);
+    const auto d2_num    = kcv::count_equipment(attacker, kcv::equipment_id("12.7cm連装砲D型改二"));
+    const auto d3_num    = kcv::count_equipment(attacker, kcv::equipment_id("12.7cm連装砲D型改三"));
+    switch (d2_num + d3_num) {
+        case 1:
+            return 1.25;
+
+        case 2:
+            return 1.4;
+
+        default:
+            return 1;
+    }
+}
+
+auto d3(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker = kcv::get_attacker(data);
+    const auto d3_num    = kcv::count_equipment(attacker, kcv::equipment_id("12.7cm連装砲D型改三"));
+    switch (d3_num) {
+        case 1:
+            return 1.05;
+
+        case 2:
+            return 1.1;
+
+        default:
+            return 1;
+    }
+}
+
+}  // namespace dd_d_gum_impl
+}  // namespace
+}  // namespace kcv::modifiers
+
+auto mod::dd_d_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::dd_d_gun {
+    namespace impl = kcv::modifiers::dd_d_gum_impl;
+
+    // 戦闘フェーズを参照せずとも攻撃種別から駆逐艦の夜間攻撃であることを判定でき, 直接的に補正値の分岐を記述できる.
+    return std::visit(
+        kcv::overloaded{
+            [](const auto&) static noexcept -> kcv::functions::dd_d_gun { return kcv::functions::dd_d_gun{}; },
+            [&data](const kcv::kcsapi::night_attack_kind& v) -> kcv::functions::dd_d_gun {
+                switch (v) {
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_radar:
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_picket:
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_radar_2:
+                    case kcv::kcsapi::night_attack_kind::cutin_torpedo_picket_2:
+                        // 乗算順序不明につき, 補正を分解しない.
+                        return kcv::functions::dd_d_gun{.a = impl::d2_or_d3(data) * impl::d3(data)};
+
+                    default:
+                        return kcv::functions::dd_d_gun{};
+                }
+            },
+        },
+        data.attack_kind
+    );
 }
 
 namespace kcv::modifiers {
@@ -431,15 +793,26 @@ auto mod::damage_state(const kcv::context_data& ctx, const kcv::battlelog& data)
     // if (ctx.既存補正をoff) { return ctx.置換; }
 
     switch (data.phase) {
-        case kcv::phase::opening_taisen:
-        case kcv::phase::hougeki:
-        case kcv::phase::midnight:
+        case kcv::phase::sp_midnight:
             // 夜戦における大破艦のネルソンタッチは*0.4なので夜戦の大破補正は*0.4といえる.
             return impl::primary_modifier(data);
 
+        case kcv::phase::opening_taisen:
+            return impl::primary_modifier(data);
+
         case kcv::phase::opening_atack:
+            return impl::torpedo_modifier(data);
+
+        case kcv::phase::hougeki:
+            return impl::primary_modifier(data);
+
         case kcv::phase::raigeki:
             return impl::torpedo_modifier(data);
+
+        case kcv::phase::midnight:
+        case kcv::phase::friendly:
+            // 夜戦における大破艦のネルソンタッチは*0.4なので夜戦の大破補正は*0.4といえる.
+            return impl::primary_modifier(data);
     }
 }
 
@@ -495,7 +868,7 @@ auto mod::post_asw(const kcv::context_data& ctx, const kcv::battlelog& data) -> 
         const bool has_synergistic_depth_charge = kcv::has_equipment(attacker, kcv::is_synergistic_depth_charge);
         if (has_depth_charge_projector and has_synergistic_depth_charge) {
             const bool has_small_sonor = kcv::has_equipment(attacker, [](const auto& mst) static -> bool {
-                return std::get<kcv::kcsapi::idx_type::category>(mst.api_type) == kcv::kcsapi::category::sonar;
+                return std::get<kcv::kcsapi::category>(mst.api_type) == kcv::kcsapi::category::sonar;
             });
             if (has_small_sonor) {
                 return kcv::functions::post_asw{.a = 1.25};
@@ -563,6 +936,9 @@ auto mod::fit_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> k
     // if (ctx.既存補正をoff) { return ctx.置換; }
 
     switch (data.phase) {
+        case kcv::phase::sp_midnight:
+            return impl::fit_gun_modifier(data);
+
         case kcv::phase::opening_taisen:
             return impl::default_modifier();
 
@@ -573,8 +949,8 @@ auto mod::fit_gun(const kcv::context_data& ctx, const kcv::battlelog& data) -> k
         case kcv::phase::raigeki:
             return impl::default_modifier();
 
-        case kcv::phase::midnight:
         case kcv::phase::friendly:
+        case kcv::phase::midnight:
             return impl::fit_gun_modifier(data);
     }
 

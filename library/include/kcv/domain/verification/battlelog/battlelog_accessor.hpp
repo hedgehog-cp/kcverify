@@ -5,6 +5,7 @@
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
 #include "kcv/domain/verification/entity/fleet.hpp"
 #include "kcv/domain/verification/entity/fleet_data.hpp"
+#include "kcv/external/kcsapi/types/enum/equipment_id.hpp"
 #include "kcv/external/kcsapi/types/enum/fleet_flag.hpp"
 #include "kcv/external/kcsapi/types/enum/formation.hpp"
 #include "kcv/std_ext/exception.hpp"
@@ -117,6 +118,23 @@ inline auto get_defender_fleet(const kcv::battlelog& data) -> const kcv::fleet& 
 
     kcv::throw_unrachable(data.attacker_side);
 }
+
+/// @brief 攻撃側の触接機を取得する.
+inline auto get_attacker_touch_plane(const kcv::battlelog& data) -> kcv::kcsapi::equipment_id {
+    switch (data.attacker_side) {
+        case kcv::kcsapi::fleet_flag::player:
+            return std::get<0>(data.touch_plane);
+
+        case kcv::kcsapi::fleet_flag::enemy:
+            return std::get<1>(data.touch_plane);
+    }
+
+    kcv::throw_unrachable(data.attacker_side);
+}
+
+/// @brief 防御側の触接機を取得する.
+/// 対称性のために実装するが用途がないため削除.
+inline auto get_defender_touch_plane(const kcv::battlelog& data) -> kcv::kcsapi::equipment_id = delete;
 
 /// @brief 急所弾であるかを検証する.
 inline bool is_critical(const kcv::battlelog& data) noexcept {

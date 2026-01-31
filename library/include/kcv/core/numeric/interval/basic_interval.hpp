@@ -1,5 +1,5 @@
-#ifndef KCV_EXTENSIONS_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED
-#define KCV_EXTENSIONS_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED
+#ifndef KCV_CORE_NUMERIC_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED
+#define KCV_CORE_NUMERIC_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED
 
 // std
 #include <algorithm>
@@ -87,6 +87,29 @@ class basic_interval final {
             fenv.down([&]() { return lhs + rhs.lower_; }),
             fenv.up([&]() { return lhs + rhs.upper_; }),
         };
+    }
+
+    // MARK: operator+=
+
+    friend auto operator+=(basic_interval& lhs, const basic_interval& rhs) noexcept -> basic_interval& {
+        const auto fenv = fenv_type{};
+        fenv.down([&]() { lhs.lower_ += rhs.lower_; });
+        fenv.up([&]() { lhs.upper_ += rhs.upper_; });
+        return lhs;
+    }
+
+    friend auto operator+=(basic_interval& lhs, const base_type& rhs) noexcept -> basic_interval& {
+        const auto fenv = fenv_type{};
+        fenv.down([&]() { lhs.lower_ += rhs; });
+        fenv.up([&]() { lhs.upper_ += rhs; });
+        return lhs;
+    }
+
+    friend auto operator+=(base_type& lhs, const basic_interval& rhs) noexcept -> basic_interval& {
+        const auto fenv = fenv_type{};
+        fenv.down([&]() { lhs += rhs.lower_; });
+        fenv.up([&]() { lhs += rhs.upper_; });
+        return lhs;
     }
 
     // MARK: operator-
@@ -658,4 +681,4 @@ bool is_negative(const kcv::basic_interval<T, Fenv>& x) noexcept {
 
 }  // namespace kcv
 
-#endif  // KCV_EXTENSIONS_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED
+#endif  // KCV_CORE_NUMERIC_INTERVAL_BASIC_INTERVAL_HPP_INCLUDED

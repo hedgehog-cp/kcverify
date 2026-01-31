@@ -42,6 +42,10 @@ auto to_integer(const kcv::kcsapi::number& v) noexcept -> std::optional<std::int
 /// @brief 装備IDにする.
 auto to_equipment_id(const kcv::kcsapi::number& v) noexcept -> kcv::kcsapi::equipment_id;
 
+/// @brief 艦船の最大耐久を返す.
+auto get_maxhp(const kcv::kcsapi::api_mst_ship_value_t& mst, std::int32_t kyouka, std::int32_t level) noexcept
+    -> std::int32_t;
+
 }  // namespace kcv
 
 #endif  // KCV_EXTERNAL_KCSAPI_EXTENSIONS_UTILITY_HPP_INCLUDED

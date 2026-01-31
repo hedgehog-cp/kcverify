@@ -526,7 +526,7 @@ void write_akakari_ship(
     std::print(os, "{},", ship.speed());
 
     // *艦.火力.
-    std::print(os, "0,");
+    std::print(os, "{},", ship.firepower());
 
     // *艦.雷装.
     std::print(os, "{},", ship.torpedo());
@@ -539,7 +539,7 @@ void write_akakari_ship(
     // *艦.回避.
 
     // *艦.対潜.
-    std::print(os, "0,");
+    std::print(os, "{},", ship.asw());
 
     // *艦.索敵.
     // *艦.運.

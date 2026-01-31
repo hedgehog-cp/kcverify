@@ -1,6 +1,8 @@
 #ifndef KCV_DOMAIN_VERIFICATION_DAMAGE_FORMULA_INVERSE_FORMULA_HPP_INCLUDED
 #define KCV_DOMAIN_VERIFICATION_DAMAGE_FORMULA_INVERSE_FORMULA_HPP_INCLUDED
 
+// コンパイルコストが大きいため, ユーザーコードでのincludeを非推奨とする.
+
 // std
 #include <cstddef>
 #include <cstdint>
@@ -131,7 +133,7 @@ using inverse_attack_formula_result_t
 /// @brief 防御力式の各補正値を逆算する.
 inline auto inverse_defence_power_formula(std::int32_t observed_damage, const kcv::damage_formula& damage_formula) {
     const auto damage        = (damage_formula.modifier_function() ^ -1)(observed_damage);
-    const auto attack_power  = damage_formula.attack_power_formula().evaluate();
+    const auto attack_power  = damage_formula.attack_power();
     const auto defence_power = attack_power.has_value() and damage.has_value()
                                  ? std::make_optional(kcv::make_interval(*attack_power) - *damage)
                                  : std::nullopt;
