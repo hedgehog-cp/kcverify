@@ -347,6 +347,9 @@ auto to_string(kcv::phase v) -> std::string_view {
 
             // 基地航空隊航空戦.
 
+        case kcv::phase::sp_midnight:
+            return "夜戦";
+
             // 機動部隊航空友軍.
 
             // 航空戦.
