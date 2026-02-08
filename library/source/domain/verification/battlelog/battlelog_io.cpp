@@ -627,7 +627,7 @@ void write_akakari_row(
     // 砲撃種別.
     std::print(os, "{},", kcv::impl::to_integer(data.attack_kind));
     // 砲撃回数.
-    std::print(os, "0,");
+    std::print(os, "{},", data.attack_order);
     // 表示装備.
     for (auto i : std::ranges::views::iota(0uz, 3uz)) {
         if (i < data.display_equipments.size()) {

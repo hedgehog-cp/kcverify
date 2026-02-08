@@ -81,12 +81,202 @@ auto equipment_modifier(const kcv::ship& attacker) -> kcv::number {
 }  // namespace
 }  // namespace kcv::modifiers
 
-auto mod::special_nagato(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
-    throw kcv::exception{"not impl"};
+namespace kcv::modifiers {
+namespace {
+namespace impl {
+
+/// @brief 一斉射かッ…胸が熱いな！の1撃目の参加艦補正値を返す.
+auto special_nagato_1st_attack_combination(const kcv::fleet& attacker_fleet) -> kcv::number {
+    switch (attacker_fleet.ships().at(1).mst().api_id) {
+        using kcv::literals::ship_literals::operator""_id;
+        case "陸奥改"_id:
+            return 1.15;
+
+        case "陸奥改二"_id:
+            return 1.2;
+
+        case "Nelson改"_id:
+            return 1.1;
+
+        default:
+            return 1;
+    }
 }
 
+/// @brief 一斉射かッ…胸が熱いな！の2撃目の参加艦補正値を返す.
+auto special_nagato_2nd_attack_combination(const kcv::fleet& attacker_fleet) -> kcv::number {
+    // 1撃目と同じであるため委譲する.
+    return impl::special_nagato_1st_attack_combination(attacker_fleet);
+}
+
+/// @brief 一斉射かッ…胸が熱いな！の3撃目の参加艦補正値を返す.
+auto special_nagato_3rd_attack_combination(const kcv::fleet& attacker_fleet) -> kcv::number {
+    switch (attacker_fleet.ships().at(1).mst().api_id) {
+        using kcv::literals::ship_literals::operator""_id;
+        case "陸奥改"_id:
+            return 1.35;
+
+        case "陸奥改二"_id:
+            return 1.4;
+
+        case "Nelson改"_id:
+            return 1.25;
+
+        default:
+            return 1;
+    }
+}
+
+/// @brief 一斉射かッ…胸が熱いな！の1撃目の補正値を返す.
+auto special_nagato_1st_attack(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker_fleet = kcv::get_attacker_fleet(data);
+    const auto& attacker       = kcv::get_attacker(data);
+
+    const auto base        = 1.4;
+    const auto combination = impl::special_nagato_1st_attack_combination(attacker_fleet);
+    const auto equipment   = impl::equipment_modifier(attacker);
+
+    return base * combination * equipment;
+}
+
+/// @brief 一斉射かッ…胸が熱いな！の2撃目の補正値を返す.
+auto special_nagato_2nd_attack(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker_fleet = kcv::get_attacker_fleet(data);
+    const auto& attacker       = kcv::get_attacker(data);
+
+    const auto base        = 1.4;
+    const auto combination = impl::special_nagato_2nd_attack_combination(attacker_fleet);
+    const auto equipment   = impl::equipment_modifier(attacker);
+
+    return base * combination * equipment;
+}
+
+/// @brief 一斉射かッ…胸が熱いな！の3撃目の補正値を返す.
+auto special_nagato_3rd_attack(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker_fleet = kcv::get_attacker_fleet(data);
+    const auto& attacker       = kcv::get_attacker(data);
+
+    const auto base        = 1.2;
+    const auto combination = impl::special_nagato_3rd_attack_combination(attacker_fleet);
+    const auto equipment   = impl::equipment_modifier(attacker);
+
+    return base * combination * equipment;
+}
+
+}  // namespace impl
+}  // namespace
+}  // namespace kcv::modifiers
+
+auto mod::special_nagato(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    namespace impl = kcv::modifiers::impl;
+
+    // if (ctx.既存補正をoff) { return ctx.置換; }
+
+    switch (data.attack_order) {
+        case 0:
+            return impl::special_nagato_1st_attack(data);
+
+        case 1:
+            return impl::special_nagato_2nd_attack(data);
+
+        case 2:
+            return impl::special_nagato_3rd_attack(data);
+    }
+
+    return 1;
+}
+
+namespace kcv::modifiers {
+namespace {
+namespace impl {
+
+/// @brief 長門、いい？ いくわよ！ 主砲一斉射ッ！の1撃目の参加艦補正値を返す.
+auto special_mutsu_1st_attack_combination(const kcv::fleet& attacker_fleet) -> kcv::number {
+    switch (attacker_fleet.ships().at(1).mst().api_id) {
+        using kcv::literals::ship_literals::operator""_id;
+        case "長門改二"_id:
+            return 1.2;
+
+        default:
+            return 1;
+    }
+}
+
+/// @brief 長門、いい？ いくわよ！ 主砲一斉射ッ！の2撃目の参加艦補正値を返す.
+auto special_mutsu_2nd_attack_combination(const kcv::fleet& attacker_fleet) -> kcv::number {
+    // 1撃目と同じであるため委譲する.
+    return impl::special_mutsu_1st_attack_combination(attacker_fleet);
+}
+
+/// @brief 長門、いい？ いくわよ！ 主砲一斉射ッ！の3撃目の参加艦補正値を返す.
+auto special_mutsu_3rd_attack_combination(const kcv::fleet& attacker_fleet) -> kcv::number {
+    switch (attacker_fleet.ships().at(1).mst().api_id) {
+        using kcv::literals::ship_literals::operator""_id;
+        case "長門改二"_id:
+            return 1.4;
+
+        default:
+            return 1;
+    }
+}
+
+/// @brief 長門、いい？ いくわよ！ 主砲一斉射ッ！の1撃目の補正値を返す.
+auto special_mutsu_1st_attack(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker_fleet = kcv::get_attacker_fleet(data);
+    const auto& attacker       = kcv::get_attacker(data);
+
+    const auto base        = 1.4;
+    const auto combination = impl::special_mutsu_1st_attack_combination(attacker_fleet);
+    const auto equipment   = impl::equipment_modifier(attacker);
+
+    return base * combination * equipment;
+}
+
+/// @brief 長門、いい？ いくわよ！ 主砲一斉射ッ！の2撃目の補正値を返す.
+auto special_mutsu_2nd_attack(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker_fleet = kcv::get_attacker_fleet(data);
+    const auto& attacker       = kcv::get_attacker(data);
+
+    const auto base        = 1.4;
+    const auto combination = impl::special_mutsu_2nd_attack_combination(attacker_fleet);
+    const auto equipment   = impl::equipment_modifier(attacker);
+
+    return base * combination * equipment;
+}
+
+/// @brief 長門、いい？ いくわよ！ 主砲一斉射ッ！の3撃目の補正値を返す.
+auto special_mutsu_3rd_attack(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker_fleet = kcv::get_attacker_fleet(data);
+    const auto& attacker       = kcv::get_attacker(data);
+
+    const auto base        = 1.2;
+    const auto combination = impl::special_mutsu_3rd_attack_combination(attacker_fleet);
+    const auto equipment   = impl::equipment_modifier(attacker);
+
+    return base * combination * equipment;
+}
+
+}  // namespace impl
+}  // namespace
+}  // namespace kcv::modifiers
+
 auto mod::special_mutsu(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
-    throw kcv::exception{"not impl"};
+    namespace impl = kcv::modifiers::impl;
+
+    // if (ctx.既存補正をoff) { return ctx.置換; }
+
+    switch (data.attack_order) {
+        case 0:
+            return impl::special_mutsu_1st_attack(data);
+
+        case 1:
+            return impl::special_mutsu_2nd_attack(data);
+
+        case 2:
+            return impl::special_mutsu_3rd_attack(data);
+    }
+
+    return 1;
 }
 
 auto mod::special_colorado(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
