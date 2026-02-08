@@ -26,7 +26,6 @@
 #include "kcv/domain/verification/entity/slot.hpp"
 #include "kcv/domain/verification/logic/logic.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
-#include "kcv/external/kcsapi/extensions/damage_state.hpp"
 #include "kcv/external/kcsapi/extensions/utility.hpp"
 #include "kcv/external/kcsapi/types/enum/category.hpp"
 #include "kcv/external/kcsapi/types/enum/equipment_id.hpp"

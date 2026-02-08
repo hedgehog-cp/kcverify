@@ -119,9 +119,9 @@ bool macthes_battlelog(const kcv::battlelog& data) {
     //     return false;
     // }
 
-    // 昼間艦隊特殊攻撃を除外.
+    // 昼間艦隊特殊攻撃でない攻撃を除外.
     if (auto ptr = std::get_if<kcv::kcsapi::day_attack_kind>(&data.attack_kind);
-        ptr and *ptr >= kcv::kcsapi::day_attack_kind{100}) {
+        not ptr or *ptr < kcv::kcsapi::day_attack_kind{100}) {
         return false;
     }
 

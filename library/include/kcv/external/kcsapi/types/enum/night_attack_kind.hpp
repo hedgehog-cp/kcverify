@@ -72,6 +72,9 @@ enum class night_attack_kind {
     /// @brief Richelieuよ！圧倒しなさいっ！
     special_richelieu = 105,
 
+    /// @brief Queen Elizabeth Class special attack
+    special_queen_elizabeth_class = 106,
+
     /// @brief 夜間瑞雲カットイン
     cutin_zuiun = 200,
 

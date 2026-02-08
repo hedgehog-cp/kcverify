@@ -191,4 +191,6 @@ bool kcv::is_night_air_attack(const kcv::battlelog& data) {
         case kcv::phase::midnight:
             return impl::is_night_air_attack(data);
     }
+
+    return false;
 }

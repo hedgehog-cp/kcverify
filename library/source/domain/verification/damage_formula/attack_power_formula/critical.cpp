@@ -139,6 +139,8 @@ bool is_critical_air_attack(const kcv::battlelog& data) {
         case kcv::phase::midnight:
             return impl::is_critical_air_attack_in_night(data);
     }
+
+    return false;
 }
 
 /// @brief 攻撃が戦爆連合であるかを検証する.

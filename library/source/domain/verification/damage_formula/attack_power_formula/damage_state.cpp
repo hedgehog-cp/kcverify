@@ -39,6 +39,8 @@ auto torpedo_modifier(const kcv::battlelog& data) -> kcv::functions::damage_stat
             /// @todo 要検討: 刺し違え雷撃.
             return kcv::functions::damage_state::identity();
     }
+
+    return kcv::functions::damage_state::identity();
 }
 
 /// @brief 主要な損傷状態補正を返す.
@@ -57,6 +59,8 @@ auto primary_modifier(const kcv::battlelog& data) -> kcv::functions::damage_stat
         case kcv::damage_state::sunk:
             return kcv::functions::damage_state::identity();
     }
+
+    return kcv::functions::damage_state::identity();
 }
 
 }  // namespace impl

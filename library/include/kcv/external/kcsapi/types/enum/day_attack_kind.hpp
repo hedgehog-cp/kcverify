@@ -46,7 +46,7 @@ enum class day_attack_kind {
     special_colorado = 103,
 
     /// @brief 僚艦夜戦突撃
-    special_kongo = 104,
+    special_kongou = 104,
 
     /// @brief Richelieuよ！圧倒しなさいっ！
     special_richelieu = 105,

@@ -603,6 +603,8 @@ bool is_night_air_attack_ci(const kcv::battlelog& data) {
             return std::get<kcv::kcsapi::night_attack_kind>(data.attack_kind)
                 == kcv::kcsapi::night_attack_kind::cutin_air_attack;
     }
+
+    return false;
 }
 
 }  // namespace impl

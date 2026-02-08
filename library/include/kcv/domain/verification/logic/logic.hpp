@@ -17,9 +17,7 @@
 #include <variant>
 
 // kcv
-#include "kcv/core/constants/ship_attributes.hpp"
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
-#include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
 #include "kcv/domain/verification/entity/ship.hpp"
 #include "kcv/domain/verification/entity/slot.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
