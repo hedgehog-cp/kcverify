@@ -5,6 +5,8 @@
 // -----------------------------------------------------------------------------
 
 // std
+#include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <string_view>
 
@@ -21,21 +23,23 @@
 #include "kcv/domain/verification/damage_formula/bonuses/equipment_bonus.hpp"
 #include "kcv/domain/verification/entity/equipment.hpp"
 #include "kcv/domain/verification/entity/ship.hpp"
+#include "kcv/domain/verification/entity/slot.hpp"
+#include "kcv/domain/verification/logic/logic.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcv/external/kcsapi/extensions/utility.hpp"
 #include "kcv/external/kcsapi/types/enum/category.hpp"
 #include "kcv/external/kcsapi/types/enum/equipment_id.hpp"
 #include "kcv/external/kcsapi/types/enum/fleet_flag.hpp"
+#include "kcv/external/kcsapi/types/enum/icon.hpp"
 #include "kcv/external/kcsapi/types/enum/stype.hpp"
 #include "kcv/std_ext/exception.hpp"
 
-// 各補正の実装詳細は `*_impl` 名前空間に包んで実装し, namespace impl = ...; とともに使う.
-// namespace kcv::modifiers { namespace { namespace modifier_name_impl { ... } }}
-// auto f() { namespace impl = kcv::modifiers::modifier_name_impl; impl::foo(); }
-
-/// @brief 長いのでalias. 関数のシグネチャが改行されちゃうもん...
+// 長いのでエイリアス.
 namespace mod = kcv::modifiers;
 
+// 各補正の実装詳細は `kcv::modifiers::(anonymous)::impl` 名前空間に包んで実装し, namespace impl = ...; とともに使う.
+// namespace kcv::modifiers { namespace { namespace impl { auto func() { ... } } }}
+// auto kcv::modifiers::foo() { namespace impl = kcv::modifiers::impl; return impl::func(); }
 namespace kcv::modifiers {
 namespace {
 namespace impl {
@@ -95,12 +99,240 @@ namespace kcv::modifiers {
 namespace {
 namespace impl {
 
+/// @brief 攻撃が砲撃戦の航空攻撃であるかを検証する. 対潜でないことを前提とする.
+bool is_air_attack(const kcv::battlelog& data) {
+    /// @brief 搭載数>0である(艦爆または艦攻)を搭載しているかを検証する.
+    constexpr auto has_plane = [](const kcv::ship& attacker) static noexcept -> bool {
+        for (const auto& slot : attacker.slots()) {
+            if (slot.aircraft_current() > 0 and slot.equipment().has_value()) {
+                switch (std::get<kcv::kcsapi::category>(slot.equipment()->mst().api_type)) {
+                    case kcv::kcsapi::category::carrier_based_bomber:
+                    case kcv::kcsapi::category::carrier_based_torpedo:
+                        return true;
+
+                    default:
+                        break;
+                }
+            }
+        }
+        return false;
+    };
+
+    const auto& attacker = kcv::get_attacker(data);
+
+    switch (attacker.mst().api_stype) {
+        case kcv::kcsapi::stype::cvl:
+        case kcv::kcsapi::stype::cv:
+        case kcv::kcsapi::stype::cvb:
+            return true;
+
+        case kcv::kcsapi::stype::ao:
+            return has_plane(attacker);
+
+        default:
+            return false;
+    }
+}
+
+/// @brief 砲撃戦.砲弾攻撃の改修効果を返す.
+auto shelling_improvement(const kcv::equipment& equipment) -> kcv::number {
+    /// @brief 夜戦のものと同じ.
+    constexpr auto secondary_gun_impl = [](const kcv::equipment& equipment) static noexcept -> kcv::number {
+        switch (equipment.mst().api_id) {
+            using kcv::literals::equipment_literals::operator""_id;
+            case "12.7cm連装高角砲"_id:
+                return 0.2 * equipment.level();
+
+            case "15.2cm単装砲"_id:
+                return std::sqrt(equipment.level());
+
+            case "15.5cm三連装副砲"_id:
+                return 0.3 * equipment.level();
+
+            case "8cm高角砲"_id:
+            case "10cm連装高角砲(砲架)"_id:
+                return 0.2 * equipment.level();
+
+            case "15cm連装副砲"_id:
+                return 0.3 * equipment.level();
+
+            case "12.7cm高角砲+高射装置"_id:
+                return 0.2 * equipment.level();
+
+            case "OTO 152mm三連装速射砲"_id:
+            case "90mm単装高角砲"_id:
+                return std::sqrt(equipment.level());
+
+            case "10.5cm連装砲"_id:
+            case "5inch連装砲 Mk.28 mod.2"_id:
+            case "8cm高角砲改+増設機銃"_id:
+                return 0.2 * equipment.level();
+
+            case "15.5cm三連装副砲改"_id:
+            case "15.2cm三連装砲"_id:
+                return 0.3 * equipment.level();
+
+            case "10cm連装高角砲改+増設機銃"_id:
+            case "5inch 単装高角砲群"_id:
+            case "65mm/64 単装速射砲改"_id:
+            case "10cm連装高角砲群 集中配備"_id:
+                return 0.2 * equipment.level();
+
+            case "5inch連装砲(副砲配置) 集中配備"_id:
+                return 0.3 * equipment.level();
+
+            case "12cm単装高角砲+25mm機銃増備"_id:
+                return 0.2 * equipment.level();
+
+            default:
+                return 0;
+        }
+    };
+
+    switch (std::get<kcv::kcsapi::category>(equipment.mst().api_type)) {
+        case kcv::kcsapi::category::main_gun_small:
+        case kcv::kcsapi::category::main_gun_medium:
+            return std::sqrt(equipment.level());
+
+        case kcv::kcsapi::category::main_gun_large:
+            return 1.5 * std::sqrt(equipment.level());
+
+        case kcv::kcsapi::category::secondary_gun:
+            return secondary_gun_impl(equipment);
+
+        case kcv::kcsapi::category::carrier_based_bomber:
+        case kcv::kcsapi::category::carrier_based_torpedo:
+            return 0.2 * equipment.level();
+
+        case kcv::kcsapi::category::sonar:
+        case kcv::kcsapi::category::depth_charge:
+            return 0.75 * std::sqrt(equipment.level());
+
+        case kcv::kcsapi::category::aa_shell:
+        case kcv::kcsapi::category::ap_shell:
+        case kcv::kcsapi::category::aa_gun:
+        case kcv::kcsapi::category::landing_craft:
+        case kcv::kcsapi::category::searchlight:
+        case kcv::kcsapi::category::submarine_torpedo:
+        case kcv::kcsapi::category::command_facility:
+        case kcv::kcsapi::category::aviation_personnel:
+        case kcv::kcsapi::category::aa_director:
+        case kcv::kcsapi::category::rocket:
+        case kcv::kcsapi::category::surface_ship_personnel:
+            return std::sqrt(equipment.level());
+
+        case kcv::kcsapi::category::sonar_large:
+            return 0.75 * std::sqrt(equipment.level());
+
+        case kcv::kcsapi::category::searchlight_large:
+        case kcv::kcsapi::category::special_amphibious_tank:
+        case kcv::kcsapi::category::army_infantry:
+        case kcv::kcsapi::category::surface_ship_equipment:
+            return std::sqrt(equipment.level());
+
+        default:
+            return 0;
+    }
+}
+
+auto total_shelling_improvement(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            total += shelling_improvement(*slot.equipment());
+        }
+    }
+
+    return total;
+}
+
+/// @brief 砲撃戦.砲弾攻撃の基本攻撃力を返す.
+auto shelling_attack_power(const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker = kcv::get_attacker(data);
+
+    const auto base_value  = 5;
+    const auto firepower   = attacker.firepower();
+    const auto improvement = total_shelling_improvement(data);
+    /// @todo: 連合艦隊補正.
+
+    // 最低保証火力 + 攻撃艦.火力 + ∑装備改修 + 連合艦隊補正.
+    return base_value + firepower + improvement;
+}
+
+/// @brief 砲撃戦.航空攻撃.対水上の∑機体.雷装を返す.
+auto total_plane_torpedo(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            total += slot.equipment()->mst().api_raig;
+        }
+    }
+
+    return total;
+}
+
+/// @brief 砲撃戦.航空攻撃.対水上の∑機体.爆装を返す.
+auto total_plane_bomb(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            total += slot.equipment()->mst().api_baku;
+        }
+    }
+
+    return total;
+}
+
+/// @brief 砲撃戦.航空攻撃.対水上の基本攻撃力を返す.
+auto air_attack_power_for_surface(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker = kcv::get_attacker(data);
+
+    const auto base_value = 5;
+    const auto firepower  = attacker.firepower();
+    const auto torpedo    = total_plane_torpedo(data);
+    /// @todo: 熟練甲板要員+航空整備員.雷装.
+    const auto torpedo_bonus = kcv::total_equipment_bonus(attacker, ctx.fit_bonuses()).raig;
+    const auto bomb          = total_plane_bomb(data);
+    /// @todo: 熟練甲板要員+航空整備員.爆装.
+    /// @todo: 熟練甲板要員+航空整備員.ボーナス.爆装.
+    const auto improvement = total_shelling_improvement(data);
+    /// @todo: 連合艦隊補正.
+
+    // 最低保証火力 + 攻撃艦.火力
+    //  + 機体.雷装 + 熟練甲板要員+航空整備員.雷装 + 装備ボーナス.雷装
+    //  + floor( (機体.爆装 + 熟練甲板要員+航空整備員.爆装 + 熟練甲板要員+航空整備員.ボーナス.爆装) * 1.3)
+    //  + ∑装備改修 + 連合艦隊補正.
+    return base_value + firepower + torpedo + torpedo_bonus + kcv::floor(bomb * 1.3) + improvement;
+}
+
 auto hougeki_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
-    if (kcv::is_submarine(kcv::get_defender(data).mst())) {
+    const auto& defender = kcv::get_defender(data);
+
+    // 対潜.
+    if (kcv::is_submarine(defender.mst())) {
         return asw_attack_power(ctx, data);
     }
 
-    throw kcv::exception{"not impl"};
+    // 航空攻撃.
+    if (is_air_attack(data)) {
+        // 対陸上施設.
+        if (kcv::is_installation(defender.mst())) {
+            // 3
+            // 航空攻撃.対地.
+            throw kcv::exception{"not impl"};
+        }
+
+        // 2
+        // 航空攻撃.対水上.
+        return air_attack_power_for_surface(ctx, data);
+    }
+
+    // 1
+    // 砲弾攻撃.
+    return shelling_attack_power(data);
 }
 
 auto asw_base_power(const kcv::battlelog& data) -> kcv::number {
@@ -301,34 +533,6 @@ auto torpedo_attack_power(const kcv::battlelog& data) -> kcv::number {
     return base_value + torpedo + improvement;
 }
 
-// 6   = 夜戦.砲雷攻撃.対水上
-// 9   = 夜戦.夜間航空攻撃.対水上
-
-/// @brief 夜間航空攻撃であるかを検証する.
-bool is_night_air_attack(const kcv::battlelog& data) {
-    const auto& attacker = kcv::get_attacker(data);
-
-    // 夜間作戦空母による攻撃.
-    if (kcv::is_night_operation_aircraft_carrier(attacker.mst())) {
-        // 夜間作戦空母かつ夜間砲撃可能空母は存在しない.
-        // 攻撃したことは確定しているため, 残存している夜間機がある.
-        return true;
-    }
-
-    // 夜間作戦航空要員を装備している かつ 残存している夜間機がある.
-    if (kcv::has_equipment(attacker, &kcv::is_night_operation_aviation_personnel)) {
-        for (const auto& slot : attacker.slots()) {
-            if (slot.equipment().has_value()) {
-                if (slot.aircraft_current() > 0 and kcv::is_night_plane(slot.equipment()->mst())) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
 /// @brief Ark Royalによるswordfish攻撃であるかを検証する.
 bool is_ark_royal_with_swordfish_attack(const kcv::battlelog& data) {
     const auto& attacker = kcv::get_attacker(data);
@@ -337,9 +541,123 @@ bool is_ark_royal_with_swordfish_attack(const kcv::battlelog& data) {
     return kcv::is_ark_royal(attacker.mst()) and kcv::has_equipment(attacker, &kcv::is_cb_swordfish);
 }
 
+auto naked_houg(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
+    const auto& attacker = kcv::get_attacker(data);
+
+    const auto equipment_houg = std::ranges::fold_left(
+        attacker.slots(), 0,  //
+        [](std::int32_t acc, const kcv::slot& slot) static -> std::int32_t {
+            if (slot.equipment().has_value()) {
+                return acc + slot.equipment()->mst().api_houg;
+            }
+            return acc;
+        }
+    );
+
+    const auto bonus_houg = kcv::total_equipment_bonus(attacker, ctx.fit_bonuses()).houg;
+
+    // 海色りぼん.
+
+    // 素火力 = 表示火力 - ∑装備火力 - 装備ボーナス火力 - 海色りぼん.
+    // 素火力 = mst.houg.min + kyouka.houg. (深海棲艦にmst.houg.minが無い)
+    return attacker.firepower() - equipment_houg - bonus_houg;
+}
+
+auto total_night_plane_houg(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            const auto& mst = slot.equipment()->mst();
+            if (kcv::is_night_plane(mst)) {
+                total += mst.api_houg;
+            }
+        }
+    }
+
+    return total;
+}
+
+auto total_night_plane_raig(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            const auto& mst = slot.equipment()->mst();
+            if (kcv::is_night_plane(mst)) {
+                total += mst.api_raig;
+            }
+        }
+    }
+
+    return total;
+}
+
+auto total_night_plane_baku(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            const auto& mst = slot.equipment()->mst();
+            if (kcv::is_night_plane(mst)) {
+                total += mst.api_baku;
+            }
+        }
+    }
+
+    return total;
+}
+
+auto total_night_plane_mod(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.aircraft_current() > 0 and slot.equipment().has_value()) {
+            const auto& mst = slot.equipment()->mst();
+
+            if (const auto icon = std::get<kcv::kcsapi::icon>(mst.api_type);
+                icon == kcv::kcsapi::icon::night_fighter      //
+                or icon == kcv::kcsapi::icon::night_attacker  //
+                or icon == kcv::kcsapi::icon::night_bomber)   //
+            {
+                total += slot.aircraft_current() * 3
+                       + std::sqrt(slot.aircraft_current()) * 0.45
+                             * (mst.api_houg + mst.api_raig + mst.api_tais + mst.api_baku);
+            } else if (kcv::is_night_plane(mst)) {
+                total += slot.aircraft_current() * 0
+                       + std::sqrt(slot.aircraft_current()) * 0.3
+                             * (mst.api_houg + mst.api_raig + mst.api_tais + mst.api_baku);
+            }
+        }
+    }
+
+    return total;
+}
+
+auto total_night_plane_improvement(const kcv::battlelog& data) -> kcv::number {
+    auto total = kcv::number{0};
+
+    for (const auto& attacker = kcv::get_attacker(data); const auto& slot : attacker.slots()) {
+        if (slot.equipment().has_value()) {
+            const auto& mst = slot.equipment()->mst();
+            if (kcv::is_night_plane(mst)) {
+                total += std::sqrt(slot.equipment()->level());
+            }
+        }
+    }
+
+    return total;
+}
+
 /// @brief 水上艦に対する夜間航空攻撃の基本攻撃力を返す.
 auto night_air_attack_for_surface(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::number {
-    throw kcv::exception{"not impl"};
+    const auto naked_value      = naked_houg(ctx, data);
+    const auto night_plane_houg = total_night_plane_houg(data);
+    const auto night_plane_raig = total_night_plane_raig(data);
+    const auto night_plane_baku = total_night_plane_baku(data);
+    const auto night_plane_mod  = total_night_plane_mod(data);
+    const auto improvement      = total_night_plane_improvement(data);
+    return naked_value + night_plane_houg + night_plane_raig + night_plane_baku + night_plane_mod + improvement;
 }
 
 /// @brief 陸上型に対する夜間航空攻撃の基本攻撃力を返す.
@@ -379,6 +697,7 @@ auto night_touch_plane(const kcv::context_data& ctx, const kcv::battlelog& data)
 }
 
 auto night_improvement_bonus(const kcv::equipment& equipment) -> kcv::number {
+    /// @brief 砲撃戦のものと同じ.
     constexpr auto secondary_gun_impl = [](const kcv::equipment& equipment) static noexcept -> kcv::number {
         switch (equipment.mst().api_id) {
             using kcv::literals::equipment_literals::operator""_id;
@@ -504,7 +823,7 @@ auto night_attack_power_non_asw(const kcv::context_data& ctx, const kcv::battlel
     // 対陸上施設.
     if (kcv::is_installation(kcv::get_defender(data).mst())) {
         // 夜間航空攻撃.
-        if (is_night_air_attack(data)) {
+        if (kcv::is_night_air_attack(data)) {
             return night_air_attack_for_instllation(ctx, data);
         }
 
@@ -513,7 +832,7 @@ auto night_attack_power_non_asw(const kcv::context_data& ctx, const kcv::battlel
     }
 
     // 夜間航空攻撃.
-    if (is_night_air_attack(data)) {
+    if (kcv::is_night_air_attack(data)) {
         return night_air_attack_for_surface(ctx, data);
     }
 

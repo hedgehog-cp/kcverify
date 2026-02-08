@@ -19,6 +19,8 @@ class attack_power_formula final {
     /// @brief 攻撃力補正関数.
     using modifier_function_t = kcv::functions::composed_function<
         kcv::functions::f0,            // 第0種補正.
+        kcv::functions::air_attack,    // 砲撃戦.航空攻撃補正.
+                                       // 切り捨て.
         kcv::functions::engagement,    // 交戦形態補正.
         kcv::functions::formation,     // 攻撃側陣形補正.
         kcv::functions::night,         // 夜間特殊攻撃補正.
@@ -34,9 +36,10 @@ class attack_power_formula final {
         kcv::functions::f6,            // 第6種補正.
         kcv::functions::f7,            // 第7種補正.
         kcv::functions::floor_if,      // 切り捨て.
-                                       // 昼間特殊攻撃補正.
-                                       // 徹甲弾補正.
+        kcv::functions::day,           // 昼間特殊攻撃補正.
+        kcv::functions::ap,            // 徹甲弾補正.
                                        // 第11種補正.
+        kcv::functions::floor_if,      // 切り捨て
                                        // 艦種補正.
         kcv::functions::map,           // 海域補正.
         kcv::functions::event,         // 期間限定海域.
@@ -44,6 +47,7 @@ class attack_power_formula final {
         kcv::functions::pt_imp,        // PT.
                                        // PT装備補正は多層の乗算...
         kcv::functions::critical,      // 急所補正.
+        kcv::functions::proficiency,   // 熟練度補正.
         kcv::functions::floor_if       // 切り捨て.
         >;
 
@@ -81,6 +85,9 @@ auto base_attack_power(const kcv::context_data& ctx, const kcv::battlelog& data)
 
 /// @brief 未知の第0種補正.
 auto f0(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::f0;
+
+/// @brief 砲撃戦.航空攻撃補正.
+auto air_attack(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::air_attack;
 
 /// @brief 交戦形態補正.
 auto engagement(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::engagement;
@@ -130,9 +137,18 @@ auto floor_f7(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::
 /// @brief 自艦隊阻塞気球補正.
 /// @brief 敵艦隊阻塞気球補正.
 /// @brief 戦爆連合補正.
+
 /// @brief 昼間特殊攻撃補正.
+auto day(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::day;
+
 /// @brief 徹甲弾補正.
+auto ap(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::ap;
+
 /// @brief 未知の第11種補正.
+
+/// @brief 切り捨て.
+auto floor_if_ap(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::floor_if;
+
 /// @brief 対集積地棲姫.
 /// @brief 対戦艦夏姫.
 /// @brief 対重巡夏姫.
@@ -173,6 +189,9 @@ auto pt_imp_midnight(const kcv::context_data& ctx, const kcv::battlelog& data) -
 
 /// @brief 急所弾補正.
 auto critical(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::critical;
+
+/// @brief 熟練度補正.
+auto proficiency(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::proficiency;
 
 /// @brief 急所弾切り捨て補正.
 auto floor_if_critical(const kcv::context_data& ctx, const kcv::battlelog& data) -> kcv::functions::floor_if;

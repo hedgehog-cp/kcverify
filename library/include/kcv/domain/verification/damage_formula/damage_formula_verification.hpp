@@ -63,6 +63,10 @@ struct vdf_output_policy final {
     /// firstがtrueのとき各値を書き出す. secondがtrueのとき集計値を書き出す.
     std::pair<bool, bool> inversed_f14 = {true, true};
 
+    /// @brief 逆算: 未知の第5種補正.
+    /// firstがtrueのとき各値を書き出す. secondがtrueのとき集計値を書き出す.
+    std::pair<bool, bool> inversed_f5 = {true, true};
+
     /// @brief 逆算: 未知の第3種補正.
     /// firstがtrueのとき各値を書き出す. secondがtrueのとき集計値を書き出す.
     std::pair<bool, bool> inversed_f3 = {true, true};

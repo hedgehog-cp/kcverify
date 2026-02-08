@@ -48,6 +48,9 @@ bool is_night_shellable_aircraft_carrier(const kcv::kcsapi::api_mst_ship_value_t
 /// @brief アークロイヤルであるかを検証する.
 bool is_ark_royal(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
 
+/// @brief 徹甲弾攻撃の対象艦であるかを検証する.
+bool is_ap_shell_target(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept;
+
 }  // namespace kcv
 
 #endif  // KCV_CORE_CONSTANTS_SHIP_ATTRIBUTES_HPP_INCLUDED

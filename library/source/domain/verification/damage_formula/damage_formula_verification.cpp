@@ -17,7 +17,6 @@
 
 // kcv
 #include "kcv/core/constants/equipment_attributes.hpp"
-#include "kcv/core/constants/ship_attributes.hpp"
 #include "kcv/core/context_data.hpp"
 #include "kcv/core/numeric/interval.hpp"
 #include "kcv/core/numeric/interval/basic_interval.hpp"
@@ -28,6 +27,7 @@
 #include "kcv/domain/verification/damage_formula/inverse_formula.hpp"
 #include "kcv/domain/verification/damage_formula/modifier_functions.hpp"
 #include "kcv/domain/verification/entity/ship.hpp"
+#include "kcv/domain/verification/logic/logic.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_slotitem.hpp"
 #include "kcv/external/kcsapi/extensions/damage_state.hpp"
 #include "kcv/external/kcsapi/extensions/utility.hpp"
@@ -38,7 +38,6 @@
 #include "kcv/external/kcsapi/types/enum/fleet_flag.hpp"
 #include "kcv/external/kcsapi/types/enum/icon.hpp"
 #include "kcv/external/kcsapi/types/enum/night_attack_kind.hpp"
-#include "kcv/external/kcsapi/types/enum/stype.hpp"
 #include "kcv/std_ext/formatter.hpp"
 #include "kcv/std_ext/utility.hpp"
 
@@ -218,7 +217,7 @@ void print_inversed_modifier_impl(const auto& inversed_modifiers, std::ostream& 
     if (inversed_modifiers.has_value()) {
         const auto& liner_mod = get_inversed_modifier<T>(*inversed_modifiers);
         if (liner_mod.has_value()) {
-            std::print(os, "a={}, b={}, ", liner_mod->a, liner_mod->b);
+            std::print(os, "a={:.3f}, b={:.3f}, ", liner_mod->a, liner_mod->b);
             return;
         }
     }
@@ -242,6 +241,11 @@ void print_inversed_modifiers(
     if (output_policy.inversed_f14.first) {
         std::print(os, "第14種補正: ");
         print_inversed_modifier_impl<kcv::functions::f14>(atk_mods, os);
+    }
+
+    if (output_policy.inversed_f5.first) {
+        std::print(os, "第5種補正: ");
+        print_inversed_modifier_impl<kcv::functions::f5>(atk_mods, os);
     }
 
     if (output_policy.inversed_f3.first) {
@@ -319,15 +323,22 @@ void print_aggregated_inversed_modifiers(
     if (output_policy.inversed_f0.second) {
         const auto& [a_min, a_sup, b_min, b_sup] = aggregate_inversed_modifier<kcv::functions::f0>(results, atk);
         std::print(os, "第0種補正: ");
-        std::print(os, "{:.5f} ≦ a0 < {:.5f}, ", a_min, a_sup);
-        std::print(os, "{:.5f} ≦ b0 < {:.5f}\n", b_min, b_sup);
+        std::print(os, "{:.3f} ≦ a0 < {:.3f}, ", a_min, a_sup);
+        std::print(os, "{:.3f} ≦ b0 < {:.3f}\n", b_min, b_sup);
     }
 
     if (output_policy.inversed_f14.second) {
         const auto& [a_min, a_sup, b_min, b_sup] = aggregate_inversed_modifier<kcv::functions::f14>(results, atk);
         std::print(os, "第14種補正: ");
-        std::print(os, "{:.5f} ≦ a14 < {:.5f}, ", a_min, a_sup);
-        std::print(os, "{:.5f} ≦ b14 < {:.5f}\n", b_min, b_sup);
+        std::print(os, "{:.3f} ≦ a14 < {:.3f}, ", a_min, a_sup);
+        std::print(os, "{:.3f} ≦ b14 < {:.3f}\n", b_min, b_sup);
+    }
+
+    if (output_policy.inversed_f5.second) {
+        const auto& [a_min, a_sup, b_min, b_sup] = aggregate_inversed_modifier<kcv::functions::f5>(results, atk);
+        std::print(os, "第5種補正: ");
+        std::print(os, "{:.3f} ≦ a5 < {:.3f}, ", a_min, a_sup);
+        std::print(os, "{:.3f} ≦ b5 < {:.3f}\n", b_min, b_sup);
     }
 }
 
@@ -380,10 +391,13 @@ void kcv::verify_damage_formula(
     assert(battlelogs.size() == results.size());
 
     // 順算および逆算した結果を要約して書き出す.
+    std::println("--------");
     kcv::impl::print_summary(battlelogs, results, os);
     // 戦闘ログごとに, 順算および逆算の補正値を書き出す.
+    std::println("--------");
     kcv::impl::print_modifiers(results, output_policy, os);
     // 逆算の集計値を書き出す.
+    std::println("--------");
     kcv::impl::print_aggregated_inversed_modifiers(results, output_policy, os);
 }
 
@@ -422,7 +436,6 @@ bool kcv::is_miss(const kcv::context_data& ctx, const kcv::battlelog& data) {
 bool kcv::is_scratch_damage(const kcv::context_data& ctx, const kcv::battlelog& data) {
     const auto hp  = kcv::get_defender(data).hp();
     const auto dmg = data.damage;
-
     return std::floor(hp * 0.06) <= dmg and dmg <= std::floor(hp * 0.06 + std::max(hp - 1, 0) * 0.08);
 }
 
@@ -479,10 +492,9 @@ bool is_defender_combined_fleet(const kcv::battlelog& data) {
 
 /// @brief 防御艦が最後の1隻であるかを検証する.
 bool is_defender_last_ship(const kcv::battlelog& data) {
-    const auto& defender_fleet = kcv::get_defender_fleet(data);
-
     int count = 0;
-    for (const auto& defender : defender_fleet.ships()) {
+
+    for (const auto& defender_fleet = kcv::get_defender_fleet(data); const auto& defender : defender_fleet.ships()) {
         if (defender.hp() > 0) {
             count++;
         }
@@ -576,6 +588,10 @@ namespace impl {
 /// @brief 攻撃が夜襲CIであるかを検証する.
 bool is_night_air_attack_ci(const kcv::battlelog& data) {
     switch (data.phase) {
+        case kcv::phase::sp_midnight:
+            return std::get<kcv::kcsapi::night_attack_kind>(data.attack_kind)
+                == kcv::kcsapi::night_attack_kind::cutin_air_attack;
+
         case kcv::phase::opening_taisen:
         case kcv::phase::opening_atack:
         case kcv::phase::hougeki:
@@ -585,8 +601,10 @@ bool is_night_air_attack_ci(const kcv::battlelog& data) {
         case kcv::phase::midnight:
         case kcv::phase::friendly:
             return std::get<kcv::kcsapi::night_attack_kind>(data.attack_kind)
-                != kcv::kcsapi::night_attack_kind::cutin_air_attack;
+                == kcv::kcsapi::night_attack_kind::cutin_air_attack;
     }
+
+    return false;
 }
 
 }  // namespace impl
@@ -622,115 +640,127 @@ bool kcv::is_night_air_attack_ci_type_indeterminable(const kcv::context_data& ct
     return is_foo and is_ffa;
 }
 
-bool kcv::is_fba_combined_critical_air_attack(const kcv::context_data& ctx, const kcv::battlelog& data) {
-    const auto is_fb_combined_air_attack = std::visit(
+namespace kcv {
+namespace {
+namespace impl {
+
+/// @brief 攻撃が戦爆連合であるかを検証する.
+/// @see critical.cpp
+bool is_fba_combined_air_attack(const kcv::battlelog& data) {
+    return std::visit(
         kcv::overloaded{
-            [](kcv::kcsapi::day_attack_kind v) static -> bool {
+            [](kcv::kcsapi::day_attack_kind v) static noexcept -> bool {
                 return v == kcv::kcsapi::day_attack_kind::cutin_air_attack;
             },
-            [](const auto&) static -> bool { return false; },
+            [](const auto&) static noexcept -> bool { return false; },
         },
         data.attack_kind
     );
+}
 
-    return is_fb_combined_air_attack and kcv::is_critical(data);
+}  // namespace impl
+}  // namespace
+}  // namespace kcv
+
+bool kcv::is_fba_combined_critical_air_attack(const kcv::context_data& ctx, const kcv::battlelog& data) {
+    return kcv::is_critical(data) and kcv::impl::is_fba_combined_air_attack(data);
 }
 
 namespace kcv {
 namespace {
 namespace impl {
 
-bool is_air_attack_in_hougeki(const kcv::context_data& ctx, const kcv::battlelog& data) {
-    const auto& attacker = kcv::get_attacker(data);
-    const auto& defender = kcv::get_defender(data);
+// bool is_air_attack_in_hougeki(const kcv::context_data& ctx, const kcv::battlelog& data) {
+//     const auto& attacker = kcv::get_attacker(data);
+//     const auto& defender = kcv::get_defender(data);
+//
+//     // 補給艦の航空攻撃の条件.
+//     // よく分からない.
+//     if (attacker.mst().api_stype == kcv::kcsapi::stype::ao) {
+//         const bool has_bomber   = kcv::has_equipment(attacker, kcv::kcsapi::category::carrier_based_bomber);
+//         const bool has_attacker = kcv::has_equipment(attacker, kcv::kcsapi::category::carrier_based_torpedo);
+//         if (has_bomber and has_attacker) {
+//             return false;
+//         }
+//     }
+//
+//     // HACK: 関数の意味と意図がずれている.
+//     // 対潜では搭載数が攻撃力に影響しないため, 不明としない.
+//     if (kcv::is_submarine(defender.mst())) {
+//         return false;
+//     }
+//
+//     // スプレの実装では対地を弾いているが詳細不明. 記述漏れか?
+//     // if (kcv::is_installation(defender.mst())) { return false; }
+//
+//     // 航空攻撃.
+//     if (kcv::is_aircraft_carrier(attacker.mst())) {
+//         return true;
+//     }
+//
+//     // 砲弾攻撃.
+//     return false;
+// }
 
-    // 補給艦の航空攻撃の条件.
-    // よく分からない.
-    if (attacker.mst().api_stype == kcv::kcsapi::stype::ao) {
-        const bool has_bomber   = kcv::has_equipment(attacker, kcv::kcsapi::category::carrier_based_bomber);
-        const bool has_attacker = kcv::has_equipment(attacker, kcv::kcsapi::category::carrier_based_torpedo);
-        if (has_bomber and has_attacker) {
-            return false;
-        }
-    }
+// bool can_night_operation(const kcv::battlelog& data) {
+//     const auto& attacker = kcv::get_attacker(data);
+//
+//     if (kcv::to_damage_state(attacker.hp(), attacker.maxhp()) <= kcv::damage_state::light
+//         or attacker.mst().api_stype == kcv::kcsapi::stype::cvb) {
+//         if (kcv::is_night_operation_aircraft_carrier(attacker.mst())
+//             or kcv::has_equipment(attacker, kcv::is_night_operation_aviation_personnel)) {
+//             for (const auto& slot : attacker.eqslots()) {
+//                 if (const auto& e = slot.equipment(); e.has_value()) {
+//                     if (kcv::is_night_plane(e->mst()) and slot.aircraft_current() > 0) {
+//                         return true;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//
+//     return false;
+// }
 
-    // HACK: 関数の意味と意図がずれている.
-    // 対潜では搭載数が攻撃力に影響しないため, 不明としない.
-    if (kcv::is_submarine(defender.mst())) {
-        return false;
-    }
+// bool is_air_attack_in_night(const kcv::context_data& ctx, const kcv::battlelog& data) {
+//     const auto& attacker = kcv::get_attacker(data);
+//     const auto& defender = kcv::get_defender(data);
+//
+//     // HACK: 関数の意味と意図がずれている.
+//     // 対潜では搭載数が攻撃力に影響しないため, 不明としない.
+//     if (kcv::is_submarine(defender.mst())) {
+//         return false;
+//     }
+//
+//     if (kcv::is_aircraft_carrier(attacker.mst()) or attacker.mst().api_stype == kcv::kcsapi::stype::ao) {
+//         if (can_night_operation(data)) {
+//             return true;
+//         }
+//     }
+//
+//     // TODO: Arc Royalによるswordfish追撃判定.
+//
+//     // 砲雷攻撃.
+//     return false;
+// }
 
-    // スプレの実装では対地を弾いているが詳細不明. 記述漏れか?
-    // if (kcv::is_installation(defender.mst())) { return false; }
-
-    // 航空攻撃.
-    if (kcv::is_aircraft_carrier(attacker.mst())) {
-        return true;
-    }
-
-    // 砲弾攻撃.
-    return false;
-}
-
-bool can_night_operation(const kcv::battlelog& data) {
-    const auto& attacker = kcv::get_attacker(data);
-
-    if (kcv::to_damage_state(attacker.hp(), attacker.maxhp()) <= kcv::damage_state::light
-        or attacker.mst().api_stype == kcv::kcsapi::stype::cvb) {
-        if (kcv::is_night_operation_aircraft_carrier(attacker.mst())
-            or kcv::has_equipment(attacker, kcv::is_night_operation_aviation_personnel)) {
-            for (const auto& slot : attacker.eqslots()) {
-                if (const auto& e = slot.equipment(); e.has_value()) {
-                    if (kcv::is_night_plane(e->mst()) and slot.aircraft_current() > 0) {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
-bool is_air_attack_in_night(const kcv::context_data& ctx, const kcv::battlelog& data) {
-    const auto& attacker = kcv::get_attacker(data);
-    const auto& defender = kcv::get_defender(data);
-
-    // HACK: 関数の意味と意図がずれている.
-    // 対潜では搭載数が攻撃力に影響しないため, 不明としない.
-    if (kcv::is_submarine(defender.mst())) {
-        return false;
-    }
-
-    if (kcv::is_aircraft_carrier(attacker.mst()) or attacker.mst().api_stype == kcv::kcsapi::stype::ao) {
-        if (can_night_operation(data)) {
-            return true;
-        }
-    }
-
-    // TODO: Arc Royalによるswordfish追撃判定.
-
-    // 砲雷攻撃.
-    return false;
-}
-
-bool is_air_attack(const kcv::context_data& ctx, const kcv::battlelog& data) {
-    switch (data.phase) {
-        case kcv::phase::opening_taisen:
-        case kcv::phase::opening_atack:
-            return false;
-
-        case kcv::phase::hougeki:
-            return is_air_attack_in_hougeki(ctx, data);
-
-        case kcv::phase::raigeki:
-            return false;
-
-        case kcv::phase::midnight:
-        case kcv::phase::friendly:
-            return is_air_attack_in_night(ctx, data);
-    }
-}
+// bool is_air_attack(const kcv::context_data& ctx, const kcv::battlelog& data) {
+//     switch (data.phase) {
+//         case kcv::phase::opening_taisen:
+//         case kcv::phase::opening_atack:
+//             return false;
+//
+//         case kcv::phase::hougeki:
+//             return is_air_attack_in_hougeki(ctx, data);
+//
+//         case kcv::phase::raigeki:
+//             return false;
+//
+//         case kcv::phase::midnight:
+//         case kcv::phase::friendly:
+//             return is_air_attack_in_night(ctx, data);
+//     }
+// }
 
 }  // namespace impl
 }  // namespace
@@ -742,26 +772,28 @@ bool kcv::is_unknown_slot_air_attack(const kcv::context_data& ctx, const kcv::ba
     // b. 航空攻撃.
     // c. 搭載数が不明.
 
-    if (data.attacker_side != kcv::kcsapi::fleet_flag::enemy) {
-        return false;
-    }
-
-    //{
-    //    if (not kcv::impl::is_air_attack(ctx, data)) {
-    //        return false;
-    //    }
-    //
-    //    // とりあえず, 実際に搭載数が不明であるかを検証せず全部不明にする.
-    //    return true;
-    //}
-
-    // 実装が不安であるため, とりあえず, 空母または補給艦であれば搭載数が不明とする.
-    {
+    /// @todo 簡易実装なので修正する.
+    /// @details 敵艦からの攻撃であり, 攻撃可能な機体を装備している. ただし機数に関知しない.
+    /// 機数に依存しない攻撃において誤判定する.
+    if (data.attacker_side == kcv::kcsapi::fleet_flag::enemy) {
         const auto& attacker = kcv::get_attacker(data);
-        if (kcv::is_aircraft_carrier(attacker.mst()) or attacker.mst().api_stype == kcv::kcsapi::stype::ao) {
+        constexpr auto pred  = [](const kcv::kcsapi::api_mst_slotitem_value_t& mst) static noexcept -> bool {
+            switch (std::get<kcv::kcsapi::category>(mst.api_type)) {
+                case kcv::kcsapi::category::carrier_based_bomber:
+                case kcv::kcsapi::category::carrier_based_torpedo:
+                case kcv::kcsapi::category::seaplane_bomber:
+                case kcv::kcsapi::category::jet_bomber:
+                case kcv::kcsapi::category::jet_torpedo:
+                    return true;
+
+                default:
+                    return false;
+            }
+        };
+        if (kcv::has_equipment(attacker, pred)) {
             return true;
         }
-
-        return false;
     }
+
+    return false;
 }

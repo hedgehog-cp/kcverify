@@ -2,22 +2,14 @@
 #define KCV_DOMAIN_VERIFICATION_ENTITY_SHIP_HPP_INCLUDED
 
 // std
-#include <algorithm>
-#include <functional>
-#include <initializer_list>
 #include <vector>
 
 // kcv
 #include "kcv/domain/verification/entity/slot.hpp"
 #include "kcv/external/kcsapi/api_start2/api_mst_ship.hpp"
 #include "kcv/external/kcsapi/types/api_kyouka.hpp"
-#include "kcv/external/kcsapi/types/api_type.hpp"
-#include "kcv/external/kcsapi/types/enum/category.hpp"
-#include "kcv/external/kcsapi/types/enum/equipment_id.hpp"
-#include "kcv/external/kcsapi/types/enum/icon.hpp"
 #include "kcv/external/kcsapi/types/enum/nationality.hpp"
 #include "kcv/external/kcsapi/types/enum/ship_id.hpp"
-#include "kcv/external/kcsapi/types/enum/sp_effect_item.hpp"
 #include "kcv/std_ext/ranges.hpp"
 
 namespace kcv {
@@ -102,6 +94,10 @@ class ship final {
 
     auto ammo() const noexcept -> std::int32_t {
         return this->ammo_;
+    }
+
+    auto kyouka() const noexcept -> const kcv::kcsapi::api_kyouka& {
+        return this->kyouka_;
     }
 
     auto maxhp() const noexcept -> std::int32_t {
@@ -209,147 +205,6 @@ class ship final {
     // /// @brief 運.
     // std::int32_t luck_;
 };
-
-/// @brief 条件を満たす装備を搭載しているかを検証する. CPO.
-struct has_equipment_fn final {
-    /// @brief 条件を満たす装備を搭載しているかを検証する.
-    /// @param ship 艦船.
-    /// @param pred 装備マスタを引数にとる単項述語関数.
-    static bool operator()(
-        const kcv::ship& ship,
-        const std::predicate<const kcv::kcsapi::api_mst_slotitem_value_t&> auto& pred
-    ) noexcept {
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::invoke(pred, e->mst())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// @brief 条件を満たす装備を搭載しているかを検証する.
-    /// @param ship 艦船.
-    /// @param category 装備カテゴリ.
-    static bool operator()(const kcv::ship& ship, kcv::kcsapi::equipment_id id) noexcept {
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (e->mst().api_id == id) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// @brief 条件を満たす装備を搭載しているかを検証する.
-    /// @param ship 艦船.
-    /// @param category 装備カテゴリ.
-    static bool operator()(const kcv::ship& ship, kcv::kcsapi::category category) noexcept {
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::get<kcv::kcsapi::category>(e->mst().api_type) == category) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// @brief 条件を満たす装備を搭載しているかを検証する.
-    /// @param ship 艦船.
-    /// @param category 装備カテゴリ.
-    static bool operator()(const kcv::ship& ship, std::initializer_list<kcv::kcsapi::category> categories) noexcept {
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::ranges::contains(categories, std::get<kcv::kcsapi::category>(e->mst().api_type))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// @brief 条件を満たす装備を搭載しているかを検証する.
-    /// @param ship 艦船.
-    /// @param category 装備アイコン.
-    static bool operator()(const kcv::ship& ship, kcv::kcsapi::icon icon) noexcept {
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::get<kcv::kcsapi::icon>(e->mst().api_type) == icon) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-};
-
-/// @brief 条件を満たす装備を搭載しているかを検証する.
-inline constexpr auto has_equipment = has_equipment_fn{};
-
-/// @brief 条件を満たす装備の搭載数を数え上げる. CPO.
-struct count_equipment_fn final {
-    /// @brief 条件を満たす装備の搭載数を数え上げる.
-    /// @param ship 艦船.
-    /// @param pred 装備マスタを引数にとる単項述語関数.
-    static int operator()(
-        const kcv::ship& ship,
-        const std::predicate<const kcv::kcsapi::api_mst_slotitem_value_t&> auto& pred
-    ) noexcept {
-        int count = 0;
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::invoke(pred, e->mst())) {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
-
-    /// @brief 条件を満たす装備の搭載数を数え上げる.
-    /// @param ship 艦船.
-    /// @param category 装備カテゴリ.
-    static int operator()(const kcv::ship& ship, kcv::kcsapi::category category) noexcept {
-        int count = 0;
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (std::get<kcv::kcsapi::category>(e->mst().api_type) == category) {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
-
-    /// @brief 条件を満たす装備の搭載数を数え上げる.
-    /// @param ship 艦船.
-    /// @param id 装備ID.
-    static int operator()(const kcv::ship& ship, kcv::kcsapi::equipment_id id) noexcept {
-        int count = 0;
-        for (const auto& slot : ship.slots()) {
-            if (const auto& e = slot.equipment(); e.has_value()) {
-                if (e->mst().api_id == id) {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
-};
-
-/// @brief 条件を満たす装備の搭載数を数え上げる.
-inline constexpr auto count_equipment = count_equipment_fn{};
 
 }  // namespace kcv
 

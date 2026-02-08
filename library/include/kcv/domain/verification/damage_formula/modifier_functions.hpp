@@ -10,6 +10,7 @@
 // kcv
 #include "kcv/core/numeric/composed_function.hpp"
 #include "kcv/core/numeric/interval.hpp"
+#include "kcv/core/numeric/interval/basic_interval.hpp"
 
 namespace kcv {
 namespace functions {
@@ -178,6 +179,15 @@ using f7 = kcv::functions::basic_liner<struct f7_tag>;
 /// @brief 未知の第8種補正.
 using f8 = kcv::functions::basic_liner<struct f8_tag>;
 
+/// @brief 昼間特殊攻撃補正.
+using day = kcv::functions::basic_liner<struct day_tag>;
+
+/// @brief 徹甲弾補正.
+using ap = kcv::functions::basic_liner<struct ap_tag>;
+
+/// @brief 熟練度補正.
+using proficiency = kcv::functions::basic_liner<struct proficiency_tag>;
+
 /// @brief 未知の第3種補正.
 using f3 = kcv::functions::basic_liner<struct f3_tag>;
 
@@ -300,6 +310,13 @@ struct softcap_inverse final : public kcv::functions::composable<softcap_inverse
         if (kcv::is_negative(x)) {
             return std::nullopt;
         }
+
+        return kcv::interval{
+            x.lower() < cap.lower() ? x.lower()
+                                    : kcv::square(kcv::interval{x.lower() - cap.lower()}).lower() + cap.lower(),
+            x.upper() < cap.upper() ? x.upper()
+                                    : kcv::square(kcv::interval{x.upper() - cap.upper()}).upper() + cap.upper()
+        };
 
         return x < cap ? x : kcv::square(x - cap) + cap;
     }

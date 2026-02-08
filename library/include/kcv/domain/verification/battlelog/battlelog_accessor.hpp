@@ -9,63 +9,8 @@
 #include "kcv/external/kcsapi/types/enum/fleet_flag.hpp"
 #include "kcv/external/kcsapi/types/enum/formation.hpp"
 #include "kcv/std_ext/exception.hpp"
-#include "kcv/std_ext/utility.hpp"
 
 namespace kcv {
-
-/// @brief 攻撃艦を取得する.
-/// @todo 友軍艦隊での取得を検討する.
-inline auto get_attacker(const kcv::battlelog& data) -> const kcv::ship& {
-    switch (data.attacker_side) {
-        case kcv::kcsapi::fleet_flag::player:
-            return data.girls_fleet_data.fleets().at(data.attacker_fleet).value().ships().at(data.attacker_ship);
-
-        case kcv::kcsapi::fleet_flag::enemy:
-            return data.abyssal_fleet_data.fleets().at(data.attacker_fleet).value().ships().at(data.attacker_ship);
-    }
-
-    kcv::throw_unrachable(data.attacker_side);
-}
-
-/// @brief 防御艦を取得する.
-/// @todo 友軍艦隊での取得を検討する.
-inline auto get_defender(const kcv::battlelog& data) -> const kcv::ship& {
-    switch (data.attacker_side) {
-        case kcv::kcsapi::fleet_flag::player:
-            return data.abyssal_fleet_data.fleets().at(data.defender_fleet).value().ships().at(data.defender_ship);
-
-        case kcv::kcsapi::fleet_flag::enemy:
-            return data.girls_fleet_data.fleets().at(data.defender_fleet).value().ships().at(data.defender_ship);
-    }
-
-    kcv::throw_unrachable(data.attacker_side);
-}
-
-/// @brief 攻撃側陣形を取得する.
-inline auto get_attacker_formation(const kcv::battlelog& data) -> kcv::kcsapi::formation {
-    switch (data.attacker_side) {
-        case kcv::kcsapi::fleet_flag::player:
-            return data.girls_formation;
-
-        case kcv::kcsapi::fleet_flag::enemy:
-            return data.abyssal_formation;
-    }
-
-    kcv::throw_unrachable(data.attacker_side);
-}
-
-/// @brief 攻撃側陣形を取得する.
-inline auto get_defender_formation(const kcv::battlelog& data) -> kcv::kcsapi::formation {
-    switch (data.attacker_side) {
-        case kcv::kcsapi::fleet_flag::player:
-            return data.abyssal_formation;
-
-        case kcv::kcsapi::fleet_flag::enemy:
-            return data.girls_formation;
-    }
-
-    kcv::throw_unrachable(data.attacker_side);
-}
 
 /// @brief 攻撃側艦隊データを取得する.
 inline auto get_attacker_fleet_data(const kcv::battlelog& data) -> const kcv::fleet_data& {
@@ -95,25 +40,47 @@ inline auto get_defender_fleet_data(const kcv::battlelog& data) -> const kcv::fl
 
 /// @brief 攻撃側艦隊を取得する.
 inline auto get_attacker_fleet(const kcv::battlelog& data) -> const kcv::fleet& {
+    return get_attacker_fleet_data(data).fleets().at(data.attacker_fleet).value();
+}
+
+/// @brief 防御側艦隊を取得する.
+inline auto get_defender_fleet(const kcv::battlelog& data) -> const kcv::fleet& {
+    return get_defender_fleet_data(data).fleets().at(data.defender_fleet).value();
+}
+
+/// @brief 攻撃艦を取得する.
+/// @todo 友軍艦隊での取得を検討する.
+inline auto get_attacker(const kcv::battlelog& data) -> const kcv::ship& {
+    return get_attacker_fleet(data).ships().at(data.attacker_ship);
+}
+
+/// @brief 防御艦を取得する.
+/// @todo 友軍艦隊での取得を検討する.
+inline auto get_defender(const kcv::battlelog& data) -> const kcv::ship& {
+    return get_defender_fleet(data).ships().at(data.defender_ship);
+}
+
+/// @brief 攻撃側陣形を取得する.
+inline auto get_attacker_formation(const kcv::battlelog& data) -> kcv::kcsapi::formation {
     switch (data.attacker_side) {
         case kcv::kcsapi::fleet_flag::player:
-            return data.girls_fleet_data.fleets().at(data.attacker_fleet).value();
+            return data.girls_formation;
 
         case kcv::kcsapi::fleet_flag::enemy:
-            return data.abyssal_fleet_data.fleets().at(data.attacker_fleet).value();
+            return data.abyssal_formation;
     }
 
     kcv::throw_unrachable(data.attacker_side);
 }
 
-/// @brief 防御側艦隊を取得する.
-inline auto get_defender_fleet(const kcv::battlelog& data) -> const kcv::fleet& {
+/// @brief 攻撃側陣形を取得する.
+inline auto get_defender_formation(const kcv::battlelog& data) -> kcv::kcsapi::formation {
     switch (data.attacker_side) {
         case kcv::kcsapi::fleet_flag::player:
-            return data.girls_fleet_data.fleets().at(data.attacker_fleet).value();
+            return data.abyssal_formation;
 
         case kcv::kcsapi::fleet_flag::enemy:
-            return data.abyssal_fleet_data.fleets().at(data.attacker_fleet).value();
+            return data.girls_formation;
     }
 
     kcv::throw_unrachable(data.attacker_side);
@@ -133,19 +100,8 @@ inline auto get_attacker_touch_plane(const kcv::battlelog& data) -> kcv::kcsapi:
 }
 
 /// @brief 防御側の触接機を取得する.
-/// 対称性のために実装するが用途がないため削除.
+/// 対称性のために定義するが用途がないため削除.
 inline auto get_defender_touch_plane(const kcv::battlelog& data) -> kcv::kcsapi::equipment_id = delete;
-
-/// @brief 急所弾であるかを検証する.
-inline bool is_critical(const kcv::battlelog& data) noexcept {
-    return std::visit(
-        kcv::overloaded{
-            [](std::int32_t v) static -> bool { return v == 2; },
-            [](kcv::kcsapi::air_hit_type v) static -> bool { return v == kcv::kcsapi::air_hit_type::cLitical; },
-        },
-        data.clitical
-    );
-}
 
 }  // namespace kcv
 

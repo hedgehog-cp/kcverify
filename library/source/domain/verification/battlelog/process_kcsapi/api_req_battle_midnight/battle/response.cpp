@@ -290,6 +290,9 @@ void update(kcv::battlelog& current, kcv::battlelogs_t& battlelogs, const kcv::k
                                       | std::ranges::views::transform(&kcv::to_equipment_id)
                                       | std::ranges::to<std::vector>();
         for (const auto& [order, cl, dam, df] : attack) {
+            // 単発のとき, -1でパディングされる.
+            if (cl == -1 and dam == -1 and df == -1) continue;
+
             battlelogs.push_back(
                 kcv::battlelog{
                     .world              = current.world,

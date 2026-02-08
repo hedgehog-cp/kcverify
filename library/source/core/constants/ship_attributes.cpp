@@ -197,3 +197,20 @@ bool kcv::is_ark_royal(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
             return false;
     }
 }
+
+bool kcv::is_ap_shell_target(const kcv::kcsapi::api_mst_ship_value_t& mst) noexcept {
+    switch (mst.api_stype) {
+        case kcv::kcsapi::stype::ca:
+        case kcv::kcsapi::stype::cav:
+        case kcv::kcsapi::stype::fbb:
+        case kcv::kcsapi::stype::bb:
+        case kcv::kcsapi::stype::bbv:
+        case kcv::kcsapi::stype::cv:
+        case kcv::kcsapi::stype::xbb:
+        case kcv::kcsapi::stype::cvb:
+            return true;
+
+        default:
+            return false;
+    }
+}
