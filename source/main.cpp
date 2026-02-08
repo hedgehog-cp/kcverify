@@ -5,18 +5,22 @@
 #include <filesystem>
 #include <print>
 #include <stacktrace>
+#include <variant>
 #include <vector>
 
 // kcv
-#include "kcv/core/constants/ship_attributes.hpp"
 #include "kcv/core/context_data.hpp"
 #include "kcv/core/json/read_json.hpp"
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_io.hpp"
 #include "kcv/domain/verification/damage_formula/damage_formula_verification.hpp"
+#include "kcv/domain/verification/entity/ship.hpp"
+#include "kcv/domain/verification/logic/logic.hpp"
 #include "kcv/external/eoen/database/sortie/sortie_record.hpp"
+#include "kcv/external/kcsapi/types/enum/day_attack_kind.hpp"
 #include "kcv/external/kcsapi/types/enum/night_attack_kind.hpp"
+#include "kcv/external/kcsapi/types/enum/stype.hpp"
 #include "kcv/std_ext/exception.hpp"
 #include "kcv/std_ext/formatter.hpp"
 
@@ -59,14 +63,18 @@ int main() try {
 
     // ダメージ式を検証する.
     constexpr auto output_policy = kcv::vdf_output_policy{
-        .engagement      = false,
-        .formation       = false,
-        .damage_state    = false,
-        .pre_asw         = false,
-        .post_asw        = false,
-        .ap_depth_charge = false,
-        .inversed_f3     = {false, false},
-        .inversed_f2     = {false, false},
+        .base_attack_power = false,
+        .engagement        = false,
+        .formation         = false,
+        .damage_state      = false,
+        .pre_asw           = false,
+        .post_asw          = false,
+        .ap_depth_charge   = false,
+        .attack_power      = false,
+        .defence_power     = false,
+        .damage            = false,
+        .inversed_f3       = {false, false},
+        .inversed_f2       = {false, false},
     };
     kcv::verify_damage_formula(ctx, battlelogs, output_policy);
 } catch (const std::exception& e) {
@@ -77,43 +85,63 @@ int main() try {
 
 bool macthes_battlelog(const kcv::battlelog& data) {
     // ダメージ0を除外.
-    // if (data.damage == 0) {
-    //     return false;
-    // }
+    if (data.damage == 0) {
+        return false;
+    }
 
     // CL0を除外.
-    // if (std::get<std::int32_t>(data.clitical) == 0) {
-    //     return false;
-    // }
+    if (std::get<std::int32_t>(data.clitical) == 0) {
+        return false;
+    }
 
     // 割合置換を除外.
-    // if (kcv::is_scratch_damage({}, data)) {
-    //     return false;
-    // }
+    if (kcv::is_scratch_damage({}, data)) {
+        return false;
+    }
 
     // 深海棲艦の攻撃を除外.
-    // if (data.attacker_side == kcv::kcsapi::fleet_flag::enemy) {
-    //     return false;
-    // }
+    if (data.attacker_side == kcv::kcsapi::fleet_flag::enemy) {
+        return false;
+    }
 
     // 対潜攻撃を除外.
     // if (kcv::is_submarine(kcv::get_defender(data).mst())) {
     //     return false;
     // }
 
-    // 夜戦でない攻撃を除外.
-    static constexpr auto target_phases = std::to_array<kcv::phase>({
-        kcv::phase::sp_midnight,
-        kcv::phase::midnight,
-    });
-    if (not std::ranges::contains(target_phases, data.phase)) {
+    // 空母のCL2を除外.
+    // static constexpr auto target_stypes = std::to_array<kcv::kcsapi::stype>({
+    //     kcv::kcsapi::stype::cv,
+    //     kcv::kcsapi::stype::cvb,
+    //     kcv::kcsapi::stype::cvl,
+    // });
+    // if (std::ranges::contains(target_stypes, kcv::get_attacker(data).mst().api_stype) and kcv::is_critical(data)) {
+    //     return false;
+    // }
+
+    // 昼間艦隊特殊攻撃を除外.
+    if (auto ptr = std::get_if<kcv::kcsapi::day_attack_kind>(&data.attack_kind);
+        ptr and *ptr >= kcv::kcsapi::day_attack_kind{100}) {
         return false;
     }
 
-    // 艦隊特殊攻撃を除外.
-    if (std::get<kcv::kcsapi::night_attack_kind>(data.attack_kind) >= kcv::kcsapi::night_attack_kind{100}) {
+    // 夜間艦隊特殊攻撃を除外.
+    if (auto ptr = std::get_if<kcv::kcsapi::night_attack_kind>(&data.attack_kind);
+        ptr and *ptr >= kcv::kcsapi::night_attack_kind{100}) {
         return false;
     }
+
+    // 昼間特殊攻撃を除外.
+    // if (auto ptr = std::get_if<kcv::kcsapi::day_attack_kind>(&data.attack_kind);
+    //     ptr and *ptr > kcv::kcsapi::day_attack_kind{0}) {
+    //     return false;
+    // }
+
+    // 夜間特殊攻撃を除外.
+    // if (auto ptr = std::get_if<kcv::kcsapi::night_attack_kind>(&data.attack_kind);
+    //     ptr and *ptr > kcv::kcsapi::night_attack_kind{0}) {
+    //     return false;
+    // }
 
     // 連合艦隊からの攻撃を除外.
     // if (kcv::get_attacker_fleet_data(data).combined_flag() != 0) {

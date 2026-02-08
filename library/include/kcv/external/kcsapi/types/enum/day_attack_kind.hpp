@@ -10,28 +10,28 @@ enum class day_attack_kind {
     unknown = -1,
 
     /// @brief 通常攻撃 (API上でのみ使用されます)
-    normal_attack,
+    normal_attack = 0,
 
     /// @brief レーザー攻撃
-    laser,
+    laser = 1,
 
     /// @brief 連続射撃
-    double_shelling,
+    double_shelling = 2,
 
     /// @brief カットイン(主砲/副砲)
-    cutin_main_sub,
+    cutin_main_sub = 3,
 
     /// @brief カットイン(主砲/電探)
-    cutin_main_radar,
+    cutin_main_radar = 4,
 
     /// @brief カットイン(主砲/徹甲弾)
-    cutin_main_ap,
+    cutin_main_ap = 5,
 
     /// @brief カットイン(主砲/主砲)
-    cutin_main_main,
+    cutin_main_main = 6,
 
     /// @brief 空母カットイン
-    cutin_air_attack,
+    cutin_air_attack = 7,
 
     /// @brief Nelson Touch
     special_nelson = 100,
@@ -79,13 +79,13 @@ enum class day_attack_kind {
     shelling = 1000,
 
     /// @brief 空撃
-    air_attack,
+    air_attack = 1001,
 
     /// @brief 爆雷攻撃
-    depth_charge,
+    depth_charge = 1002,
 
     /// @brief 雷撃
-    torpedo,
+    torpedo = 1003,
 
     /// @brief ロケット攻撃
     rocket = 2000,

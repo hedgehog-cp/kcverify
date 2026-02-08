@@ -1,10 +1,12 @@
-#include "kcv/domain/verification/battlelog/battlelog.hpp"
+#include "kcv/domain/verification/battlelog/battlelog_io.hpp"
 
 // std
 #include <concepts>
 #include <cstdint>
 #include <fstream>
 #include <ostream>
+#include <print>
+#include <ranges>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -17,7 +19,6 @@
 #include "kcv/core/json/read_json.hpp"
 #include "kcv/domain/verification/battlelog/battlelog.hpp"
 #include "kcv/domain/verification/battlelog/battlelog_accessor.hpp"
-#include "kcv/domain/verification/battlelog/battlelog_io.hpp"
 #include "kcv/domain/verification/entity/adapter/from_eoen.hpp"
 #include "kcv/domain/verification/entity/fleet.hpp"
 #include "kcv/domain/verification/entity/fleet_data.hpp"
@@ -660,7 +661,6 @@ void write_akakari_row(
     std::print(os, "{},", kcv::impl::player_fleet_type(data.girls_fleet_data));
     // 敵艦隊種類.
     std::print(os, "{},", kcv::impl::abyssal_fleet_type(data.abyssal_fleet_data));
-    os << '\n';
 }
 
 }  // namespace impl
@@ -677,10 +677,9 @@ void kcv::write_akakari(
 
     kcv::impl::write_akakari_header(os);
 
-    for (auto i = 0uz; const auto& data : battlelogs) {
-        // No.
-        std::print(os, "{},", ++i);
-
+    for (const auto& [index, data] : battlelogs | std::ranges::views::enumerate) {
+        std::print(os, "{},", index);
         kcv::impl::write_akakari_row(data, api_mst_ship, api_mst_slotitem, os);
+        std::println(os, "");
     }
 }
